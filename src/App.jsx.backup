@@ -1,0 +1,427 @@
+import { useState } from 'react'
+import { Button } from '@/components/ui/button.jsx'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
+import { Badge } from '@/components/ui/badge.jsx'
+import { 
+  Play, 
+  Target, 
+  Zap, 
+  BarChart3, 
+  Clock, 
+  Shield, 
+  CheckCircle, 
+  ArrowRight,
+  Menu,
+  X,
+  Facebook,
+  Instagram,
+  Youtube,
+  Linkedin
+} from 'lucide-react'
+import './App.css'
+
+import heroDashboard from './assets/hero-dashboard.png'
+import heroCampaign from './assets/hero-campaign.png'
+import heroWizard from './assets/hero-wizard.png'
+import SMKLogo from './assets/SMK-Logo.png'
+
+// Import Dashboard Components
+import DashboardLayout from './components/Dashboard/DashboardLayout.jsx'
+import DashboardOverview from './components/Dashboard/DashboardOverview.jsx'
+import CampaignWizard from './components/Campaign/CampaignWizard.jsx'
+
+function App() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [currentView, setCurrentView] = useState('home')
+  const [showCampaignWizard, setShowCampaignWizard] = useState(false)
+
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
+
+  // If we're in dashboard mode, render the dashboard layout
+  if (currentView === 'dashboard') {
+    return (
+      <>
+        <DashboardLayout currentPage="dashboard">
+          <DashboardOverview />
+        </DashboardLayout>
+        {showCampaignWizard && (
+          <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
+        )}
+      </>
+    )
+  }
+
+  const Navigation = () => (
+    <nav className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <div className="brand-gradient w-10 h-10 rounded-lg flex items-center justify-center">
+              <img src={SMKLogo} alt="SMK Logo" className="w-8 h-8" />
+            </div>
+            <span className="ml-3 text-xl font-bold text-gray-900">
+              socialmediakampagnen.com
+            </span>
+          </div>
+          
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-8">
+              <button 
+                onClick={() => setCurrentView('home')}
+                className={`px-3 py-2 text-sm font-medium transition-colors ${
+                  currentView === 'home' ? 'text-purple-600' : 'text-gray-600 hover:text-purple-600'
+                }`}
+              >
+                Startseite
+              </button>
+              <button 
+                onClick={() => setCurrentView('features')}
+                className={`px-3 py-2 text-sm font-medium transition-colors ${
+                  currentView === 'features' ? 'text-purple-600' : 'text-gray-600 hover:text-purple-600'
+                }`}
+              >
+                Funktionen
+              </button>
+              <button 
+                onClick={() => setCurrentView('pricing')}
+                className={`px-3 py-2 text-sm font-medium transition-colors ${
+                  currentView === 'pricing' ? 'text-purple-600' : 'text-gray-600 hover:text-purple-600'
+                }`}
+              >
+                Preise
+              </button>
+              <button 
+                onClick={() => setCurrentView('dashboard')}
+                className={`px-3 py-2 text-sm font-medium transition-colors ${
+                  currentView === 'dashboard' ? 'text-purple-600' : 'text-gray-600 hover:text-purple-600'
+                }`}
+              >
+                Dashboard
+              </button>
+            </div>
+          </div>
+
+          <div className="hidden md:block">
+            <Button className="brand-gradient text-white hover:opacity-90">
+              Jetzt starten
+            </Button>
+          </div>
+
+          <div className="md:hidden">
+            <button onClick={toggleMenu} className="text-gray-600">
+              {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {isMenuOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
+            <button 
+              onClick={() => { setCurrentView('home'); setIsMenuOpen(false) }}
+              className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-purple-600 w-full text-left"
+            >
+              Startseite
+            </button>
+            <button 
+              onClick={() => { setCurrentView('features'); setIsMenuOpen(false) }}
+              className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-purple-600 w-full text-left"
+            >
+              Funktionen
+            </button>
+            <button 
+              onClick={() => { setCurrentView('pricing'); setIsMenuOpen(false) }}
+              className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-purple-600 w-full text-left"
+            >
+              Preise
+            </button>
+            <button 
+              onClick={() => { setCurrentView('dashboard'); setIsMenuOpen(false) }}
+              className="block px-3 py-2 text-base font-medium text-gray-600 hover:text-purple-600 w-full text-left"
+            >
+              Dashboard
+            </button>
+            <div className="px-3 py-2">
+              <Button className="brand-gradient text-white w-full">
+                Jetzt starten
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </nav>
+  )
+
+  const HeroSection = () => (
+    <section className="hero-section py-20 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="text-white">
+            <Badge className="bg-white/20 text-white border-white/30 mb-6">
+              🚀 Die erste zentrale Plattform in Deutschland
+            </Badge>
+            <h1 className="text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              Social Media Kampagnen in 
+              <span className="block">wenigen Minuten</span>
+            </h1>
+            <p className="text-xl mb-8 text-white/90 leading-relaxed">
+              Starten Sie professionelle Social-Media- und Online-Werbekampagnen ohne technisches Vorwissen. 
+              Ein Editor für alle Kanäle, automatische Formatierung, sofortige Live-Vorschau.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button size="lg" className="bg-white text-purple-600 hover:bg-gray-100 text-lg px-8 py-3">
+                <Play className="w-5 h-5 mr-2" />
+                Kostenlos testen
+              </Button>
+              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8 py-3">
+                Demo ansehen
+              </Button>
+            </div>
+          </div>
+          <div className="relative">
+            <img 
+              src={heroDashboard} 
+              alt="Dashboard Preview" 
+              className="rounded-2xl shadow-2xl"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+
+  const FeaturesSection = () => (
+    <section className="py-20 px-4 bg-gray-50">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Warum socialmediakampagnen.com?
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Sparen Sie Zeit und Geld mit unserer intelligenten Plattform für Social Media Marketing
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+          <Card className="tile-card">
+            <CardHeader>
+              <div className="w-12 h-12 brand-gradient rounded-lg flex items-center justify-center mb-4">
+                <Clock className="w-6 h-6 text-white" />
+              </div>
+              <CardTitle>Massive Zeitersparnis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Kampagnen in wenigen Minuten statt Stunden erstellen. Keine komplizierte Einrichtung mehr.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="tile-card">
+            <CardHeader>
+              <div className="w-12 h-12 brand-gradient rounded-lg flex items-center justify-center mb-4">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <CardTitle>Keine Kenntnisse nötig</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Kein Lernen von Meta-, TikTok- oder Google-Managern erforderlich. Alles in einer Oberfläche.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="tile-card">
+            <CardHeader>
+              <div className="w-12 h-12 brand-gradient rounded-lg flex items-center justify-center mb-4">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+              <CardTitle>Live-Vorschau</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Sehen Sie in Echtzeit, wie Ihre Kampagne auf jedem Kanal aussehen wird.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <img 
+              src={heroCampaign} 
+              alt="Multi-Platform Campaign Preview" 
+              className="rounded-2xl shadow-lg"
+            />
+          </div>
+          <div>
+            <h3 className="text-3xl font-bold text-gray-900 mb-6">
+              Ein Editor für alle Kanäle
+            </h3>
+            <p className="text-lg text-gray-600 mb-6">
+              Erstellen Sie Ihre Kampagne einmal und lassen Sie sie automatisch für Facebook, Instagram, 
+              TikTok, Google Ads und LinkedIn formatieren.
+            </p>
+            <ul className="space-y-3">
+              <li className="flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                <span>Automatische Formatierung für alle Plattformen</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                <span>Einheitliche Abrechnung und Verwaltung</span>
+              </li>
+              <li className="flex items-center">
+                <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                <span>Professionelle Kampagnenqualität</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+
+  const PricingSection = () => (
+    <section className="py-20 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+            Einfache, transparente Preise
+          </h2>
+          <p className="text-xl text-gray-600">
+            Wählen Sie den Plan, der zu Ihrem Unternehmen passt
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <Card className="tile-card relative">
+            <CardHeader>
+              <CardTitle className="text-2xl">Standard</CardTitle>
+              <CardDescription>Perfekt für kleine bis mittlere Unternehmen</CardDescription>
+              <div className="mt-4">
+                <span className="text-4xl font-bold">49€</span>
+                <span className="text-gray-600">/Monat</span>
+              </div>
+              <p className="text-sm text-gray-500">Jährlich im Voraus (588€/Jahr)</p>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Nutzung der zentralen Werbekonten</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Alle Social Media Kanäle</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Live-Vorschau und Dashboard</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Mediabudget pro Kampagne</span>
+                </li>
+              </ul>
+              <Button className="w-full brand-gradient text-white">
+                Standard wählen
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="tile-card relative border-purple-200">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <Badge className="brand-gradient text-white">Beliebt</Badge>
+            </div>
+            <CardHeader>
+              <CardTitle className="text-2xl">Pro</CardTitle>
+              <CardDescription>Für größere Unternehmen mit eigenen Werbekonten</CardDescription>
+              <div className="mt-4">
+                <span className="text-4xl font-bold">99€</span>
+                <span className="text-gray-600">/Monat</span>
+              </div>
+              <p className="text-sm text-gray-500">Jährlich im Voraus (1.188€/Jahr)</p>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-3 mb-6">
+                <li className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Eigene Werbekonten verbinden</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Direktes Mediabudget über Plattformen</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Erweiterte Analytics</span>
+                </li>
+                <li className="flex items-center">
+                  <CheckCircle className="w-5 h-5 text-green-500 mr-3" />
+                  <span>Priority Support</span>
+                </li>
+              </ul>
+              <Button className="w-full brand-gradient text-white">
+                Pro wählen
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </section>
+  )
+
+  const renderCurrentView = () => {
+    switch(currentView) {
+      case 'features':
+        return <FeaturesSection />
+      case 'pricing':
+        return <PricingSection />
+      default:
+        return (
+          <>
+            <HeroSection />
+            <FeaturesSection />
+            <PricingSection />
+          </>
+        )
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-white">
+      <Navigation />
+      {renderCurrentView()}
+      
+      <footer className="bg-gray-900 text-white py-12 px-4">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="brand-gradient w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <img src={SMKLogo} alt="SMK Logo" className="w-8 h-8" />
+          </div>
+          <h3 className="text-xl font-bold mb-2">socialmediakampagnen.com</h3>
+          <p className="text-gray-400 mb-6">
+            Die zentrale Plattform für Social Media Marketing in Deutschland
+          </p>
+          <div className="flex justify-center space-x-6 mb-6">
+            <Facebook className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
+            <Instagram className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
+            <Linkedin className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
+            <Youtube className="w-6 h-6 text-gray-400 hover:text-white cursor-pointer" />
+          </div>
+          <p className="text-sm text-gray-500">
+            © 2024 socialmediakampagnen.com. Alle Rechte vorbehalten.
+          </p>
+        </div>
+      </footer>
+      
+      {showCampaignWizard && (
+        <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
+      )}
+    </div>
+  )
+}
+
+export default App
+
