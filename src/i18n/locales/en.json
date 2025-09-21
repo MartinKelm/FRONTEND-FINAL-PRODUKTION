@@ -1,0 +1,221 @@
+{
+  "nav": {
+    "home": "Home",
+    "features": "Features",
+    "pricing": "Pricing",
+    "about": "About",
+    "contact": "Contact",
+    "faq": "FAQ",
+    "login": "Login",
+    "register": "Sign Up",
+    "logout": "Logout",
+    "dashboard": "Dashboard",
+    "admin": "Admin Dashboard"
+  },
+  "hero": {
+    "badge1": "NEW",
+    "badge2": "POPULAR",
+    "badge3": "GLOBAL",
+    "title": "Create professional",
+    "titleHighlight": "Social Media Campaigns",
+    "titleEnd": "in minutes",
+    "subtitle": "No technical knowledge. No agency. No stress.",
+    "description": "Our intuitive platform guides you step-by-step through creating successful campaigns for Facebook, Instagram, TikTok and more.",
+    "ctaTest": "Try for Free",
+    "ctaDemo": "Watch Demo"
+  },
+  "features": {
+    "badges": {
+      "efficiency": "TIME SAVING",
+      "simple": "SIMPLE", 
+      "effective": "EFFECTIVE",
+      "professional": "PROFESSIONAL"
+    },
+    "title": "Why choose SMK?",
+    "subtitle": "Our platform makes social media marketing easier than ever",
+    "card1": {
+      "badge": "EFFICIENCY",
+      "title": "90% Time Savings",
+      "description": "What used to take hours, you now complete in minutes. Automated campaign creation for all platforms."
+    },
+    "card2": {
+      "badge": "SIMPLE",
+      "title": "No Skills Required",
+      "description": "Our intuitive wizard guides you step-by-step through campaign creation. No technical knowledge required."
+    },
+    "card3": {
+      "badge": "INNOVATION",
+      "title": "Live Preview",
+      "description": "See in real-time how your ads will look on Facebook, Instagram, TikTok and other platforms."
+    },
+    "platformsTitle": "Supported Platforms",
+    "platformsSubtitle": "Create campaigns for all major social media channels"
+  },
+  "pricing": {
+    "badges": {
+      "transparent": "TRANSPARENT",
+      "fair": "FAIR",
+      "flexible": "FLEXIBLE"
+    },
+    "title": "Simple, transparent pricing",
+    "subtitle": "Choose the plan that fits your business",
+    "standard": {
+      "badge": "FOR STARTERS",
+      "title": "Standard",
+      "price": "$49",
+      "period": "per year",
+      "features": [
+        "Up to 5 campaigns per month",
+        "3 Social Media Platforms",
+        "Basic Analytics",
+        "Email Support",
+        "Campaign Templates"
+      ],
+      "cta": "Get Started 🚀"
+    },
+    "pro": {
+      "badge": "FOR PROS",
+      "popular": "POPULAR",
+      "title": "Pro", 
+      "price": "$99",
+      "period": "per year",
+      "features": [
+        "Unlimited Campaigns",
+        "All 7 Social Media Platforms",
+        "Advanced Analytics & Reports",
+        "Priority Support",
+        "A/B Testing",
+        "Custom Branding",
+        "API Access"
+      ],
+      "cta": "Go Pro 👑"
+    },
+    "footer": {
+      "title": "All plans are annual memberships with immediate activation",
+      "badge1": "No setup fee",
+      "badge2": "Annual billing", 
+      "badge3": "GDPR compliant"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Sign in to your SMK account",
+      "email": "Email Address",
+      "password": "Password",
+      "submit": "Sign In",
+      "demoTitle": "Demo Access for Testing",
+      "demoUser": "Demo User",
+      "demoAdmin": "Administrator",
+      "noAccount": "Don't have an account?",
+      "register": "Sign up now",
+      "forgotPassword": "Forgot password?"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Get started with SMK today",
+      "firstName": "First Name",
+      "lastName": "Last Name", 
+      "email": "Email Address",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "company": "Company",
+      "submit": "Sign Up",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in here"
+    }
+  },
+  "footer": {
+    "description": "Your professional solution for social media marketing. Create successful campaigns without technical know-how.",
+    "product": "Product",
+    "support": "Support",
+    "legal": "Legal",
+    "links": {
+      "features": "Features",
+      "pricing": "Pricing", 
+      "integrations": "Integrations",
+      "api": "API",
+      "help": "Help Center",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "status": "Status",
+      "privacy": "Privacy",
+      "imprint": "Imprint",
+      "terms": "Terms",
+      "cookies": "Cookies"
+    },
+    "copyright": "© 2024 socialmediakampagnen.com. All rights reserved.",
+    "country": "🌍 Global",
+    "gdpr": "GDPR compliant"
+  },
+  "wizard": {
+    "steps": {
+      "goal": "Select Goal",
+      "channels": "Choose Channels", 
+      "content": "Create Content",
+      "budget": "Set Budget"
+    },
+    "goal": {
+      "title": "What is your campaign goal?",
+      "subtitle": "Choose the main objective for your social media campaign",
+      "options": {
+        "awareness": {
+          "title": "Brand Awareness",
+          "description": "Reach more people and increase your brand recognition"
+        },
+        "traffic": {
+          "title": "Website Traffic",
+          "description": "Drive more visitors to your website or landing page"
+        },
+        "leads": {
+          "title": "Lead Generation", 
+          "description": "Collect contact information and generate qualified leads"
+        },
+        "sales": {
+          "title": "Increase Sales",
+          "description": "Promote direct sales and boost your revenue"
+        }
+      }
+    },
+    "channels": {
+      "title": "Choose Your Channels",
+      "subtitle": "Which platforms do you want to run your campaign on?",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All"
+    },
+    "content": {
+      "title": "Create Your Content",
+      "subtitle": "Design engaging content for your campaign",
+      "headline": "Headline",
+      "headlinePlaceholder": "Your compelling headline...",
+      "description": "Description", 
+      "descriptionPlaceholder": "Describe your offer...",
+      "cta": "Call-to-Action",
+      "audience": "Target Audience",
+      "audiencePlaceholder": "Describe your target audience (age, interests, etc.)",
+      "uploadImages": "Upload Images",
+      "uploadText": "Click here or drag images here",
+      "uploadSubtext": "PNG, JPG up to 10MB",
+      "preview": "Live Preview"
+    },
+    "budget": {
+      "title": "Set Budget",
+      "subtitle": "Define budget and duration",
+      "type": "Budget Type",
+      "daily": "Daily Budget",
+      "total": "Total Budget",
+      "amount": "Budget Amount",
+      "amountPlaceholder": "100",
+      "duration": "Duration",
+      "durationPlaceholder": "7",
+      "startDate": "Start Date",
+      "endDate": "End Date"
+    },
+    "navigation": {
+      "back": "Back",
+      "next": "Next", 
+      "finish": "Create Campaign"
+    }
+  }
+}
+
