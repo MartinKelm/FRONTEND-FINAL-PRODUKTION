@@ -47,21 +47,37 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
     '51-200 Mitarbeiter',
     '201-500 Mitarbeiter',
     '501-1000 Mitarbeiter',
-    '1000+ Mitarbeiter'
-  ]
-
-  const validateForm = () => {
+    '  const validateForm = () => {
     const newErrors = {}
 
-    if (!formData.companyName.trim()) newErrors.companyName = 'Firmenname ist erforderlich'
-    if (!formData.industry) newErrors.industry = 'Branche ist erforderlich'
-    if (!formData.companySize) newErrors.companySize = 'Unternehmensgröße ist erforderlich'
+    if (!formData.companyName.trim()) {
+      newErrors.companyName = 'Firmenname ist erforderlich'
+    }
+
+    if (!formData.industry) {
+      newErrors.industry = 'Branche ist erforderlich'
+    }
+
+    if (!formData.companySize) {
+      newErrors.companySize = 'Unternehmensgröße ist erforderlich'
+    }
+
+    // Address fields are now required for billing
+    if (!formData.address.trim()) {
+      newErrors.address = 'Adresse ist für die Rechnungsstellung erforderlich'
+    }
+
+    if (!formData.city.trim()) {
+      newErrors.city = 'Stadt ist für die Rechnungsstellung erforderlich'
+    }
+
+    if (!formData.postalCode.trim()) {
+      newErrors.postalCode = 'PLZ ist für die Rechnungsstellung erforderlich'
+    }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }
-
-  const handleSubmit = async (e) => {
+  }it = async (e) => {
     e.preventDefault()
     
     if (!validateForm()) return
@@ -87,6 +103,15 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
           description: formData.description
         },
         registrationStep: 'package_selection'
+      }
+
+      // Save updated user data to localStorage
+      const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+      const userIndex = existingUsers.findIndex(u => u.email === userData.email)
+      
+      if (userIndex !== -1) {
+        existingUsers[userIndex] = completeUserData
+        localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
       }
 
       // Simulate API call
@@ -291,53 +316,68 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                   <MapPin className="w-5 h-5 mr-2 text-green-600" />
-                  Adresse (optional)
+                  Rechnungsadresse *
                 </h3>
+                <p className="text-sm text-gray-600">
+                  Erforderlich für die Rechnungsstellung
+                </p>
                 
                 <div className="space-y-2">
                   <Label htmlFor="address" className="text-sm font-medium text-gray-700">
-                    Straße und Hausnummer
+                    Straße und Hausnummer *
                   </Label>
                   <Input
                     id="address"
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                    className={`h-12 border-gray-300 focus:border-green-500 focus:ring-green-500 ${errors.address ? 'border-red-500' : ''}`}
                     placeholder="Musterstraße 123"
                     disabled={isLoading}
+                    required
                   />
+                  {errors.address && (
+                    <p className="text-red-500 text-sm">{errors.address}</p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="postalCode" className="text-sm font-medium text-gray-700">
-                      PLZ
+                      PLZ *
                     </Label>
                     <Input
                       id="postalCode"
                       name="postalCode"
                       value={formData.postalCode}
                       onChange={handleChange}
-                      className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                      className={`h-12 border-gray-300 focus:border-green-500 focus:ring-green-500 ${errors.postalCode ? 'border-red-500' : ''}`}
                       placeholder="12345"
                       disabled={isLoading}
+                      required
                     />
+                    {errors.postalCode && (
+                      <p className="text-red-500 text-sm">{errors.postalCode}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="city" className="text-sm font-medium text-gray-700">
-                      Stadt
+                      Stadt *
                     </Label>
                     <Input
                       id="city"
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
-                      className="h-12 border-gray-300 focus:border-green-500 focus:ring-green-500"
+                      className={`h-12 border-gray-300 focus:border-green-500 focus:ring-green-500 ${errors.city ? 'border-red-500' : ''}`}
                       placeholder="Berlin"
                       disabled={isLoading}
+                      required
                     />
+                    {errors.city && (
+                      <p className="text-red-500 text-sm">{errors.city}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
