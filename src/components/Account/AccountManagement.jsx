@@ -506,6 +506,52 @@ const AccountManagement = ({ currentUser, onUpdateUser }) => {
                   />
                 </div>
 
+                {/* Company Logo Upload */}
+                <div className="space-y-4">
+                  <h3 className="text-lg font-semibold flex items-center">
+                    <Building className="w-5 h-5 mr-2" />
+                    Firmen-Logo
+                  </h3>
+                  
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+                    {currentUser?.company?.logo ? (
+                      <div className="space-y-4">
+                        <img 
+                          src={currentUser.company.logo} 
+                          alt="Firmen-Logo" 
+                          className="max-h-24 mx-auto object-contain"
+                        />
+                        <div className="space-y-2">
+                          <p className="text-sm text-gray-600">Aktuelles Logo</p>
+                          <Button variant="outline" size="sm">
+                            Logo ändern
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mx-auto">
+                          <Building className="w-8 h-8 text-gray-400" />
+                        </div>
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-gray-900">Firmen-Logo hochladen</p>
+                          <p className="text-xs text-gray-500">
+                            PNG, JPG oder SVG bis 2MB<br />
+                            Empfohlene Größe: 200x200px
+                          </p>
+                          <Button variant="outline" size="sm">
+                            Logo auswählen
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <p className="text-xs text-gray-500">
+                    Ihr Logo wird in Kampagnen und auf generierten Inhalten verwendet.
+                  </p>
+                </div>
+
                 <Button 
                   onClick={handleCompanySave}
                   disabled={isLoading}
