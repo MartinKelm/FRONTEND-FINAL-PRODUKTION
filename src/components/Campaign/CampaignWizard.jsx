@@ -59,12 +59,14 @@ const CampaignWizard = ({ onClose }) => {
       startDate: '',
       endDate: ''
     },
-    budgetConfirmed: false
+    budgetConfirmed: false,
+    finalApproval: false
   })
 
   const steps = [
-    { id: 1, title: 'Kampagne erstellen', description: '3-Spalten Ansicht: Ziel, Kanäle, Inhalte & Vorschau' },
-    { id: 2, title: 'Budget & Buchung', description: 'Budget festlegen und Kampagne buchen' }
+    { id: 1, title: 'Ziel & Kanäle', description: 'Kampagnenziel und Plattformen auswählen' },
+    { id: 2, title: 'Inhalte & Medien', description: 'Texte erstellen und Bilder hochladen' },
+    { id: 3, title: 'Budget & Freigabe', description: 'Budget festlegen und Kampagne freigeben' }
   ]
 
   const handleImageUpload = (event, format) => {
@@ -141,13 +143,19 @@ const CampaignWizard = ({ onClose }) => {
     return campaignData.goal && campaignData.channels.length > 0
   }
 
+  const canProceedToStep3 = () => {
+    return campaignData.content.headline && campaignData.content.description
+  }
+
   const canCreateCampaign = () => {
-    return campaignData.budget.amount && campaignData.budgetConfirmed
+    return campaignData.budget.amount && campaignData.budgetConfirmed && campaignData.finalApproval
   }
 
   const nextStep = () => {
-    if (currentStep < steps.length && canProceedToStep2()) {
-      setCurrentStep(currentStep + 1)
+    if (currentStep === 1 && canProceedToStep2()) {
+      setCurrentStep(2)
+    } else if (currentStep === 2 && canProceedToStep3()) {
+      setCurrentStep(3)
     }
   }
 
@@ -275,11 +283,11 @@ const CampaignWizard = ({ onClose }) => {
     return Array.from(formats)
   }
 
+  // Step 1: Goal & Channels Selection (2 columns)
   const renderStep1 = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-      {/* Left Column: Goals & Channels */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+      {/* Left Column: Campaign Goals */}
       <div className="space-y-6 max-h-[70vh] overflow-y-auto">
-        {/* Campaign Goals */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -315,8 +323,10 @@ const CampaignWizard = ({ onClose }) => {
             ))}
           </CardContent>
         </Card>
+      </div>
 
-        {/* Channel Selection */}
+      {/* Right Column: Channel Selection */}
+      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -356,8 +366,13 @@ const CampaignWizard = ({ onClose }) => {
           </CardContent>
         </Card>
       </div>
+    </div>
+  )
 
-      {/* Middle Column: Content Creation */}
+  // Step 2: Content & Media (2 columns)
+  const renderStep2 = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+      {/* Left Column: Content Creation & Media Upload */}
       <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         <Card>
           <CardHeader>
@@ -401,83 +416,87 @@ const CampaignWizard = ({ onClose }) => {
                 className="mt-1"
               />
             </div>
-
-            {/* Media Upload */}
-            {getSelectedChannels().length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Upload className="w-5 h-5 text-purple-600" />
-                  <h4 className="font-semibold">Medien hochladen</h4>
-                </div>
-                
-                {/* Image Upload by Format */}
-                {getRequiredFormats().map((format) => (
-                  <div key={format} className="border rounded-lg p-4 bg-gray-50">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-medium text-purple-700">{format} Format</span>
-                      <Badge variant="outline" className="bg-white">
-                        {format === '1:1' ? '1080x1080px' : format === 'Story' ? '1080x1920px' : '1200x630px'}
-                      </Badge>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleImageUpload(e, format)}
-                          className="flex-1"
-                        />
-                        {campaignData.content.images[format] && (
-                          <CheckCircle className="w-5 h-5 text-green-500" />
-                        )}
-                      </div>
-                      <p className="text-xs text-gray-600">
-                        Für: {getSelectedChannels().filter(ch => ch.format === format).map(ch => ch.name).join(', ')}
-                      </p>
-                      {campaignData.content.images[format] && (
-                        <div className="mt-2">
-                          <img
-                            src={campaignData.content.images[format]}
-                            alt={`${format} Preview`}
-                            className="w-20 h-20 object-cover rounded border"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-                {/* Video Upload */}
-                <div className="border rounded-lg p-4 bg-gray-50">
-                  <div className="flex items-center space-x-2 mb-3">
-                    <Play className="w-5 h-5 text-purple-600" />
-                    <span className="font-medium text-purple-700">Video hochladen (optional)</span>
-                  </div>
-                  <Input
-                    type="file"
-                    accept="video/mp4,video/mov,video/avi"
-                    onChange={handleVideoUpload}
-                    className="mb-2"
-                  />
-                  <p className="text-xs text-gray-600">Unterstützte Formate: MP4, MOV, AVI</p>
-                  {uploadedVideos.length > 0 && (
-                    <div className="mt-2 space-y-1">
-                      {uploadedVideos.map((video) => (
-                        <div key={video.id} className="flex items-center space-x-2 text-sm text-green-600">
-                          <CheckCircle className="w-4 h-4" />
-                          <span>{video.name}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
+
+        {/* Media Upload */}
+        {getSelectedChannels().length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Upload className="w-5 h-5 text-purple-600" />
+                <span>Medien hochladen</span>
+              </CardTitle>
+              <CardDescription>Laden Sie Bilder und Videos für Ihre Kampagne hoch</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Image Upload by Format */}
+              {getRequiredFormats().map((format) => (
+                <div key={format} className="border rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-medium text-purple-700">{format} Format</span>
+                    <Badge variant="outline" className="bg-white">
+                      {format === '1:1' ? '1080x1080px' : format === 'Story' ? '1080x1920px' : '1200x630px'}
+                    </Badge>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e, format)}
+                        className="flex-1"
+                      />
+                      {campaignData.content.images[format] && (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Für: {getSelectedChannels().filter(ch => ch.format === format).map(ch => ch.name).join(', ')}
+                    </p>
+                    {campaignData.content.images[format] && (
+                      <div className="mt-2">
+                        <img
+                          src={campaignData.content.images[format]}
+                          alt={`${format} Preview`}
+                          className="w-20 h-20 object-cover rounded border"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {/* Video Upload */}
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Play className="w-5 h-5 text-purple-600" />
+                  <span className="font-medium text-purple-700">Video hochladen (optional)</span>
+                </div>
+                <Input
+                  type="file"
+                  accept="video/mp4,video/mov,video/avi"
+                  onChange={handleVideoUpload}
+                  className="mb-2"
+                />
+                <p className="text-xs text-gray-600">Unterstützte Formate: MP4, MOV, AVI</p>
+                {uploadedVideos.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {uploadedVideos.map((video) => (
+                      <div key={video.id} className="flex items-center space-x-2 text-sm text-green-600">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>{video.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
-      {/* Right Column: Live Preview */}
+      {/* Right Column: Live Preview Carousel */}
       <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         <Card>
           <CardHeader>
@@ -596,7 +615,7 @@ const CampaignWizard = ({ onClose }) => {
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <Eye className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>Wählen Sie Kanäle aus, um eine Vorschau zu sehen</p>
+                <p>Erstellen Sie Inhalte, um eine Vorschau zu sehen</p>
               </div>
             )}
           </CardContent>
@@ -605,13 +624,14 @@ const CampaignWizard = ({ onClose }) => {
     </div>
   )
 
-  const renderStep2 = () => (
+  // Step 3: Budget & Final Approval
+  const renderStep3 = () => (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Budget & Buchung
+          Budget & Finale Freigabe
         </h2>
-        <p className="text-gray-600">Legen Sie Ihr Mediabudget fest und buchen Sie Ihre Kampagne</p>
+        <p className="text-gray-600">Legen Sie Ihr Budget fest und geben Sie Ihre Kampagne frei</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -741,9 +761,11 @@ const CampaignWizard = ({ onClose }) => {
             </div>
 
             <div className="p-3 bg-green-50 rounded-lg">
-              <h4 className="font-semibold mb-2 text-green-800">Medien</h4>
+              <h4 className="font-semibold mb-2 text-green-800">Inhalte</h4>
               <p className="text-sm text-green-600">
-                {Object.keys(campaignData.content.images).length} Bilder hochgeladen
+                Überschrift: {campaignData.content.headline || 'Nicht gesetzt'}<br />
+                Beschreibung: {campaignData.content.description ? 'Gesetzt' : 'Nicht gesetzt'}<br />
+                Medien: {Object.keys(campaignData.content.images).length} Bilder
                 {uploadedVideos.length > 0 && `, ${uploadedVideos.length} Videos`}
               </p>
             </div>
@@ -784,21 +806,38 @@ const CampaignWizard = ({ onClose }) => {
             </div>
           </div>
 
-          <div className="flex items-start space-x-3">
-            <Checkbox
-              id="budget-confirmation"
-              checked={campaignData.budgetConfirmed}
-              onCheckedChange={(checked) => setCampaignData(prev => ({
-                ...prev,
-                budgetConfirmed: checked
-              }))}
-              className="mt-1"
-            />
-            <Label htmlFor="budget-confirmation" className="text-sm leading-relaxed">
-              Ich bestätige, dass ich verstehe, dass das festgelegte Budget von €{campaignData.budget.amount || '0'} 
-              {campaignData.budget.type === 'daily' ? ' pro Tag' : ' insgesamt'} als Mediabudget für meine Kampagne 
-              verwendet und entsprechend berechnet wird. Ich bin mit der Abrechnung dieses Betrags einverstanden.
-            </Label>
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="budget-confirmation"
+                checked={campaignData.budgetConfirmed}
+                onCheckedChange={(checked) => setCampaignData(prev => ({
+                  ...prev,
+                  budgetConfirmed: checked
+                }))}
+                className="mt-1"
+              />
+              <Label htmlFor="budget-confirmation" className="text-sm leading-relaxed">
+                Ich bestätige, dass ich verstehe, dass das festgelegte Budget von €{campaignData.budget.amount || '0'} 
+                {campaignData.budget.type === 'daily' ? ' pro Tag' : ' insgesamt'} als Mediabudget für meine Kampagne 
+                verwendet und entsprechend berechnet wird.
+              </Label>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="final-approval"
+                checked={campaignData.finalApproval}
+                onCheckedChange={(checked) => setCampaignData(prev => ({
+                  ...prev,
+                  finalApproval: checked
+                }))}
+                className="mt-1"
+              />
+              <Label htmlFor="final-approval" className="text-sm leading-relaxed font-semibold text-purple-800">
+                Ich gebe meine finale Freigabe für diese Kampagne und möchte sie jetzt starten. Alle Angaben sind korrekt und ich bin mit der Umsetzung einverstanden.
+              </Label>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -840,6 +879,7 @@ const CampaignWizard = ({ onClose }) => {
         <div className="flex-1 p-6 overflow-hidden">
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
         </div>
 
         {/* Footer */}
@@ -861,7 +901,10 @@ const CampaignWizard = ({ onClose }) => {
           {currentStep < steps.length ? (
             <Button
               onClick={nextStep}
-              disabled={!canProceedToStep2()}
+              disabled={
+                (currentStep === 1 && !canProceedToStep2()) ||
+                (currentStep === 2 && !canProceedToStep3())
+              }
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex items-center space-x-2 shadow-md"
             >
               <span>Weiter</span>
@@ -876,7 +919,7 @@ const CampaignWizard = ({ onClose }) => {
               disabled={!canCreateCampaign()}
               className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white flex items-center space-x-2 shadow-md"
             >
-              <span>Kampagne erstellen</span>
+              <span>Kampagne starten</span>
               <CheckCircle className="w-4 h-4" />
             </Button>
           )}
