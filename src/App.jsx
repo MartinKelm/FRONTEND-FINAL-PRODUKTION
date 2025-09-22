@@ -1088,14 +1088,19 @@ function App() {
                 )}
                 <Button 
                   onClick={() => {
-                    // Check if user has a valid plan
-                    if (!currentUser?.plan?.id || currentUser?.plan?.id === 'none') {
-                      // No plan selected - redirect to package selection
-                      setShowPackageSelectionModal(true)
-                      showMessage('info', 'Bitte wählen Sie zuerst einen Plan aus, um Kampagnen zu erstellen.')
-                    } else {
-                      // Plan exists - allow campaign creation
+                    // Demo users can access campaign wizard directly
+                    if (currentUser?.isDemoAccount) {
                       setShowCampaignWizard(true)
+                    } else {
+                      // Check if user has a valid plan
+                      if (!currentUser?.plan?.id || currentUser?.plan?.id === 'none') {
+                        // No plan selected - redirect to package selection
+                        setShowPackageSelectionModal(true)
+                        showMessage('info', 'Bitte wählen Sie zuerst einen Plan aus, um Kampagnen zu erstellen.')
+                      } else {
+                        // Plan exists - allow campaign creation
+                        setShowCampaignWizard(true)
+                      }
                     }
                   }}
                   className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
