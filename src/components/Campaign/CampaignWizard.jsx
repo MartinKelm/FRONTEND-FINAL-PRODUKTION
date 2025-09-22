@@ -25,7 +25,8 @@ import {
   Share,
   MoreHorizontal,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Phone
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
@@ -66,7 +67,8 @@ const CampaignWizard = ({ onClose }) => {
   const steps = [
     { id: 1, title: 'Ziel & Kanäle', description: 'Kampagnenziel und Plattformen auswählen' },
     { id: 2, title: 'Inhalte & Medien', description: 'Texte erstellen und Bilder hochladen' },
-    { id: 3, title: 'Budget & Freigabe', description: 'Budget festlegen und Kampagne freigeben' }
+    { id: 3, title: 'Vorschau', description: 'Kampagnen in Handy-Mockups betrachten' },
+    { id: 4, title: 'Budget & Freigabe', description: 'Budget festlegen und Kampagne freigeben' }
   ]
 
   const handleImageUpload = (event, format) => {
@@ -147,6 +149,10 @@ const CampaignWizard = ({ onClose }) => {
     return campaignData.content.headline && campaignData.content.description
   }
 
+  const canProceedToStep4 = () => {
+    return true // Step 3 is just preview, always allow to proceed
+  }
+
   const canCreateCampaign = () => {
     return campaignData.budget.amount && campaignData.budgetConfirmed && campaignData.finalApproval
   }
@@ -156,6 +162,8 @@ const CampaignWizard = ({ onClose }) => {
       setCurrentStep(2)
     } else if (currentStep === 2 && canProceedToStep3()) {
       setCurrentStep(3)
+    } else if (currentStep === 3 && canProceedToStep4()) {
+      setCurrentStep(4)
     }
   }
 
@@ -283,6 +291,486 @@ const CampaignWizard = ({ onClose }) => {
     return Array.from(formats)
   }
 
+  // Mobile Mockup Component
+  const MobileMockup = ({ channel, children }) => (
+    <div className="relative mx-auto" style={{ width: '280px', height: '560px' }}>
+      {/* Phone Frame */}
+      <div className="absolute inset-0 bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl">
+        <div className="w-full h-full bg-black rounded-[2rem] overflow-hidden relative">
+          {/* Status Bar */}
+          <div className="absolute top-0 left-0 right-0 h-8 bg-black z-10 flex items-center justify-between px-6 text-white text-xs">
+            <span>9:41</span>
+            <div className="flex items-center space-x-1">
+              <div className="w-4 h-2 border border-white rounded-sm">
+                <div className="w-3 h-1 bg-white rounded-sm m-0.5"></div>
+              </div>
+            </div>
+          </div>
+          {/* App Content */}
+          <div className="pt-8 h-full overflow-hidden">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Facebook Mockup
+  const FacebookMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* Facebook Header */}
+      <div className="bg-blue-600 p-3 flex items-center space-x-2">
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <span className="text-blue-600 font-bold text-sm">f</span>
+        </div>
+        <span className="text-white font-semibold">Facebook</span>
+      </div>
+      
+      {/* Post */}
+      <div className="p-3 border-b border-gray-200">
+        <div className="flex items-center space-x-2 mb-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">IU</span>
+          </div>
+          <div>
+            <p className="font-semibold text-sm">Ihr Unternehmen</p>
+            <p className="text-xs text-gray-500 flex items-center">
+              <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+              Gesponsert · 2 Min
+            </p>
+          </div>
+        </div>
+        
+        {content.headline && (
+          <p className="font-medium mb-2 text-sm whitespace-pre-line">{content.headline}</p>
+        )}
+        
+        {content.description && (
+          <p className="text-sm text-gray-700 mb-3 whitespace-pre-line">{content.description}</p>
+        )}
+        
+        {image && (
+          <img src={image} alt="Ad" className="w-full rounded-lg mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+        )}
+        
+        {content.callToAction && (
+          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium w-full">
+            {content.callToAction}
+          </button>
+        )}
+        
+        {/* Engagement */}
+        <div className="flex items-center justify-between mt-3 pt-3 border-t text-gray-500">
+          <div className="flex items-center space-x-4 text-xs">
+            <span className="flex items-center space-x-1">
+              <Heart className="w-3 h-3 text-red-500" />
+              <span>42</span>
+            </span>
+            <span>8 Kommentare</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Instagram Mockup
+  const InstagramMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* Instagram Header */}
+      <div className="bg-white p-3 flex items-center justify-between border-b border-gray-200">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 rounded-full flex items-center justify-center">
+            <Camera className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-semibold">Instagram</span>
+        </div>
+        <Heart className="w-6 h-6" />
+      </div>
+      
+      {/* Post */}
+      <div>
+        <div className="flex items-center space-x-2 p-3">
+          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">IU</span>
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-sm">ihr_unternehmen</p>
+            <p className="text-xs text-gray-500">Gesponsert</p>
+          </div>
+          <MoreHorizontal className="w-5 h-5" />
+        </div>
+        
+        {image && (
+          <img src={image} alt="Ad" className="w-full" style={{ height: '280px', objectFit: 'cover' }} />
+        )}
+        
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-4">
+              <Heart className="w-6 h-6" />
+              <MessageCircle className="w-6 h-6" />
+              <Share className="w-6 h-6" />
+            </div>
+          </div>
+          
+          <p className="text-sm mb-1"><span className="font-semibold">42 Gefällt mir-Angaben</span></p>
+          
+          {content.headline && (
+            <p className="text-sm">
+              <span className="font-semibold">ihr_unternehmen</span> {content.headline}
+            </p>
+          )}
+          
+          {content.description && (
+            <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">{content.description}</p>
+          )}
+          
+          {content.callToAction && (
+            <button className="bg-blue-500 text-white px-4 py-1 rounded text-sm font-medium mt-2">
+              {content.callToAction}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  // TikTok Mockup
+  const TikTokMockup = ({ content, image }) => (
+    <div className="bg-black h-full relative text-white">
+      {/* TikTok Header */}
+      <div className="absolute top-0 left-0 right-0 z-10 p-3 flex items-center justify-center">
+        <span className="font-bold text-lg">TikTok</span>
+      </div>
+      
+      {/* Video Content */}
+      <div className="relative h-full flex items-center justify-center">
+        {image ? (
+          <img src={image} alt="Ad" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+            <Play className="w-16 h-16 text-white opacity-50" />
+          </div>
+        )}
+        
+        {/* Overlay Content */}
+        <div className="absolute bottom-20 left-4 right-16">
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">IU</span>
+            </div>
+            <span className="font-semibold">@ihr_unternehmen</span>
+            <span className="bg-red-500 px-2 py-1 text-xs rounded">Folgen</span>
+          </div>
+          
+          {content.headline && (
+            <p className="font-medium mb-1 text-sm whitespace-pre-line">{content.headline}</p>
+          )}
+          
+          {content.description && (
+            <p className="text-sm opacity-90 whitespace-pre-line">{content.description}</p>
+          )}
+          
+          {content.callToAction && (
+            <button className="bg-white text-black px-3 py-1 rounded-full text-sm font-medium mt-2">
+              {content.callToAction}
+            </button>
+          )}
+        </div>
+        
+        {/* Side Actions */}
+        <div className="absolute bottom-20 right-4 flex flex-col space-y-4">
+          <div className="text-center">
+            <Heart className="w-8 h-8 mx-auto mb-1" />
+            <span className="text-xs">42</span>
+          </div>
+          <div className="text-center">
+            <MessageCircle className="w-8 h-8 mx-auto mb-1" />
+            <span className="text-xs">8</span>
+          </div>
+          <div className="text-center">
+            <Share className="w-8 h-8 mx-auto mb-1" />
+            <span className="text-xs">3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Google Ads Mockup
+  const GoogleAdsMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* Google Header */}
+      <div className="bg-white p-3 flex items-center space-x-2 border-b border-gray-200">
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <span className="text-red-600 font-bold text-sm">G</span>
+        </div>
+        <span className="font-semibold">Google</span>
+      </div>
+      
+      {/* Search Results */}
+      <div className="p-3">
+        <div className="mb-4">
+          <div className="bg-gray-100 rounded-full p-2 flex items-center">
+            <Search className="w-4 h-4 text-gray-500 mr-2" />
+            <span className="text-sm text-gray-600">Ihre Suchbegriffe...</span>
+          </div>
+        </div>
+        
+        {/* Ad Result */}
+        <div className="border border-gray-200 rounded-lg p-3 mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-gray-500 bg-yellow-100 px-2 py-1 rounded">Anzeige</span>
+            <span className="text-xs text-gray-500">gesponsert</span>
+          </div>
+          
+          {content.headline && (
+            <h3 className="text-blue-600 font-medium text-sm mb-1 whitespace-pre-line">{content.headline}</h3>
+          )}
+          
+          <p className="text-xs text-green-600 mb-2">www.ihr-unternehmen.de</p>
+          
+          {content.description && (
+            <p className="text-sm text-gray-700 mb-2 whitespace-pre-line">{content.description}</p>
+          )}
+          
+          {image && (
+            <img src={image} alt="Ad" className="w-full rounded mb-2" style={{ maxHeight: '120px', objectFit: 'cover' }} />
+          )}
+          
+          {content.callToAction && (
+            <button className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium">
+              {content.callToAction}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  // LinkedIn Mockup
+  const LinkedInMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* LinkedIn Header */}
+      <div className="bg-blue-700 p-3 flex items-center space-x-2">
+        <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+          <span className="text-blue-700 font-bold text-sm">in</span>
+        </div>
+        <span className="text-white font-semibold">LinkedIn</span>
+      </div>
+      
+      {/* Post */}
+      <div className="p-3 border-b border-gray-200">
+        <div className="flex items-center space-x-2 mb-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">IU</span>
+          </div>
+          <div>
+            <p className="font-semibold text-sm">Ihr Unternehmen</p>
+            <p className="text-xs text-gray-500">Gesponsert · 2h</p>
+          </div>
+        </div>
+        
+        {content.headline && (
+          <p className="font-medium mb-2 text-sm whitespace-pre-line">{content.headline}</p>
+        )}
+        
+        {content.description && (
+          <p className="text-sm text-gray-700 mb-3 whitespace-pre-line">{content.description}</p>
+        )}
+        
+        {image && (
+          <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+        )}
+        
+        {content.callToAction && (
+          <button className="bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium w-full">
+            {content.callToAction}
+          </button>
+        )}
+        
+        {/* Engagement */}
+        <div className="flex items-center justify-between mt-3 pt-3 border-t text-gray-500">
+          <div className="flex items-center space-x-4 text-xs">
+            <span>42 Reaktionen</span>
+            <span>8 Kommentare</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Reddit Mockup
+  const RedditMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* Reddit Header */}
+      <div className="bg-orange-600 p-3 flex items-center space-x-2">
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <span className="text-orange-600 font-bold text-sm">r/</span>
+        </div>
+        <span className="text-white font-semibold">Reddit</span>
+      </div>
+      
+      {/* Post */}
+      <div className="p-3 border-b border-gray-200">
+        <div className="flex items-start space-x-2">
+          <div className="flex flex-col items-center">
+            <button className="text-gray-400 hover:text-orange-500">▲</button>
+            <span className="text-xs font-bold">42</span>
+            <button className="text-gray-400 hover:text-blue-500">▼</button>
+          </div>
+          
+          <div className="flex-1">
+            <div className="flex items-center space-x-1 mb-2">
+              <span className="text-xs text-gray-500">r/werbung</span>
+              <span className="text-xs text-gray-400">•</span>
+              <span className="text-xs text-gray-500">Gesponsert</span>
+            </div>
+            
+            {content.headline && (
+              <h3 className="font-medium mb-2 text-sm whitespace-pre-line">{content.headline}</h3>
+            )}
+            
+            {content.description && (
+              <p className="text-sm text-gray-700 mb-3 whitespace-pre-line">{content.description}</p>
+            )}
+            
+            {image && (
+              <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+            )}
+            
+            {content.callToAction && (
+              <button className="bg-orange-600 text-white px-3 py-1 rounded text-sm font-medium">
+                {content.callToAction}
+              </button>
+            )}
+            
+            <div className="flex items-center space-x-4 mt-3 text-xs text-gray-500">
+              <span>💬 8 Kommentare</span>
+              <span>🔗 Teilen</span>
+              <span>💾 Speichern</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Snapchat Mockup
+  const SnapchatMockup = ({ content, image }) => (
+    <div className="bg-black h-full relative text-white">
+      {/* Snapchat Header */}
+      <div className="absolute top-0 left-0 right-0 z-10 p-3 flex items-center justify-between">
+        <span className="font-bold text-lg">👻 Snapchat</span>
+        <div className="flex space-x-2">
+          <div className="w-6 h-6 bg-yellow-400 rounded-full"></div>
+        </div>
+      </div>
+      
+      {/* Story Content */}
+      <div className="relative h-full">
+        {image ? (
+          <img src={image} alt="Ad" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+            <Camera className="w-16 h-16 text-white opacity-50" />
+          </div>
+        )}
+        
+        {/* Overlay Content */}
+        <div className="absolute bottom-20 left-4 right-4">
+          <div className="bg-black bg-opacity-50 rounded-lg p-3">
+            {content.headline && (
+              <p className="font-medium mb-1 text-sm whitespace-pre-line">{content.headline}</p>
+            )}
+            
+            {content.description && (
+              <p className="text-sm opacity-90 whitespace-pre-line">{content.description}</p>
+            )}
+            
+            {content.callToAction && (
+              <button className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-medium mt-2 w-full">
+                {content.callToAction}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Spotify Mockup
+  const SpotifyMockup = ({ content, image }) => (
+    <div className="bg-black h-full text-white">
+      {/* Spotify Header */}
+      <div className="bg-green-600 p-3 flex items-center space-x-2">
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <span className="text-green-600 font-bold text-sm">♫</span>
+        </div>
+        <span className="text-white font-semibold">Spotify</span>
+      </div>
+      
+      {/* Ad Content */}
+      <div className="p-4">
+        <div className="bg-gray-900 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">IU</span>
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Ihr Unternehmen</p>
+              <p className="text-xs text-gray-400">Gesponsert</p>
+            </div>
+          </div>
+          
+          {image && (
+            <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+          )}
+          
+          {content.headline && (
+            <p className="font-medium mb-2 text-sm whitespace-pre-line">{content.headline}</p>
+          )}
+          
+          {content.description && (
+            <p className="text-sm text-gray-300 mb-3 whitespace-pre-line">{content.description}</p>
+          )}
+          
+          {content.callToAction && (
+            <button className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium w-full">
+              {content.callToAction}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderMockupForChannel = (channel) => {
+    const content = campaignData.content
+    const image = campaignData.content.images[channel.format]
+
+    switch (channel.id) {
+      case 'facebook':
+        return <FacebookMockup content={content} image={image} />
+      case 'instagram':
+        return <InstagramMockup content={content} image={image} />
+      case 'tiktok':
+        return <TikTokMockup content={content} image={image} />
+      case 'google':
+        return <GoogleAdsMockup content={content} image={image} />
+      case 'linkedin':
+        return <LinkedInMockup content={content} image={image} />
+      case 'reddit':
+        return <RedditMockup content={content} image={image} />
+      case 'snapchat':
+        return <SnapchatMockup content={content} image={image} />
+      case 'spotify':
+        return <SpotifyMockup content={content} image={image} />
+      default:
+        return <FacebookMockup content={content} image={image} />
+    }
+  }
+
   // Step 1: Goal & Channels Selection (2 columns)
   const renderStep1 = () => (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
@@ -357,7 +845,7 @@ const CampaignWizard = ({ onClose }) => {
                     )}
                   </div>
                   <div className="text-xs text-gray-500">
-                    {channel.format} Format<br />
+                    {channel.format}px Format<br />
                     {channel.dimensions}
                   </div>
                 </div>
@@ -630,7 +1118,7 @@ const CampaignWizard = ({ onClose }) => {
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <Eye className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>Erstellen Sie Inhalte, um eine Vorschau zu sehen</p>
+                <p>Wählen Sie Kanäle aus, um eine Vorschau zu sehen</p>
               </div>
             )}
           </CardContent>
@@ -639,8 +1127,127 @@ const CampaignWizard = ({ onClose }) => {
     </div>
   )
 
-  // Step 3: Budget & Final Approval
-  const renderStep3 = () => (
+  // Step 3: Mobile Mockup Previews (2 columns)
+  const renderStep3 = () => {
+    const selectedChannels = getSelectedChannels()
+    const totalPairs = Math.ceil(selectedChannels.length / 2)
+    const currentPair = Math.floor(currentPreviewIndex / 2)
+    const leftChannelIndex = currentPair * 2
+    const rightChannelIndex = leftChannelIndex + 1
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold mb-2 text-gray-800">
+            Kampagnen-Vorschau in Handy-Mockups
+          </h2>
+          <p className="text-gray-600">So sehen Ihre Anzeigen auf den mobilen Geräten aus</p>
+        </div>
+
+        {selectedChannels.length > 0 ? (
+          <div className="space-y-6">
+            {/* Navigation */}
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 2))}
+                disabled={currentPreviewIndex === 0}
+                className="flex items-center space-x-2"
+              >
+                <ChevronLeft className="w-4 h-4 text-purple-600" />
+                <span>Vorherige</span>
+              </Button>
+              
+              <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                {currentPair + 1} von {totalPairs} Seiten
+              </Badge>
+              
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPreviewIndex(Math.min(selectedChannels.length - 1, currentPreviewIndex + 2))}
+                disabled={rightChannelIndex >= selectedChannels.length}
+                className="flex items-center space-x-2"
+              >
+                <span>Nächste</span>
+                <ChevronRight className="w-4 h-4 text-purple-600" />
+              </Button>
+            </div>
+
+            {/* Mobile Mockups */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-items-center">
+              {/* Left Mockup */}
+              {selectedChannels[leftChannelIndex] && (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center space-x-2 mb-2">
+                      <div className={`p-2 rounded ${selectedChannels[leftChannelIndex].color}`}>
+                        {selectedChannels[leftChannelIndex].icon}
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {selectedChannels[leftChannelIndex].name}
+                      </h3>
+                    </div>
+                    <Badge variant="outline" className="bg-gray-100">
+                      {selectedChannels[leftChannelIndex].dimensions}
+                    </Badge>
+                  </div>
+                  
+                  <MobileMockup channel={selectedChannels[leftChannelIndex]}>
+                    {renderMockupForChannel(selectedChannels[leftChannelIndex])}
+                  </MobileMockup>
+                </div>
+              )}
+
+              {/* Right Mockup */}
+              {selectedChannels[rightChannelIndex] && (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center space-x-2 mb-2">
+                      <div className={`p-2 rounded ${selectedChannels[rightChannelIndex].color}`}>
+                        {selectedChannels[rightChannelIndex].icon}
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {selectedChannels[rightChannelIndex].name}
+                      </h3>
+                    </div>
+                    <Badge variant="outline" className="bg-gray-100">
+                      {selectedChannels[rightChannelIndex].dimensions}
+                    </Badge>
+                  </div>
+                  
+                  <MobileMockup channel={selectedChannels[rightChannelIndex]}>
+                    {renderMockupForChannel(selectedChannels[rightChannelIndex])}
+                  </MobileMockup>
+                </div>
+              )}
+            </div>
+
+            {/* Navigation Dots */}
+            <div className="flex justify-center space-x-2 mt-6">
+              {Array.from({ length: totalPairs }, (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPreviewIndex(index * 2)}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    index === currentPair ? 'bg-purple-600' : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            <Phone className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg">Keine Kanäle ausgewählt</p>
+            <p className="text-sm">Gehen Sie zurück und wählen Sie Kanäle aus, um Vorschauen zu sehen</p>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // Step 4: Budget & Final Approval
+  const renderStep4 = () => (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -895,6 +1502,7 @@ const CampaignWizard = ({ onClose }) => {
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
+          {currentStep === 4 && renderStep4()}
         </div>
 
         {/* Footer */}
@@ -918,7 +1526,8 @@ const CampaignWizard = ({ onClose }) => {
               onClick={nextStep}
               disabled={
                 (currentStep === 1 && !canProceedToStep2()) ||
-                (currentStep === 2 && !canProceedToStep3())
+                (currentStep === 2 && !canProceedToStep3()) ||
+                (currentStep === 3 && !canProceedToStep4())
               }
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex items-center space-x-2 shadow-md"
             >
