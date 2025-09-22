@@ -12,7 +12,6 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
   const [formData, setFormData] = useState({
     companyName: '',
     industry: '',
-    companySize: '',
     website: '',
     phone: '',
     address: '',
@@ -47,7 +46,10 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
     '51-200 Mitarbeiter',
     '201-500 Mitarbeiter',
     '501-1000 Mitarbeiter',
-    '  const validateForm = () => {
+    '1000+ Mitarbeiter'
+  ]
+
+  const validateForm = () => {
     const newErrors = {}
 
     if (!formData.companyName.trim()) {
@@ -56,10 +58,6 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
 
     if (!formData.industry) {
       newErrors.industry = 'Branche ist erforderlich'
-    }
-
-    if (!formData.companySize) {
-      newErrors.companySize = 'Unternehmensgröße ist erforderlich'
     }
 
     // Address fields are now required for billing
@@ -91,7 +89,6 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
         company: {
           name: formData.companyName,
           industry: formData.industry,
-          size: formData.companySize,
           website: formData.website,
           phone: formData.phone,
           address: {
@@ -222,47 +219,23 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
                   {errors.companyName && <p className="text-xs text-red-500">{errors.companyName}</p>}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">
-                      Branche *
-                    </Label>
-                    <Select onValueChange={(value) => handleSelectChange('industry', value)} disabled={isLoading}>
-                      <SelectTrigger className={`h-12 ${errors.industry ? 'border-red-500' : 'border-gray-300'}`}>
-                        <SelectValue placeholder="Wählen Sie Ihre Branche" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {industries.map((industry) => (
-                          <SelectItem key={industry} value={industry}>
-                            {industry}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.industry && <p className="text-xs text-red-500">{errors.industry}</p>}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">
-                      Unternehmensgröße *
-                    </Label>
-                    <Select onValueChange={(value) => handleSelectChange('companySize', value)} disabled={isLoading}>
-                      <SelectTrigger className={`h-12 ${errors.companySize ? 'border-red-500' : 'border-gray-300'}`}>
-                        <SelectValue placeholder="Anzahl Mitarbeiter" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {companySizes.map((size) => (
-                          <SelectItem key={size} value={size}>
-                            <div className="flex items-center space-x-2">
-                              <Users className="w-4 h-4" />
-                              <span>{size}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.companySize && <p className="text-xs text-red-500">{errors.companySize}</p>}
-                  </div>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700">
+                    Branche *
+                  </Label>
+                  <Select onValueChange={(value) => handleSelectChange('industry', value)} disabled={isLoading}>
+                    <SelectTrigger className={`h-12 ${errors.industry ? 'border-red-500' : 'border-gray-300'}`}>
+                      <SelectValue placeholder="Wählen Sie Ihre Branche" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {industries.map((industry) => (
+                        <SelectItem key={industry} value={industry}>
+                          {industry}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.industry && <p className="text-xs text-red-500">{errors.industry}</p>}
                 </div>
               </div>
 
