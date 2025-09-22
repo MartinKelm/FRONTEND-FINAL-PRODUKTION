@@ -107,6 +107,15 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
         registrationDate: new Date().toISOString()
       }
 
+      // Save final user data to localStorage
+      const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+      const userIndex = existingUsers.findIndex(u => u.email === userData.email)
+      
+      if (userIndex !== -1) {
+        existingUsers[userIndex] = completeUserData
+        localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
+      }
+
       // Simulate API call for final registration
       setTimeout(() => {
         setIsLoading(false)
