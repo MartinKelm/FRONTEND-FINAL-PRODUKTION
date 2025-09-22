@@ -181,22 +181,7 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
           </CardHeader>
           
           <CardContent>
-            {/* Demo Account Info */}
-            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start space-x-2">
-                <Info className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                <div className="text-sm">
-                  <p className="text-blue-800 font-medium mb-2">Demo-Zugang für Interessenten:</p>
-                  <button
-                    type="button"
-                    onClick={handleDemoLogin}
-                    className="text-blue-600 hover:text-blue-700 underline text-sm"
-                  >
-                    Demo-Account verwenden (demo@socialmediakampagnen.com)
-                  </button>
-                </div>
-              </div>
-            </div>
+
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
@@ -279,18 +264,27 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
               </p>
             </div>
 
+            {/* Demo Account Button */}
+            <div className="mt-4">
+              <Button
+                type="button"
+                onClick={handleDemoLogin}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold py-3 text-base shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                Demo-Account testen
+              </Button>
+              <p className="text-xs text-gray-500 text-center mt-2">
+                Kostenlos testen ohne Registrierung
+              </p>
+            </div>
+
             <div className="mt-4 text-center">
               <p className="text-xs text-gray-500">
                 Hinweis: Sie können sich nur mit einem zuvor registrierten Konto anmelden.
               </p>
             </div>
 
-            {/* Admin Access Info */}
-            <div className="mt-4 p-2 bg-gray-50 rounded text-center">
-              <p className="text-xs text-gray-500">
-                Admin-Zugang: admin@socialmediakampagnen.com
-              </p>
-            </div>
+
           </CardContent>
         </Card>
       </div>
