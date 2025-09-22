@@ -39,6 +39,7 @@ const CampaignWizard = ({ onClose }) => {
   const [currentStep, setCurrentStep] = useState(1)
   const [uploadedImages, setUploadedImages] = useState([])
   const [uploadedVideos, setUploadedVideos] = useState([])
+  const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0)
   const [campaignData, setCampaignData] = useState({
     goal: '',
     channels: [],
@@ -59,8 +60,16 @@ const CampaignWizard = ({ onClose }) => {
     }
   })
 
-  const handleFormatImageUpload = (event, format) => {
+  const handleImageUpload = (event, format) => {
     const file = event.target.files[0]
+    
+    // Only allow the 3 defined formats
+    const allowedFormats = ['square', 'story', 'landscape']
+    if (!allowedFormats.includes(format)) {
+      console.error('Invalid format:', format)
+      return
+    }
+    
     if (file && file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024) {
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -69,7 +78,7 @@ const CampaignWizard = ({ onClose }) => {
           file: file,
           url: e.target.result,
           name: file.name,
-          format: format
+          format: format // Only use the predefined format
         }
         
         setUploadedImages(prev => {
@@ -908,48 +917,58 @@ const CampaignWizard = ({ onClose }) => {
                   </CardHeader>
                   <CardContent>
                     {campaignData.channels.length > 0 ? (
-                      <div className="space-y-8">
-                        {campaignData.channels.slice(0, 2).map((channelId) => {
-                          const channel = channels.find(c => c.id === channelId)
-                          return (
-                            <div key={channelId} className="space-y-3">
-                              <div className="flex items-center space-x-2">
-                                <div className={`w-6 h-6 ${channel?.color} rounded flex items-center justify-center`}>
-                                  <channel.icon className="w-4 h-4 text-white" />
-                                </div>
-                                <h4 className="font-medium text-gray-900">{channel?.name}</h4>
-                              </div>
-                              {renderPreview(channelId)}
+                      <div className="space-y-4">
+                        {/* Carousel Navigation */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-6 h-6 ${channels.find(c => c.id === campaignData.channels[currentPreviewIndex])?.color} rounded flex items-center justify-center`}>
+                              {React.createElement(channels.find(c => c.id === campaignData.channels[currentPreviewIndex])?.icon, { className: "w-4 h-4 text-white" })}
                             </div>
-                          )
-                        })}
-                        
-                        {campaignData.channels.length > 2 && (
-                          <div className="space-y-8">
-                            {campaignData.channels.slice(2, 4).map((channelId) => {
-                              const channel = channels.find(c => c.id === channelId)
-                              return (
-                                <div key={channelId} className="space-y-3">
-                                  <div className="flex items-center space-x-2">
-                                    <div className={`w-6 h-6 ${channel?.color} rounded flex items-center justify-center`}>
-                                      <channel.icon className="w-4 h-4 text-white" />
-                                    </div>
-                                    <h4 className="font-medium text-gray-900">{channel?.name}</h4>
-                                  </div>
-                                  {renderPreview(channelId)}
-                                </div>
-                              )
-                            })}
+                            <h4 className="font-medium text-gray-900">
+                              {channels.find(c => c.id === campaignData.channels[currentPreviewIndex])?.name}
+                            </h4>
+                            <span className="text-sm text-gray-500">
+                              ({currentPreviewIndex + 1} von {campaignData.channels.length})
+                            </span>
                           </div>
-                        )}
+                          
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 1))}
+                              disabled={currentPreviewIndex === 0}
+                            >
+                              <ArrowLeft className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setCurrentPreviewIndex(Math.min(campaignData.channels.length - 1, currentPreviewIndex + 1))}
+                              disabled={currentPreviewIndex === campaignData.channels.length - 1}
+                            >
+                              <ArrowRight className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
 
-                        {campaignData.channels.length > 4 && (
-                          <div className="text-center">
-                            <p className="text-sm text-gray-600">
-                              +{campaignData.channels.length - 4} weitere Kanäle
-                            </p>
-                          </div>
-                        )}
+                        {/* Current Preview */}
+                        <div className="flex justify-center">
+                          {renderPreview(campaignData.channels[currentPreviewIndex])}
+                        </div>
+
+                        {/* Dots Indicator */}
+                        <div className="flex justify-center space-x-2">
+                          {campaignData.channels.map((_, index) => (
+                            <button
+                              key={index}
+                              className={`w-2 h-2 rounded-full transition-colors ${
+                                index === currentPreviewIndex ? 'bg-purple-600' : 'bg-gray-300'
+                              }`}
+                              onClick={() => setCurrentPreviewIndex(index)}
+                            />
+                          ))}
+                        </div>
                       </div>
                     ) : (
                       <div className="text-center py-8">
