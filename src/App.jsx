@@ -571,7 +571,7 @@ function App() {
               onLogin={handleLogin}
               onSwitchToRegister={() => setAuthView('register-simple')}
             />
-            <Footer />
+            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
           </>
         )}
         {authView === 'register' && (
@@ -580,7 +580,7 @@ function App() {
               onRegister={handleRegister}
               onSwitchToLogin={() => setAuthView('login')}
             />
-            <Footer />
+            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
           </>
         )}
         {authView === 'register-simple' && (
@@ -589,7 +589,7 @@ function App() {
               onShowCompanyProfile={handleShowCompanyProfile}
               onSwitchToLogin={() => setAuthView('login')}
             />
-            <Footer />
+            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
           </>
         )}
         
@@ -1231,42 +1231,42 @@ function App() {
           <HeroSection />
           <FeaturesSection />
           <PricingSection />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
       {currentView === 'features' && !authView && (
         <>
           <FeaturesPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
       {currentView === 'pricing' && !authView && (
         <>
           <PricingSection />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
       {currentView === 'about' && !authView && (
         <>
           <AboutPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
       {currentView === 'contact' && !authView && (
         <>
           <ContactPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
       {currentView === 'faq' && !authView && (
         <>
           <FAQPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
@@ -1274,21 +1274,21 @@ function App() {
       {currentView === 'impressum' && (
         <>
           <ImpressumPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
       {currentView === 'terms' && (
         <>
           <TermsPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
       {currentView === 'privacy' && (
         <>
           <PrivacyPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
@@ -1296,7 +1296,7 @@ function App() {
       {currentView === 'dashboard' && isAuthenticated && (
         <>
           <DashboardSection />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
@@ -1306,14 +1306,14 @@ function App() {
             currentUser={currentUser} 
             onUpdateUser={setCurrentUser}
           />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
       {currentView === 'admin' && isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
         <>
           <AdminDashboard />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
     </div>
