@@ -28,8 +28,9 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
     {
       id: 'standard',
       name: 'Standard',
-      price: '49',
-      period: 'Jahr',
+      price: '588',
+      originalPrice: '49',
+      period: '12 Monate',
       description: 'Perfekt für kleine und mittlere Unternehmen',
       badge: 'FÜR STARTER',
       badgeColor: 'bg-cyan-100 text-cyan-800',
@@ -49,8 +50,9 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
     {
       id: 'pro',
       name: 'Pro',
-      price: '99',
-      period: 'Jahr',
+      price: '1.188',
+      originalPrice: '99',
+      period: '12 Monate',
       description: 'Für wachsende Unternehmen mit höheren Anforderungen',
       badge: 'BELIEBT',
       badgeColor: 'bg-yellow-100 text-yellow-800',
@@ -220,9 +222,20 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
                             </div>
                             <CardTitle className="text-2xl font-bold mb-2">{plan.name}</CardTitle>
                             <div className="text-4xl font-bold text-yellow-300 mb-2">
-                              €{plan.price}
+                              €{plan.originalPrice}
                             </div>
-                            <p className="text-white/80 text-sm">pro {plan.period}</p>
+                            <p className="text-white/80 text-sm">pro Monat</p>
+                            <div className="bg-white/20 rounded-lg p-3 mt-3">
+                              <p className="text-white text-sm font-semibold">
+                                Jahresabrechnung: €{plan.price}
+                              </p>
+                              <p className="text-white/80 text-xs">
+                                zzgl. 19% MwSt. • 12 Monate Laufzeit
+                              </p>
+                              <p className="text-white/80 text-xs">
+                                Gesamtsumme: €{Math.round(parseFloat(plan.price.replace('.', '')) * 1.19)} inkl. MwSt.
+                              </p>
+                            </div>
                             <p className="text-white/90 text-sm mt-2">{plan.description}</p>
                           </CardHeader>
                           
