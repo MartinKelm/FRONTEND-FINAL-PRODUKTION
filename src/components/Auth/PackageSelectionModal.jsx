@@ -56,15 +56,15 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
       description: 'Für wachsende Unternehmen mit höheren Anforderungen',
       badge: 'BELIEBT',
       badgeColor: 'bg-yellow-100 text-yellow-800',
-      gradient: 'from-purple-600 to-pink-600',
+      gradient: 'from-purple-500 to-pink-600',
       icon: Crown,
       features: [
         'Unbegrenzte Kampagnen',
         'Alle Social Media Plattformen',
-        'Erweiterte Analytics & Reporting',
-        'A/B Testing für Anzeigen',
-        'Priority Support (24/7)',
-        'White-Label Option',
+        'A/B Testing',
+        'Erweiterte Analytics & Reports',
+        'Prioritäts-Support',
+        'Custom Branding',
         'API-Zugang',
         'Erweiterte Zielgruppen-Tools',
         'Automatische Budgetoptimierung'
@@ -76,9 +76,21 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
   const validateForm = () => {
     const newErrors = {}
 
-    if (!selectedPlan) newErrors.plan = 'Bitte wählen Sie einen Plan aus'
-    if (!acceptTerms) newErrors.terms = 'Sie müssen die AGB und Datenschutzerklärung akzeptieren'
+    console.log('Validating form...')
+    console.log('Selected plan:', selectedPlan)
+    console.log('Accept terms:', acceptTerms)
 
+    if (!selectedPlan) {
+      newErrors.plan = 'Bitte wählen Sie einen Plan aus'
+      console.log('Error: No plan selected')
+    }
+
+    if (!acceptTerms) {
+      newErrors.terms = 'Bitte akzeptieren Sie die AGB und Datenschutzerklärung'
+      console.log('Error: Terms not accepted')
+    }
+
+    console.log('Validation errors:', newErrors)
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -86,28 +98,43 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     
-    if (!validateForm()) return
+    console.log('PackageSelectionModal: handleSubmit called')
+    console.log('Selected plan:', selectedPlan)
+    console.log('Accept terms:', acceptTerms)
+    console.log('User data:', userData)
+    
+    if (!validateForm()) {
+      console.log('Validation failed:', errors)
+      return
+    }
 
     setIsLoading(true)
     
     try {
       const selectedPlanData = plans.find(plan => plan.id === selectedPlan)
+      console.log('Selected plan data:', selectedPlanData)
       
       // Complete user registration with selected plan
       const completeUserData = {
         ...userData,
         plan: {
           id: selectedPlan,
-          name: selectedPlanData.name,
-          price: selectedPlanData.price,
-          period: selectedPlanData.period
+          name: selectedPlanData?.name || 'Standard',
+          price: selectedPlanData?.price || '588',
+          period: selectedPlanData?.period || '12 Monate',
+          originalPrice: selectedPlanData?.originalPrice || '49'
         },
         preferences: {
           marketing: acceptMarketing
         },
         registrationStep: 'completed',
-        registrationDate: new Date().toISOString()
+        registrationDate: new Date().toISOString(),
+        planActive: true,
+        planStartDate: new Date().toISOString(),
+        planEndDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year from now
       }
+
+      console.log('Complete user data:', completeUserData)
 
       // Save final user data to localStorage
       const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
@@ -115,79 +142,82 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
       
       if (userIndex !== -1) {
         existingUsers[userIndex] = completeUserData
-        localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
+      } else {
+        existingUsers.push(completeUserData)
       }
+      
+      localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
+      console.log('User data saved to localStorage')
 
       // Simulate API call for final registration
       setTimeout(() => {
+        console.log('Registration completed, calling onComplete')
         setIsLoading(false)
         onComplete(completeUserData)
-      }, 2000)
+      }, 1500)
       
     } catch (error) {
+      console.error('Registration error:', error)
       setIsLoading(false)
       setErrors({ general: 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.' })
     }
   }
 
   const handlePlanSelect = (planId) => {
+    console.log('Plan selected:', planId)
     setSelectedPlan(planId)
-    if (errors.plan) {
-      setErrors({ ...errors, plan: '' })
-    }
+    setErrors({ ...errors, plan: '' }) // Clear plan error
   }
 
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        <Card className="shadow-2xl border-0 bg-white">
-          <CardHeader className="text-center pb-6 relative">
-            <button
-              onClick={onSkip}
-              className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
-              disabled={isLoading}
-            >
-              <X className="w-5 h-5" />
-            </button>
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Crown className="w-8 h-8 text-white" />
-            </div>
-            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-              Wählen Sie Ihren Plan
-            </CardTitle>
-            <CardDescription className="text-gray-600">
-              Schritt 3 von 3: Starten Sie mit dem perfekten Plan für Ihr Unternehmen
-            </CardDescription>
-            <div className="flex justify-center mt-4">
-              <div className="flex space-x-2">
-                <div className="w-8 h-2 bg-purple-500 rounded-full"></div>
-                <div className="w-8 h-2 bg-purple-500 rounded-full"></div>
-                <div className="w-8 h-2 bg-purple-500 rounded-full"></div>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+        <Card className="border-0 shadow-none">
+          <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl font-bold mb-2">
+                  Schritt 3 von 3: Plan auswählen
+                </CardTitle>
+                <CardDescription className="text-purple-100">
+                  Wählen Sie den passenden Plan für Ihr Unternehmen
+                </CardDescription>
               </div>
-            </div>
-            <div className="flex flex-wrap gap-2 justify-center mt-4">
-              <Badge className="bg-purple-100 text-purple-800">🎉 Willkommensbonus</Badge>
-              <Badge className="bg-green-100 text-green-800">💰 Jährliche Ersparnis</Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onSkip}
+                className="text-white hover:bg-white/20"
+                disabled={isLoading}
+              >
+                <X className="w-5 h-5" />
+              </Button>
             </div>
           </CardHeader>
           
-          <CardContent>
+          <CardContent className="p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Error Message */}
               {errors.general && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600">{errors.general}</p>
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-red-600 text-sm">{errors.general}</p>
                 </div>
               )}
 
               {/* Plan Selection */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 text-center">
-                  Wählen Sie den Plan, der zu Ihnen passt
-                </h3>
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    Wählen Sie Ihren Plan
+                  </h3>
+                  <p className="text-gray-600">
+                    Alle Pläne beinhalten eine 30-tägige Geld-zurück-Garantie
+                  </p>
+                </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {plans.map((plan) => {
                     const IconComponent = plan.icon
                     const isSelected = selectedPlan === plan.id
@@ -197,7 +227,7 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
                         key={plan.id}
                         className={`relative cursor-pointer transition-all duration-300 ${
                           isSelected 
-                            ? 'transform scale-105 ring-4 ring-purple-200' 
+                            ? 'transform scale-105 shadow-2xl' 
                             : 'hover:transform hover:scale-102'
                         }`}
                         onClick={() => handlePlanSelect(plan.id)}
@@ -291,7 +321,11 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
                     <Checkbox
                       id="acceptTerms"
                       checked={acceptTerms}
-                      onCheckedChange={setAcceptTerms}
+                      onCheckedChange={(checked) => {
+                        console.log('Terms checkbox changed:', checked)
+                        setAcceptTerms(checked)
+                        setErrors({ ...errors, terms: '' }) // Clear terms error
+                      }}
                       className={errors.terms ? 'border-red-500' : ''}
                       disabled={isLoading}
                     />
@@ -299,15 +333,18 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
                       Ich akzeptiere die{' '}
                       <a href="#" className="text-purple-600 hover:underline font-medium">
                         Allgemeinen Geschäftsbedingungen
-                      </a>
-                      {' '}und die{' '}
+                      </a>{' '}
+                      und die{' '}
                       <a href="#" className="text-purple-600 hover:underline font-medium">
                         Datenschutzerklärung
                       </a>
-                      {' '}von socialmediakampagnen.com *
+                      . Mir ist bewusst, dass der gewählte Plan für 12 Monate im Voraus berechnet wird.
                     </Label>
                   </div>
-                  {errors.terms && <p className="text-xs text-red-500 ml-6">{errors.terms}</p>}
+                  
+                  {errors.terms && (
+                    <p className="text-sm text-red-500 ml-6">{errors.terms}</p>
+                  )}
 
                   <div className="flex items-start space-x-3">
                     <Checkbox
@@ -317,17 +354,17 @@ const PackageSelectionModal = ({ userData, onComplete, onSkip, isOpen }) => {
                       disabled={isLoading}
                     />
                     <Label htmlFor="acceptMarketing" className="text-sm text-gray-700 leading-relaxed">
-                      Ich möchte Updates, Tipps und Marketing-Informationen per E-Mail erhalten (optional)
+                      Ich möchte über neue Features, Tipps und Angebote per E-Mail informiert werden (optional)
                     </Label>
                   </div>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   type="submit"
-                  disabled={isLoading || !selectedPlan}
+                  disabled={isLoading}
                   className="flex-1 h-12 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold text-base"
                 >
                   {isLoading ? (
