@@ -1,192 +1,181 @@
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Badge } from '../ui/badge'
-import { Building, Mail, Phone, MapPin, Scale } from 'lucide-react'
+import { Building, Mail, AlertCircle, Shield, FileText } from 'lucide-react'
 
 const ImpressumPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-12 px-4 sm:px-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 pt-24 pb-16">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Scale className="w-8 h-8 text-white" />
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center">
+              <Building className="w-8 h-8 text-white" />
+            </div>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl font-bold text-white mb-4">
             Impressum
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Rechtliche Angaben gemäß § 5 TMG (Telemediengesetz)
+          <p className="text-xl text-white/80">
+            Angaben gemäß § 5 TMG
           </p>
-          <Badge className="bg-blue-100 text-blue-800 mt-4">
-            Letzte Aktualisierung: September 2025
-          </Badge>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Company Information */}
-          <Card className="shadow-lg border-0 bg-white">
-            <CardHeader>
-              <CardTitle className="flex items-center text-xl text-gray-900">
-                <Building className="w-6 h-6 mr-3 text-blue-600" />
-                Unternehmensinformationen
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Firmenname</h3>
-                <p className="text-gray-700">
-                  SocialMediaKampagnen GmbH
-                </p>
-              </div>
+        <Card className="bg-white/95 backdrop-blur-sm shadow-2xl">
+          <CardContent className="p-8 space-y-8">
+            
+            {/* Anbieter */}
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <Building className="w-6 h-6 mr-3 text-purple-600" />
+                Anbieter
+              </h2>
               
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Geschäftsführer</h3>
-                <p className="text-gray-700">
-                  Max Mustermann
-                </p>
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <div className="space-y-2">
+                  <p className="text-xl font-semibold text-gray-900">Martin Kelm</p>
+                  <p className="text-gray-700">Im Weidenblech 25</p>
+                  <p className="text-gray-700">51371 Leverkusen</p>
+                  <p className="text-gray-700">Deutschland</p>
+                </div>
               </div>
-              
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Handelsregister</h3>
-                <p className="text-gray-700">
-                  HRB 12345 B<br />
-                  Amtsgericht Berlin
-                </p>
-              </div>
-              
-              <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Umsatzsteuer-ID</h3>
-                <p className="text-gray-700">
-                  DE123456789
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+            </section>
 
-          {/* Contact Information */}
-          <Card className="shadow-lg border-0 bg-white">
-            <CardHeader>
-              <CardTitle className="flex items-center text-xl text-gray-900">
-                <Mail className="w-6 h-6 mr-3 text-green-600" />
-                Kontaktdaten
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <MapPin className="w-5 h-5 text-gray-400 mt-1 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Anschrift</h3>
-                  <p className="text-gray-700">
-                    Musterstraße 123<br />
-                    10115 Berlin<br />
-                    Deutschland
-                  </p>
-                </div>
-              </div>
+            {/* Kontakt */}
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <Mail className="w-6 h-6 mr-3 text-blue-600" />
+                Kontakt
+              </h2>
               
-              <div className="flex items-start space-x-3">
-                <Phone className="w-5 h-5 text-gray-400 mt-1 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Telefon</h3>
-                  <p className="text-gray-700">
-                    +49 (0) 30 12345678
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3">
+                  <Mail className="w-5 h-5 text-blue-600" />
+                  <span className="text-gray-700">
+                    <strong>E-Mail:</strong> info@socialmediakampagnen.com
+                  </span>
+                </div>
+                
+                <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-500">
+                  <p className="text-blue-800">
+                    <strong>Hinweis:</strong> Es wird keine Telefonnummer angegeben. 
+                    Bitte kontaktieren Sie uns per E-Mail.
                   </p>
                 </div>
               </div>
-              
-              <div className="flex items-start space-x-3">
-                <Mail className="w-5 h-5 text-gray-400 mt-1 flex-shrink-0" />
-                <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">E-Mail</h3>
-                  <p className="text-gray-700">
-                    <a href="mailto:info@socialmediakampagnen.com" className="text-blue-600 hover:underline">
-                      info@socialmediakampagnen.com
-                    </a>
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            </section>
 
-        {/* Legal Information */}
-        <Card className="shadow-lg border-0 bg-white mt-8">
-          <CardHeader>
-            <CardTitle className="flex items-center text-xl text-gray-900">
-              <Scale className="w-6 h-6 mr-3 text-purple-600" />
-              Rechtliche Hinweise
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h3>
-              <p className="text-gray-700">
-                Max Mustermann<br />
-                Musterstraße 123<br />
-                10115 Berlin
+            {/* Verantwortlich für den Inhalt */}
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <Shield className="w-6 h-6 mr-3 text-green-600" />
+                Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV
+              </h2>
+              
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <div className="space-y-2">
+                  <p className="text-lg font-semibold text-gray-900">Martin Kelm</p>
+                  <p className="text-gray-700">Im Weidenblech 25</p>
+                  <p className="text-gray-700">51371 Leverkusen</p>
+                </div>
+              </div>
+            </section>
+
+            {/* Haftungsausschluss */}
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <AlertCircle className="w-6 h-6 mr-3 text-orange-600" />
+                Haftungsausschluss
+              </h2>
+              
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Haftung für Inhalte</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt. Für die Richtigkeit, 
+                    Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. 
+                    Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten 
+                    nach den allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als 
+                    Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde 
+                    Informationen zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige 
+                    Tätigkeit hinweisen.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Haftung für Links</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen 
+                    Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. 
+                    Für die Inhalte der verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der 
+                    Seiten verantwortlich. Die verlinkten Seiten wurden zum Zeitpunkt der Verlinkung auf 
+                    mögliche Rechtsverstöße überprüft. Rechtswidrige Inhalte waren zum Zeitpunkt der 
+                    Verlinkung nicht erkennbar.
+                  </p>
+                </div>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Urheberrecht</h3>
+                  <p className="text-gray-700 leading-relaxed">
+                    Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen 
+                    dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art 
+                    der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen 
+                    Zustimmung des jeweiligen Autors bzw. Erstellers. Downloads und Kopien dieser Seite sind 
+                    nur für den privaten, nicht kommerziellen Gebrauch gestattet.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* EU-Streitschlichtung */}
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                <FileText className="w-6 h-6 mr-3 text-purple-600" />
+                EU-Streitschlichtung
+              </h2>
+              
+              <div className="bg-purple-50 p-6 rounded-lg border-l-4 border-purple-500">
+                <p className="text-purple-800 leading-relaxed">
+                  Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: 
+                  <a 
+                    href="https://ec.europa.eu/consumers/odr/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-purple-600 hover:underline ml-1"
+                  >
+                    https://ec.europa.eu/consumers/odr/
+                  </a>
+                </p>
+                <p className="text-purple-800 mt-3">
+                  Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer 
+                  Verbraucherschlichtungsstelle teilzunehmen.
+                </p>
+              </div>
+            </section>
+
+            {/* Geschäftstätigkeit */}
+            <section>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Geschäftstätigkeit
+              </h2>
+              
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <p className="text-gray-700 leading-relaxed">
+                  Der Inhaber stellt socialmediakampagnen.com zur Nutzung durch Geschäftskunden bereit. 
+                  Die Plattform richtet sich ausschließlich an Unternehmen, Gewerbetreibende und 
+                  Freiberufler (B2B-Bereich).
+                </p>
+              </div>
+            </section>
+
+            {/* Stand */}
+            <div className="text-center pt-8 border-t border-gray-200">
+              <p className="text-gray-500 text-sm">
+                Stand: Dezember 2024
               </p>
             </div>
 
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Haftungsausschluss</h3>
-              <div className="space-y-4 text-gray-700">
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Haftung für Inhalte</h4>
-                  <p>
-                    Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den 
-                    allgemeinen Gesetzen verantwortlich. Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht 
-                    unter der Verpflichtung, übermittelte oder gespeicherte fremde Informationen zu überwachen oder nach 
-                    Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Haftung für Links</h4>
-                  <p>
-                    Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. 
-                    Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen. Für die Inhalte der 
-                    verlinkten Seiten ist stets der jeweilige Anbieter oder Betreiber der Seiten verantwortlich.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Urheberrecht</h4>
-                  <p>
-                    Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen 
-                    Urheberrecht. Die Vervielfältigung, Bearbeitung, Verbreitung und jede Art der Verwertung außerhalb der 
-                    Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung des jeweiligen Autors bzw. Erstellers.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-3">Streitschlichtung</h3>
-              <p className="text-gray-700">
-                Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: 
-                <a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-1">
-                  https://ec.europa.eu/consumers/odr/
-                </a>
-                <br />
-                Unsere E-Mail-Adresse finden Sie oben im Impressum.
-              </p>
-              <p className="text-gray-700 mt-2">
-                Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer 
-                Verbraucherschlichtungsstelle teilzunehmen.
-              </p>
-            </div>
           </CardContent>
         </Card>
-
-        {/* Footer Note */}
-        <div className="text-center mt-12">
-          <p className="text-sm text-gray-500">
-            Bei Fragen zum Impressum wenden Sie sich bitte an:{' '}
-            <a href="mailto:legal@socialmediakampagnen.com" className="text-blue-600 hover:underline">
-              legal@socialmediakampagnen.com
-            </a>
-          </p>
-        </div>
       </div>
     </div>
   )
