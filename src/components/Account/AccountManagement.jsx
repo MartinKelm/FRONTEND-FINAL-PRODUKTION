@@ -32,26 +32,52 @@ const AccountManagement = ({ currentUser, onUpdateUser }) => {
 
   // Profile Data
   const [profileData, setProfileData] = useState({
-    firstName: currentUser?.firstName || '',
-    lastName: currentUser?.lastName || '',
-    email: currentUser?.email || '',
-    phone: currentUser?.phone || ''
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: ''
   })
 
   // Company Data
   const [companyData, setCompanyData] = useState({
-    name: currentUser?.company?.name || '',
-    industry: currentUser?.company?.industry || '',
-    website: currentUser?.company?.website || '',
-    phone: currentUser?.company?.phone || '',
+    name: '',
+    industry: '',
+    website: '',
+    phone: '',
     address: {
-      street: currentUser?.company?.address?.street || '',
-      city: currentUser?.company?.address?.city || '',
-      postalCode: currentUser?.company?.address?.postalCode || '',
-      country: currentUser?.company?.address?.country || 'Deutschland'
+      street: '',
+      city: '',
+      postalCode: '',
+      country: 'Deutschland'
     },
-    description: currentUser?.company?.description || ''
+    description: ''
   })
+
+  // Update state when currentUser changes
+  useEffect(() => {
+    if (currentUser) {
+      setProfileData({
+        firstName: currentUser.firstName || '',
+        lastName: currentUser.lastName || '',
+        email: currentUser.email || '',
+        phone: currentUser.phone || ''
+      })
+
+      setCompanyData({
+        name: currentUser.company?.name || '',
+        industry: currentUser.company?.industry || '',
+        website: currentUser.company?.website || '',
+        phone: currentUser.company?.phone || '',
+        address: {
+          street: currentUser.company?.address?.street || '',
+          city: currentUser.company?.address?.city || '',
+          postalCode: currentUser.company?.address?.postalCode || '',
+          country: currentUser.company?.address?.country || 'Deutschland'
+        },
+        description: currentUser.company?.description || ''
+      })
+    }
+  }, [currentUser])
 
   // Password Data
   const [passwordData, setPasswordData] = useState({
