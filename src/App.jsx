@@ -26,6 +26,9 @@ import {
 } from 'lucide-react'
 import './App.css'
 
+// Import components
+import AccountManagement from './components/Account/AccountManagement'
+
 // Import images
 import FullLogo from './assets/Logo-socialmediakampagnen-voll.png'
 import heroDashboard from './assets/hero-dashboard.png'
@@ -213,10 +216,10 @@ function App() {
         onClick={handleLogout}
         variant="ghost"
         size="sm"
-        className="text-white hover:bg-white/10"
+        className="text-white hover:bg-white/10 w-8 h-8 rounded-full p-0 flex items-center justify-center"
+        title="Abmelden"
       >
-        <LogOut className="w-4 h-4 mr-2" />
-        Abmelden
+        <LogOut className="w-4 h-4" />
       </Button>
     </div>
   )
@@ -251,6 +254,12 @@ function App() {
                       className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'pricing' ? 'text-purple-600' : ''}`}
                     >
                       Preise
+                    </button>
+                    <button 
+                      onClick={() => setCurrentView('account')}
+                      className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'account' ? 'text-purple-600' : ''}`}
+                    >
+                      Mein Account
                     </button>
                   </>
                 )}
@@ -388,6 +397,15 @@ function App() {
                       >
                         Preise
                       </button>
+                      <button 
+                        onClick={() => {
+                          setCurrentView('account')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                      >
+                        Mein Account
+                      </button>
                     </>
                   )}
                   {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
@@ -476,6 +494,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('about')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -485,6 +504,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('contact')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -494,6 +514,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('faq')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -1243,6 +1264,16 @@ function App() {
       {currentView === 'dashboard' && isAuthenticated && (
         <>
           <DashboardSection />
+          <Footer />
+        </>
+      )}
+      
+      {currentView === 'account' && isAuthenticated && (
+        <>
+          <AccountManagement 
+            currentUser={currentUser} 
+            onUpdateUser={setCurrentUser}
+          />
           <Footer />
         </>
       )}
