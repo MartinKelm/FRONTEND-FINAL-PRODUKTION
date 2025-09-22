@@ -76,9 +76,9 @@ const CampaignWizard = ({ onClose }) => {
       const img = new Image()
       img.onload = () => {
         let isValid = false
-        if (format === '1:1' && img.width === 1080 && img.height === 1080) isValid = true
-        if (format === 'Story' && img.width === 1080 && img.height === 1920) isValid = true
-        if (format === 'Landscape' && img.width === 1200 && img.height === 630) isValid = true
+        if (format === '1080x1080' && img.width === 1080 && img.height === 1080) isValid = true
+        if (format === '1080x1920' && img.width === 1080 && img.height === 1920) isValid = true
+        if (format === '1200x630' && img.width === 1200 && img.height === 630) isValid = true
 
         if (isValid) {
           const reader = new FileReader()
@@ -96,7 +96,7 @@ const CampaignWizard = ({ onClose }) => {
           }
           reader.readAsDataURL(file)
         } else {
-          alert(`Bitte laden Sie ein Bild mit den korrekten Abmessungen hoch: ${format === '1:1' ? '1080x1080px' : format === 'Story' ? '1080x1920px' : '1200x630px'}`)
+          alert(`Bitte laden Sie ein Bild mit den korrekten Abmessungen hoch: ${format}px`)
         }
       }
       img.src = URL.createObjectURL(file)
@@ -207,64 +207,64 @@ const CampaignWizard = ({ onClose }) => {
     {
       id: 'facebook',
       name: 'Facebook',
-      icon: <Facebook className="w-5 h-5" />,
-      format: '1:1',
+      icon: <div className="w-5 h-5 bg-white rounded text-blue-600 flex items-center justify-center text-xs font-bold">f</div>,
+      format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-blue-600'
     },
     {
       id: 'instagram',
       name: 'Instagram',
-      icon: <Instagram className="w-5 h-5" />,
-      format: '1:1',
+      icon: <div className="w-5 h-5 bg-white rounded text-pink-600 flex items-center justify-center text-xs font-bold">IG</div>,
+      format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-pink-600'
     },
     {
       id: 'google',
       name: 'Google Ads',
-      icon: <Search className="w-5 h-5" />,
-      format: '1:1',
+      icon: <div className="w-5 h-5 bg-white rounded text-red-600 flex items-center justify-center text-xs font-bold">G</div>,
+      format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-red-600'
     },
     {
       id: 'tiktok',
       name: 'TikTok',
-      icon: <Music className="w-5 h-5" />,
-      format: 'Story',
+      icon: <div className="w-5 h-5 bg-white rounded text-black flex items-center justify-center text-xs font-bold">TT</div>,
+      format: '1080x1920',
       dimensions: '1080x1920px',
       color: 'bg-black'
     },
     {
       id: 'snapchat',
       name: 'Snapchat',
-      icon: <Camera className="w-5 h-5" />,
-      format: 'Story',
+      icon: <div className="w-5 h-5 bg-white rounded text-yellow-600 flex items-center justify-center text-xs font-bold">SC</div>,
+      format: '1080x1920',
       dimensions: '1080x1920px',
       color: 'bg-yellow-400'
     },
     {
       id: 'reddit',
       name: 'Reddit',
-      icon: <MessageCircle className="w-5 h-5" />,
-      format: 'Landscape',
+      icon: <div className="w-5 h-5 bg-white rounded text-orange-600 flex items-center justify-center text-xs font-bold">R</div>,
+      format: '1200x630',
       dimensions: '1200x630px',
       color: 'bg-orange-600'
     },
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      icon: <Linkedin className="w-5 h-5" />,
-      format: '1:1',
+      icon: <div className="w-5 h-5 bg-white rounded text-blue-700 flex items-center justify-center text-xs font-bold">LI</div>,
+      format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-blue-700'
     },
     {
       id: 'spotify',
       name: 'Spotify',
-      icon: <Music className="w-5 h-5" />,
-      format: '1:1',
+      icon: <div className="w-5 h-5 bg-white rounded text-green-600 flex items-center justify-center text-xs font-bold">SP</div>,
+      format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-green-600'
     }
@@ -434,9 +434,9 @@ const CampaignWizard = ({ onClose }) => {
               {getRequiredFormats().map((format) => (
                 <div key={format} className="border rounded-lg p-4 bg-gray-50">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="font-medium text-purple-700">{format} Format</span>
+                    <span className="font-medium text-purple-700">{format}px Format</span>
                     <Badge variant="outline" className="bg-white">
-                      {format === '1:1' ? '1080x1080px' : format === 'Story' ? '1080x1920px' : '1200x630px'}
+                      {format}px
                     </Badge>
                   </div>
                   <div className="space-y-2">
@@ -509,8 +509,23 @@ const CampaignWizard = ({ onClose }) => {
           <CardContent>
             {getSelectedChannels().length > 0 ? (
               <div className="space-y-4">
+                {/* Current Channel Display */}
+                <div className="text-center mb-4">
+                  <div className="flex items-center justify-center space-x-2 mb-2">
+                    <div className={`p-2 rounded ${getSelectedChannels()[currentPreviewIndex]?.color}`}>
+                      {getSelectedChannels()[currentPreviewIndex]?.icon}
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      {getSelectedChannels()[currentPreviewIndex]?.name} Vorschau
+                    </h3>
+                  </div>
+                  <Badge variant="outline" className="bg-gray-100">
+                    Format: {getSelectedChannels()[currentPreviewIndex]?.dimensions}
+                  </Badge>
+                </div>
+
                 {/* Channel Navigation */}
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between mb-4">
                   <Button
                     variant="outline"
                     size="sm"
@@ -522,7 +537,7 @@ const CampaignWizard = ({ onClose }) => {
                     <span>Zurück</span>
                   </Button>
                   <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                    {getSelectedChannels()[currentPreviewIndex]?.name} ({currentPreviewIndex + 1} von {getSelectedChannels().length})
+                    {currentPreviewIndex + 1} von {getSelectedChannels().length}
                   </Badge>
                   <Button
                     variant="outline"
@@ -553,11 +568,11 @@ const CampaignWizard = ({ onClose }) => {
                     </div>
                     
                     {campaignData.content.headline && (
-                      <h3 className="font-semibold mb-2 text-gray-800">{campaignData.content.headline}</h3>
+                      <h3 className="font-semibold mb-2 text-gray-800 whitespace-pre-line">{campaignData.content.headline}</h3>
                     )}
                     
                     {campaignData.content.description && (
-                      <p className="text-sm text-gray-600 mb-3">{campaignData.content.description}</p>
+                      <p className="text-sm text-gray-600 mb-3 whitespace-pre-line">{campaignData.content.description}</p>
                     )}
                     
                     {/* Image Preview */}
@@ -846,16 +861,16 @@ const CampaignWizard = ({ onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-7xl max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-[10px] shadow-xl w-full max-w-7xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-purple-50 to-pink-50">
+        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-purple-600 to-pink-600 rounded-t-[10px]">
           <div>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold text-white">
               Kampagne erstellen
             </h1>
-            <p className="text-gray-600">Schritt {currentStep} von {steps.length}: {steps[currentStep - 1]?.title}</p>
+            <p className="text-purple-100">Schritt {currentStep} von {steps.length}: {steps[currentStep - 1]?.title}</p>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose} className="hover:bg-red-50 hover:text-red-600">
+          <Button variant="ghost" size="sm" onClick={onClose} className="hover:bg-white hover:bg-opacity-20 text-white hover:text-white">
             <X className="w-5 h-5" />
           </Button>
         </div>
