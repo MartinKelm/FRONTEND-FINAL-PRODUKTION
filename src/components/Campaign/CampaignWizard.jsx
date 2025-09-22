@@ -324,12 +324,17 @@ const CampaignWizard = ({ onClose }) => {
   }
 
   const handleChannelToggle = (channelId) => {
-    setCampaignData(prev => ({
-      ...prev,
-      channels: prev.channels.includes(channelId)
+    console.log('Channel toggle clicked:', channelId)
+    setCampaignData(prev => {
+      const newChannels = prev.channels.includes(channelId)
         ? prev.channels.filter(id => id !== channelId)
         : [...prev.channels, channelId]
-    }))
+      console.log('New channels:', newChannels)
+      return {
+        ...prev,
+        channels: newChannels
+      }
+    })
     // Reset preview index when channels change
     setCurrentPreviewIndex(0)
   }
@@ -676,7 +681,9 @@ const CampaignWizard = ({ onClose }) => {
   }
 
   const canProceedToStep2 = () => {
-    return campaignData.goal && campaignData.channels.length > 0
+    const canProceed = campaignData.goal && campaignData.channels.length > 0
+    console.log('Can proceed to step 2:', canProceed, 'Goal:', campaignData.goal, 'Channels:', campaignData.channels)
+    return canProceed
   }
 
   const canProceedToStep3 = () => {
@@ -732,7 +739,7 @@ const CampaignWizard = ({ onClose }) => {
                 <CardDescription>Wählen Sie die Social Media Kanäle für Ihre Kampagne</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 gap-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+                <div className="grid grid-cols-2 gap-3">
                   {channels.map((channel) => (
                     <div
                       key={channel.id}
@@ -741,39 +748,19 @@ const CampaignWizard = ({ onClose }) => {
                           ? 'border-purple-500 bg-purple-50'
                           : 'border-gray-200 hover:border-gray-300'
                       }`}
-                      style={{ 
-                        display: 'block', 
-                        visibility: 'visible', 
-                        opacity: '1',
-                        padding: '12px',
-                        borderRadius: '8px',
-                        border: campaignData.channels.includes(channel.id) ? '2px solid #a855f7' : '2px solid #e5e7eb',
-                        backgroundColor: campaignData.channels.includes(channel.id) ? '#faf5ff' : 'white',
-                        cursor: 'pointer'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        console.log('Channel card clicked:', channel.id)
+                        handleChannelToggle(channel.id)
                       }}
-                      onClick={() => handleChannelToggle(channel.id)}
                     >
-                      <div className="text-center" style={{ textAlign: 'center' }}>
-                        <div 
-                          className={`w-8 h-8 ${channel.color} rounded-lg flex items-center justify-center mx-auto mb-2`}
-                          style={{ 
-                            width: '32px', 
-                            height: '32px', 
-                            borderRadius: '8px', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            margin: '0 auto 8px auto' 
-                          }}
-                        >
-                          <channel.icon className="w-4 h-4 text-white" style={{ width: '16px', height: '16px', color: 'white' }} />
+                      <div className="text-center">
+                        <div className={`w-8 h-8 ${channel.color} rounded-lg flex items-center justify-center mx-auto mb-2`}>
+                          <channel.icon className="w-4 h-4 text-white" />
                         </div>
-                        <h4 className="font-medium text-gray-900 text-sm" style={{ fontWeight: '500', color: '#111827', fontSize: '14px', marginBottom: '4px' }}>
-                          {channel.name}
-                        </h4>
-                        <p className="text-xs text-gray-600" style={{ fontSize: '12px', color: '#6b7280' }}>
-                          {channel.dimensions}
-                        </p>
+                        <h4 className="font-medium text-gray-900 text-sm">{channel.name}</h4>
+                        <p className="text-xs text-gray-600">{channel.dimensions}</p>
                       </div>
                     </div>
                   ))}
@@ -1181,36 +1168,8 @@ const CampaignWizard = ({ onClose }) => {
   }
 
   return (
-    <div 
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-      style={{ 
-        position: 'fixed', 
-        top: 0, 
-        left: 0, 
-        right: 0, 
-        bottom: 0, 
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        zIndex: 9999, 
-        padding: '16px' 
-      }}
-    >
-      <div 
-        className="bg-white rounded-xl shadow-2xl w-full max-w-7xl h-[90vh] overflow-hidden flex flex-col"
-        style={{ 
-          backgroundColor: 'white', 
-          borderRadius: '12px', 
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', 
-          width: '100%', 
-          maxWidth: '112rem', 
-          height: '90vh', 
-          overflow: 'hidden', 
-          display: 'flex', 
-          flexDirection: 'column' 
-        }}
-      >
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-7xl h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 flex items-center justify-between flex-shrink-0">
           <div>
