@@ -5,7 +5,7 @@ import { Label } from '../ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Checkbox } from '../ui/checkbox'
 import { Eye, EyeOff, User, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react'
-import SMKLogo from '../../assets/SMK-Logo.png'
+import FullLogo from '../../assets/Logo-socialmediakampagnen-voll.png'
 
 const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -171,8 +171,8 @@ const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
       <div className="w-full max-w-lg">
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <img src={SMKLogo} alt="SMK Logo" className="w-12 h-12 object-contain" />
+            <div className="flex justify-center mb-4">
+              <img src={FullLogo} alt="socialmediakampagnen.com Logo" className="h-12 w-auto" />
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Konto erstellen
