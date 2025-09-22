@@ -508,7 +508,63 @@ function App() {
     </nav>
   )
 
-
+  // Auth Views - now with Navigation and Footer
+  if (!isAuthenticated && (authView === 'login' || authView === 'register' || authView === 'register-simple')) {
+    return (
+      <div>
+        <Navigation />
+        
+        {authView === 'login' && (
+          <>
+            <div className="pt-20">{/* Add padding for fixed navbar */}
+              <LoginForm 
+                onLogin={handleLogin}
+                onSwitchToRegister={() => setAuthView('register-simple')}
+              />
+            </div>
+            <Footer />
+          </>
+        )}
+        {authView === 'register' && (
+          <>
+            <div className="pt-20">{/* Add padding for fixed navbar */}
+              <RegisterForm 
+                onRegister={handleRegister}
+                onSwitchToLogin={() => setAuthView('login')}
+              />
+            </div>
+            <Footer />
+          </>
+        )}
+        {authView === 'register-simple' && (
+          <>
+            <div className="pt-20">{/* Add padding for fixed navbar */}
+              <RegisterFormSimple 
+                onShowCompanyProfile={handleShowCompanyProfile}
+                onSwitchToLogin={() => setAuthView('login')}
+              />
+            </div>
+            <Footer />
+          </>
+        )}
+        
+        {/* Multi-step Registration Modals */}
+        <CompanyProfileModal 
+          userData={registrationUserData}
+          onComplete={handleCompanyProfileComplete}
+          onSkip={handleCompanyProfileSkip}
+          isOpen={showCompanyProfileModal}
+        />
+        
+        <PackageSelectionModal 
+          userData={registrationUserData}
+          onComplete={handlePackageSelectionComplete}
+          onSkip={handlePackageSelectionSkip}
+          isOpen={showPackageSelectionModal}
+        />
+      </div>
+    )
+  }
 
   // Admin Dashboard
   if (isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && currentView === 'admin') {
@@ -529,7 +585,7 @@ function App() {
     )
   }
 
-  // Hero Section - ORIGINAL DESIGN PRESERVED
+  // Hero Section - ORIGINAL DESIGN PRESERVED (Wording aktualisiert)
   const HeroSection = () => (
     <section className="hero-section relative overflow-hidden px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
       <div className="max-w-7xl mx-auto">
@@ -547,16 +603,19 @@ function App() {
           </div>
           
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-            <span className="text-yellow-300">Social Media</span> Kampagnen{' '}
-            <span className="text-green-300">ohne</span> technisches{' '}
-            <span className="text-blue-300">Know-how</span>
+            <span className="text-yellow-300">Alle Werbeanzeigen</span> in einem Editor –{' '}
+            <span className="text-green-300">einfach</span>,{' '}
+            <span className="text-blue-300">schnell</span>,{' '}
+            <span className="text-pink-300">effektiv</span>
           </h1>
           
           <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-10 max-w-4xl mx-auto leading-relaxed">
-            Ohne technisches Know-how. Ohne Agentur. Ohne Stress.
+            Eine Plattform für alle Kanäle. Erstelle Anzeigen für Meta, Google, TikTok, Spotify & mehr –
+            ohne Ads-Manager, ohne Agentur, ohne Umwege.
           </p>
           <p className="text-base sm:text-lg text-white/80 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
-            Unsere intuitive Plattform führt Sie Schritt für Schritt durch die Erstellung erfolgreicher Kampagnen für Facebook, Instagram, TikTok und mehr.
+            Ob Recruiting, E-Commerce oder lokale Werbung: Socialmediakampagnen.com bündelt alles,
+            was du brauchst, um in Minuten live zu sein und messbar neue Kunden & Bewerber zu erreichen.
           </p>
         </div>
 
@@ -574,7 +633,7 @@ function App() {
     </section>
   )
 
-  // Features Section - ORIGINAL DESIGN PRESERVED
+  // Features Section - ORIGINAL DESIGN PRESERVED (Wording aktualisiert)
   const FeaturesSection = () => (
     <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto">
@@ -594,10 +653,10 @@ function App() {
             </Badge>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-            Warum <span className="text-purple-600">socialmediakampagnen.com</span> wählen?
+            Warum <span className="text-purple-600">socialmediakampagnen.com</span>?
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Unsere Plattform macht Social Media Marketing so einfach wie nie zuvor
+            Die zentrale Plattform für Unternehmen, Recruiter und Werbetreibende – alle Anzeigen in einem Editor erstellen, überall ausspielen und zentral auswerten.
           </p>
         </div>
 
@@ -616,8 +675,7 @@ function App() {
             </CardHeader>
             <CardContent>
               <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                Was früher Stunden dauerte, erledigen Sie jetzt in wenigen Minuten. 
-                Automatisierte Kampagnenerstellung für alle Plattformen.
+                Einmal erstellen, überall ausspielen. Schluss mit fünf Ads-Managern, zig Formaten und Copy-Paste.
               </p>
             </CardContent>
           </Card>
@@ -636,8 +694,7 @@ function App() {
             </CardHeader>
             <CardContent>
               <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                Unser intuitiver Wizard führt Sie Schritt für Schritt durch die 
-                Kampagnenerstellung. Kein technisches Wissen erforderlich.
+                Intuitiv wie ein Formular – jeder im Team kann Kampagnen live schalten. Optional mit KI-Texten & Vorlagen.
               </p>
             </CardContent>
           </Card>
@@ -651,13 +708,12 @@ function App() {
                 <BarChart3 className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
               </div>
               <CardTitle className="text-xl sm:text-2xl font-bold text-orange-100">
-                Live-Vorschau
+                Live-Vorschau & Kontrolle
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                Sehen Sie in Echtzeit, wie Ihre Anzeigen auf Facebook, Instagram, 
-                TikTok und anderen Plattformen aussehen werden.
+                Sofort sehen, wie deine Anzeigen auf Meta, Google, TikTok & Co. wirken – inklusive zentraler Abrechnung.
               </p>
             </CardContent>
           </Card>
@@ -668,7 +724,7 @@ function App() {
             Unterstützte Plattformen
           </h3>
           <p className="text-lg sm:text-xl mb-8 sm:mb-10 text-white/90">
-            Erstellen Sie Kampagnen für alle wichtigen Social Media Kanäle
+            Erstelle Anzeigen für alle relevanten Kanäle – zentral gesteuert in einem Editor.
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
@@ -702,7 +758,7 @@ function App() {
     </section>
   )
 
-  // Pricing Section
+  // Pricing Section (Wording aktualisiert)
   const PricingSection = () => (
     <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
       <div className="max-w-7xl mx-auto">
@@ -719,10 +775,10 @@ function App() {
             </Badge>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
-            Einfache <span className="text-yellow-400">Preise</span>
+            Einfache <span className="text-yellow-400">Preise</span> – voller Zugang
           </h2>
           <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto">
-            Wählen Sie den Plan, der zu Ihrem Unternehmen passt. Jederzeit kündbar.
+            Alle Funktionen, alle Kanäle, ein Preis. Ideal für Start-ups, KMU, Recruiter und Agenturen.
           </p>
         </div>
 
@@ -754,7 +810,7 @@ function App() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                  <span className="text-white/90 text-sm sm:text-base">E-Mail Support</span>
+                  <span className="text-white/90 text-sm sm:text-base">E-Mail-Support</span>
                 </div>
               </div>
               <Button 
@@ -798,11 +854,11 @@ function App() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                  <span className="text-white/90 text-sm sm:text-base">Priority Support</span>
+                  <span className="text-white/90 text-sm sm:text-base">Priority-Support</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                  <span className="text-white/90 text-sm sm:text-base">White-Label Option</span>
+                  <span className="text-white/90 text-sm sm:text-base">White-Label-Option</span>
                 </div>
               </div>
               <Button 
@@ -824,7 +880,7 @@ function App() {
               ✅ Keine Einrichtungsgebühr
             </Badge>
             <Badge className="bg-white/10 text-white border-white/20 text-xs sm:text-sm px-3 py-2">
-              ✅ Jährliche Abrechnung
+              ✅ Einheitliche Abrechnung
             </Badge>
             <Badge className="bg-white/10 text-white border-white/20 text-xs sm:text-sm px-3 py-2">
               ✅ DSGVO-konform
@@ -1101,43 +1157,6 @@ function App() {
         <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
       )}
       
-      {/* Auth Views */}
-      {!isAuthenticated && authView === 'login' && (
-        <>
-          <div className="pt-20">
-            <LoginForm 
-              onLogin={handleLogin}
-              onSwitchToRegister={() => setAuthView('register-simple')}
-            />
-          </div>
-          <Footer />
-        </>
-      )}
-      
-      {!isAuthenticated && authView === 'register' && (
-        <>
-          <div className="pt-20">
-            <RegisterForm 
-              onRegister={handleRegister}
-              onSwitchToLogin={() => setAuthView('login')}
-            />
-          </div>
-          <Footer />
-        </>
-      )}
-      
-      {!isAuthenticated && authView === 'register-simple' && (
-        <>
-          <div className="pt-20">
-            <RegisterFormSimple 
-              onShowCompanyProfile={handleShowCompanyProfile}
-              onSwitchToLogin={() => setAuthView('login')}
-            />
-          </div>
-          <Footer />
-        </>
-      )}
-
       {/* Main Content Views */}
       {currentView === 'home' && !authView && (
         <>
