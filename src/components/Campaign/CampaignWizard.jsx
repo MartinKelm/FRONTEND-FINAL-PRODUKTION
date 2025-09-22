@@ -860,7 +860,7 @@ const CampaignWizard = ({ onClose }) => {
   // Step 2: Content & Media (2 columns)
   const renderStep2 = () => (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-      {/* Left Column: Content Creation & Media Upload */}
+      {/* Left Column: Content Creation */}
       <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         <Card>
           <CardHeader>
@@ -890,7 +890,7 @@ const CampaignWizard = ({ onClose }) => {
                 value={campaignData.content.description}
                 onChange={(e) => handleContentChange('description', e.target.value)}
                 className="mt-1"
-                rows={3}
+                rows={4}
               />
             </div>
 
@@ -906,8 +906,10 @@ const CampaignWizard = ({ onClose }) => {
             </div>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Media Upload */}
+      {/* Right Column: Media Upload */}
+      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         {getSelectedChannels().length > 0 && (
           <Card>
             <CardHeader>
@@ -982,147 +984,17 @@ const CampaignWizard = ({ onClose }) => {
             </CardContent>
           </Card>
         )}
-      </div>
 
-      {/* Right Column: Live Preview Carousel */}
-      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <Eye className="w-5 h-5 text-purple-600" />
-              <span>Live-Vorschau</span>
-            </CardTitle>
-            <CardDescription>So wird Ihre Anzeige aussehen</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {getSelectedChannels().length > 0 ? (
-              <div className="space-y-4">
-                {/* Current Channel Display */}
-                <div className="text-center mb-4">
-                  <div className="flex items-center justify-center space-x-2 mb-2">
-                    <div className={`p-2 rounded ${getSelectedChannels()[currentPreviewIndex]?.color}`}>
-                      {getSelectedChannels()[currentPreviewIndex]?.icon}
-                    </div>
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      {getSelectedChannels()[currentPreviewIndex]?.name} Vorschau
-                    </h3>
-                  </div>
-                  <Badge variant="outline" className="bg-gray-100">
-                    Format: {getSelectedChannels()[currentPreviewIndex]?.dimensions}
-                  </Badge>
-                </div>
-
-                {/* Channel Navigation */}
-                <div className="flex items-center justify-between mb-4">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 1))}
-                    disabled={currentPreviewIndex === 0}
-                    className="flex items-center space-x-1"
-                  >
-                    <ChevronLeft className="w-4 h-4 text-purple-600" />
-                    <span>Zurück</span>
-                  </Button>
-                  <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-                    {currentPreviewIndex + 1} von {getSelectedChannels().length}
-                  </Badge>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPreviewIndex(Math.min(getSelectedChannels().length - 1, currentPreviewIndex + 1))}
-                    disabled={currentPreviewIndex === getSelectedChannels().length - 1}
-                    className="flex items-center space-x-1"
-                  >
-                    <span>Weiter</span>
-                    <ChevronRight className="w-4 h-4 text-purple-600" />
-                  </Button>
-                </div>
-
-                {/* Preview Content */}
-                <div className="border rounded-lg p-4 bg-gradient-to-br from-gray-50 to-gray-100">
-                  <div className="bg-white rounded-lg p-4 shadow-sm">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xs font-bold">IU</span>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-sm">Ihr Unternehmen</p>
-                        <p className="text-xs text-gray-500 flex items-center">
-                          <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
-                          Gesponsert
-                        </p>
-                      </div>
-                    </div>
-                    
-                    {campaignData.content.headline && (
-                      <h3 className="font-semibold mb-2 text-gray-800 whitespace-pre-line">{campaignData.content.headline}</h3>
-                    )}
-                    
-                    {campaignData.content.description && (
-                      <p className="text-sm text-gray-600 mb-3 whitespace-pre-line">{campaignData.content.description}</p>
-                    )}
-                    
-                    {/* Image Preview */}
-                    {getSelectedChannels()[currentPreviewIndex] && campaignData.content.images[getSelectedChannels()[currentPreviewIndex].format] && (
-                      <div className="mb-3">
-                        <img
-                          src={campaignData.content.images[getSelectedChannels()[currentPreviewIndex].format]}
-                          alt="Preview"
-                          className="w-full rounded-lg shadow-sm"
-                          style={{ maxHeight: '200px', objectFit: 'cover' }}
-                        />
-                      </div>
-                    )}
-                    
-                    {campaignData.content.callToAction && (
-                      <Button size="sm" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-md">
-                        {campaignData.content.callToAction}
-                      </Button>
-                    )}
-
-                    {/* Engagement Preview */}
-                    <div className="flex items-center justify-between mt-4 pt-3 border-t text-gray-500">
-                      <div className="flex items-center space-x-4 text-xs">
-                        <span className="flex items-center space-x-1">
-                          <Heart className="w-3 h-3" />
-                          <span>42</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <MessageCircle className="w-3 h-3" />
-                          <span>8</span>
-                        </span>
-                        <span className="flex items-center space-x-1">
-                          <Share className="w-3 h-3" />
-                          <span>3</span>
-                        </span>
-                      </div>
-                      <MoreHorizontal className="w-4 h-4" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Navigation Dots */}
-                <div className="flex justify-center space-x-2">
-                  {getSelectedChannels().map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentPreviewIndex(index)}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentPreviewIndex ? 'bg-purple-600' : 'bg-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Eye className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>Wählen Sie Kanäle aus, um eine Vorschau zu sehen</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        {/* Placeholder when no channels selected */}
+        {getSelectedChannels().length === 0 && (
+          <Card>
+            <CardContent className="text-center py-12 text-gray-500">
+              <Upload className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg">Keine Kanäle ausgewählt</p>
+              <p className="text-sm">Gehen Sie zurück und wählen Sie Kanäle aus, um Medien hochzuladen</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )
