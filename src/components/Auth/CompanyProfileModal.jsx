@@ -224,8 +224,8 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
                   <Label className="text-sm font-medium text-gray-700">
                     Branche *
                   </Label>
-                  <Select onValueChange={(value) => handleSelectChange('industry', value)} disabled={isLoading}>
-                    <SelectTrigger className={`h-12 ${errors.industry ? 'border-red-500' : 'border-gray-300'}`}>
+                  <Select value={formData.industry} onValueChange={(value) => setFormData(prev => ({ ...prev, industry: value }))} disabled={isLoading}>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Wählen Sie Ihre Branche" />
                     </SelectTrigger>
                     <SelectContent>
