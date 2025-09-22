@@ -5,6 +5,7 @@ import { Label } from '../ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Checkbox } from '../ui/checkbox'
 import { Eye, EyeOff, User, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react'
+import FullLogo from '../../assets/Logo-socialmediakampagnen-voll.png'
 
 const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -166,12 +167,12 @@ const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
   const passwordStrength = getPasswordStrength(formData.password)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-500 to-pink-400 flex items-center justify-center p-4">
+    <div className="min-h-[calc(100vh-160px)] bg-gradient-to-br from-blue-600 via-purple-500 to-pink-400 flex items-center justify-center p-4">
       <div className="w-full max-w-lg">
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
-              <User className="w-8 h-8 text-white" />
+            <div className="flex justify-center mb-4">
+              <img src={FullLogo} alt="socialmediakampagnen.com Logo" className="h-12 w-auto" />
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               Konto erstellen
