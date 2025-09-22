@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Textarea } from '../ui/textarea'
-import { Building, Phone, MapPin, Globe, Users, Briefcase, X } from 'lucide-react'
+import { Building, Phone, MapPin, Globe, Briefcase, X } from 'lucide-react'
 
 const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
   const [formData, setFormData] = useState({
@@ -40,15 +40,6 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
     'Sonstiges'
   ]
 
-  const companySizes = [
-    '1-10 Mitarbeiter',
-    '11-50 Mitarbeiter',
-    '51-200 Mitarbeiter',
-    '201-500 Mitarbeiter',
-    '501-1000 Mitarbeiter',
-    '1000+ Mitarbeiter'
-  ]
-
   const validateForm = () => {
     const newErrors = {}
 
@@ -75,7 +66,9 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
-  }it = async (e) => {
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     if (!validateForm()) return
@@ -144,6 +137,8 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
       ...formData,
       [name]: value
     })
+    
+    // Remove error when field is filled
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -158,7 +153,7 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <Card className="shadow-2xl border-0 bg-white">
-          <CardHeader className="text-center pb-4 relative">
+          <CardHeader className="text-center pb-6 relative">
             <button
               onClick={onSkip}
               className="absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition-colors"
@@ -166,41 +161,46 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
             >
               <X className="w-5 h-5" />
             </button>
+            
             <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Building className="w-8 h-8 text-white" />
             </div>
+            
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-              Firmenprofil vervollständigen
+              Schritt 2 von 3: Firmeninformationen
             </CardTitle>
             <CardDescription className="text-gray-600">
-              Schritt 2 von 3: Firmeninformationen für bessere Kampagnen
+              Für bessere Kampagnen und Rechnungsstellung
             </CardDescription>
-            <div className="flex justify-center mt-4">
-              <div className="flex space-x-2">
-                <div className="w-8 h-2 bg-green-500 rounded-full"></div>
-                <div className="w-8 h-2 bg-green-500 rounded-full"></div>
-                <div className="w-8 h-2 bg-gray-200 rounded-full"></div>
-              </div>
+            
+            {/* Progress indicator */}
+            <div className="flex justify-center space-x-2 mt-4">
+              <div className="w-8 h-2 bg-green-500 rounded-full"></div>
+              <div className="w-8 h-2 bg-green-500 rounded-full"></div>
+              <div className="w-8 h-2 bg-gray-200 rounded-full"></div>
             </div>
-            <div className="flex flex-wrap gap-2 justify-center mt-4">
-              <Badge className="bg-green-100 text-green-800">🎯 Bessere Zielgruppen</Badge>
-              <Badge className="bg-blue-100 text-blue-800">📊 Optimierte Kampagnen</Badge>
+            
+            <div className="flex justify-center mt-3">
+              <Badge variant="outline" className="text-green-600 border-green-200 bg-green-50">
+                <Briefcase className="w-3 h-3 mr-1" />
+                Professionelle Kampagnen
+              </Badge>
             </div>
           </CardHeader>
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               {errors.general && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                  <p className="text-sm text-red-600">{errors.general}</p>
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {errors.general}
                 </div>
               )}
 
-              {/* Basic Company Information */}
+              {/* Company Information */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                   <Building className="w-5 h-5 mr-2 text-green-600" />
-                  Grundlegende Informationen
+                  Unternehmensdaten *
                 </h3>
                 
                 <div className="space-y-2">
@@ -212,9 +212,10 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
                     name="companyName"
                     value={formData.companyName}
                     onChange={handleChange}
-                    className={`h-12 ${errors.companyName ? 'border-red-500' : 'border-gray-300'} focus:border-green-500 focus:ring-green-500`}
-                    placeholder="Ihr Unternehmen GmbH"
+                    className={`h-12 border-gray-300 focus:border-green-500 focus:ring-green-500 ${errors.companyName ? 'border-red-500' : ''}`}
+                    placeholder="Ihre Firma GmbH"
                     disabled={isLoading}
+                    required
                   />
                   {errors.companyName && <p className="text-xs text-red-500">{errors.companyName}</p>}
                 </div>
@@ -369,57 +370,55 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
                 </div>
               </div>
 
-              {/* Company Description */}
+              {/* Description */}
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Briefcase className="w-5 h-5 mr-2 text-green-600" />
-                  Unternehmensbeschreibung (optional)
+                <h3 className="text-lg font-semibold text-gray-900">
+                  Kurzbeschreibung (optional)
                 </h3>
-                
                 <div className="space-y-2">
                   <Label htmlFor="description" className="text-sm font-medium text-gray-700">
-                    Beschreiben Sie Ihr Unternehmen
+                    Was macht Ihr Unternehmen?
                   </Label>
                   <Textarea
                     id="description"
                     name="description"
                     value={formData.description}
                     onChange={handleChange}
-                    className="min-h-[100px] border-gray-300 focus:border-green-500 focus:ring-green-500"
-                    placeholder="Was macht Ihr Unternehmen? Welche Produkte oder Dienstleistungen bieten Sie an?"
+                    className="min-h-[80px] border-gray-300 focus:border-green-500 focus:ring-green-500"
+                    placeholder="Kurze Beschreibung Ihres Unternehmens für bessere Kampagnen..."
                     disabled={isLoading}
                   />
-                  <p className="text-xs text-gray-500">
-                    Diese Informationen helfen uns, bessere Kampagnenvorschläge zu erstellen.
-                  </p>
                 </div>
               </div>
 
+              {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  className="flex-1 h-12 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold text-base"
-                >
-                  {isLoading ? 'Wird gespeichert...' : 'Weiter zur Planauswahl'}
-                </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={onSkip}
                   disabled={isLoading}
-                  className="h-12 px-6 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  className="flex-1 h-12 border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
-                  Später vervollständigen
+                  Später ausfüllen
+                </Button>
+                
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="flex-1 h-12 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Speichern...</span>
+                    </div>
+                  ) : (
+                    'Weiter zur Planauswahl'
+                  )}
                 </Button>
               </div>
             </form>
-
-            <div className="mt-4 text-center">
-              <p className="text-xs text-gray-500">
-                Sie können diese Informationen jederzeit in Ihren Kontoeinstellungen ändern.
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>
