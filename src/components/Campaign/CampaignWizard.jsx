@@ -27,15 +27,15 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card.jsx'
-import { Button } from '@/components/ui/button.jsx'
-import { Badge } from '@/components/ui/badge.jsx'
-import { Input } from '@/components/ui/input.jsx'
-import { Label } from '@/components/ui/label.jsx'
-import { Textarea } from '@/components/ui/textarea.jsx'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group.jsx'
-import { Checkbox } from '@/components/ui/checkbox.jsx'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { Button } from '../ui/button'
+import { Badge } from '../ui/badge'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Textarea } from '../ui/textarea'
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
+import { Checkbox } from '../ui/checkbox'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 
 const CampaignWizard = ({ onClose }) => {
   const [currentStep, setCurrentStep] = useState(1) // 1: 3-Column Setup, 2: Budget & Booking
