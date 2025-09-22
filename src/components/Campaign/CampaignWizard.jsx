@@ -263,19 +263,19 @@ const CampaignWizard = ({ onClose }) => {
   // Image format definitions
   const imageFormats = {
     square: {
-      name: 'Square Format',
+      name: '1:1 Format',
       dimensions: '1080x1080px',
       description: 'Für Facebook, Instagram, Google, Spotify, LinkedIn',
       channels: ['facebook', 'instagram', 'google', 'spotify', 'linkedin']
     },
-    vertical: {
-      name: 'Vertical Format',
-      dimensions: '1800x1920px', 
+    story: {
+      name: 'Story Format',
+      dimensions: '1080x1920px', 
       description: 'Für TikTok, Snapchat',
       channels: ['tiktok', 'snapchat']
     },
     landscape: {
-      name: 'Landscape Format',
+      name: 'Querformat',
       dimensions: '1200x630px',
       description: 'Für Reddit',
       channels: ['reddit']
@@ -335,6 +335,17 @@ const CampaignWizard = ({ onClose }) => {
     }
   }
 
+  // Helper function to preserve line breaks in text
+  const formatTextWithLineBreaks = (text) => {
+    if (!text) return text
+    return text.split('\n').map((line, index) => (
+      <React.Fragment key={index}>
+        {line}
+        {index < text.split('\n').length - 1 && <br />}
+      </React.Fragment>
+    ))
+  }
+
   // Enhanced Preview Components
   const FacebookPreview = ({ content, image }) => (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden max-w-md mx-auto">
@@ -355,8 +366,12 @@ const CampaignWizard = ({ onClose }) => {
         </div>
       )}
       <div className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-2">{content.headline || 'Ihre Überschrift'}</h3>
-        <p className="text-gray-700 text-sm mb-3">{content.description || 'Ihre Beschreibung'}</p>
+        <h3 className="font-semibold text-gray-900 mb-2">
+          {formatTextWithLineBreaks(content.headline) || 'Ihre Überschrift'}
+        </h3>
+        <p className="text-gray-700 text-sm mb-3">
+          {formatTextWithLineBreaks(content.description) || 'Ihre Beschreibung'}
+        </p>
         <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
           {content.callToAction || 'Mehr erfahren'}
         </Button>
@@ -406,8 +421,8 @@ const CampaignWizard = ({ onClose }) => {
         </div>
         <p className="text-sm">
           <span className="font-semibold">ihr_unternehmen</span>{' '}
-          {content.headline && <span className="font-semibold">{content.headline}</span>}
-          {content.description && <span> {content.description}</span>}
+          {content.headline && <span className="font-semibold">{formatTextWithLineBreaks(content.headline)}</span>}
+          {content.description && <span> {formatTextWithLineBreaks(content.description)}</span>}
         </p>
         {content.callToAction && (
           <p className="text-blue-600 text-sm mt-2 font-medium">{content.callToAction}</p>
@@ -424,12 +439,12 @@ const CampaignWizard = ({ onClose }) => {
           <span className="text-green-700 text-sm">Anzeige</span>
         </div>
         <h3 className="text-blue-600 text-lg font-medium hover:underline cursor-pointer">
-          {content.headline || 'Ihre Überschrift - Ihr Unternehmen'}
+          {formatTextWithLineBreaks(content.headline) || 'Ihre Überschrift - Ihr Unternehmen'}
         </h3>
         <p className="text-green-700 text-sm">www.ihr-unternehmen.de</p>
       </div>
       <p className="text-gray-700 text-sm leading-relaxed">
-        {content.description || 'Ihre Beschreibung erscheint hier. Überzeugen Sie potenzielle Kunden mit einer klaren Botschaft.'}
+        {formatTextWithLineBreaks(content.description) || 'Ihre Beschreibung erscheint hier. Überzeugen Sie potenzielle Kunden mit einer klaren Botschaft.'}
       </p>
       {content.callToAction && (
         <div className="mt-3">
@@ -451,8 +466,8 @@ const CampaignWizard = ({ onClose }) => {
         <div className="flex items-end justify-between">
           <div className="flex-1">
             <p className="font-semibold mb-1">@ihr_unternehmen</p>
-            <p className="text-sm mb-2">{content.headline || 'Ihre TikTok Überschrift'}</p>
-            <p className="text-xs opacity-90">{content.description || 'Ihre Beschreibung'}</p>
+            <p className="text-sm mb-2">{formatTextWithLineBreaks(content.headline) || 'Ihre TikTok Überschrift'}</p>
+            <p className="text-xs opacity-90">{formatTextWithLineBreaks(content.description) || 'Ihre Beschreibung'}</p>
             {content.callToAction && (
               <Button size="sm" className="mt-2 bg-white text-black hover:bg-gray-100">
                 {content.callToAction}
@@ -494,8 +509,8 @@ const CampaignWizard = ({ onClose }) => {
         </div>
       )}
       <div className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-2">{content.headline || 'Ihre LinkedIn Überschrift'}</h3>
-        <p className="text-gray-700 text-sm mb-3">{content.description || 'Ihre professionelle Beschreibung'}</p>
+        <h3 className="font-semibold text-gray-900 mb-2">{formatTextWithLineBreaks(content.headline) || 'Ihre LinkedIn Überschrift'}</h3>
+        <p className="text-gray-700 text-sm mb-3">{formatTextWithLineBreaks(content.description) || 'Ihre professionelle Beschreibung'}</p>
         <Button className="w-full bg-blue-700 hover:bg-blue-800 text-white">
           {content.callToAction || 'Mehr erfahren'}
         </Button>
