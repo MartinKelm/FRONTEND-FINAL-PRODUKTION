@@ -214,9 +214,8 @@ function App() {
       </div>
       <Button
         onClick={handleLogout}
-        variant="ghost"
         size="sm"
-        className="text-white hover:bg-white/10 w-8 h-8 rounded-full p-0 flex items-center justify-center"
+        className="bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full p-0 flex items-center justify-center shadow-lg"
         title="Abmelden"
       >
         <LogOut className="w-4 h-4" />
@@ -255,12 +254,14 @@ function App() {
                     >
                       Preise
                     </button>
-                    <button 
+                    <Button 
                       onClick={() => setCurrentView('account')}
-                      className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'account' ? 'text-purple-600' : ''}`}
+                      variant={currentView === 'account' ? 'default' : 'outline'}
+                      size="sm"
+                      className="text-sm"
                     >
                       Mein Account
-                    </button>
+                    </Button>
                   </>
                 )}
                 {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
