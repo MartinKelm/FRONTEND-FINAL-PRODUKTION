@@ -4,7 +4,7 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle, Info } from 'lucide-react'
-import SMKLogo from '../../assets/SMK-Logo.png'
+import FullLogo from '../../assets/Logo-socialmediakampagnen-voll.png'
 
 const LoginForm = ({ onLogin, onSwitchToRegister }) => {
   const [formData, setFormData] = useState({
@@ -170,8 +170,8 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
       <div className="w-full max-w-md">
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
-            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <img src={SMKLogo} alt="SMK Logo" className="w-12 h-12 object-contain" />
+            <div className="flex justify-center mb-4">
+              <img src={FullLogo} alt="socialmediakampagnen.com Logo" className="h-12 w-auto" />
             </div>
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
               Anmelden
