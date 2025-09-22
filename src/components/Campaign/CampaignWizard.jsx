@@ -1094,16 +1094,26 @@ const CampaignWizard = ({ onClose }) => {
               )}
             </div>
 
-            {/* Navigation Dots */}
-            <div className="flex justify-center space-x-2 mt-6">
+            {/* Navigation Arrows */}
+            <div className="flex justify-center space-x-4 mt-6">
               {Array.from({ length: totalPairs }, (_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentPreviewIndex(index * 2)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentPair ? 'bg-purple-600' : 'bg-gray-300'
+                  className={`flex items-center justify-center w-10 h-10 rounded-lg border-2 transition-all ${
+                    index === currentPair 
+                      ? 'bg-purple-600 border-purple-600 text-white shadow-md' 
+                      : 'bg-white border-gray-300 text-gray-600 hover:border-purple-300 hover:text-purple-600'
                   }`}
-                />
+                >
+                  {index < currentPair ? (
+                    <ChevronLeft className="w-5 h-5" />
+                  ) : index > currentPair ? (
+                    <ChevronRight className="w-5 h-5" />
+                  ) : (
+                    <div className="w-2 h-2 bg-current rounded-full"></div>
+                  )}
+                </button>
               ))}
             </div>
           </div>
@@ -1120,7 +1130,7 @@ const CampaignWizard = ({ onClose }) => {
 
   // Step 4: Budget & Final Approval
   const renderStep4 = () => (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6 max-h-[70vh] overflow-y-auto">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           Budget & Finale Freigabe
