@@ -38,7 +38,7 @@ import { Checkbox } from '@/components/ui/checkbox.jsx'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
 
 const CampaignWizard = ({ onClose }) => {
-  const [currentStep, setCurrentStep] = useState(1)
+  const [currentStep, setCurrentStep] = useState(1) // 1: 3-Column Setup, 2: Budget & Booking
   const [uploadedImages, setUploadedImages] = useState([])
   const [uploadedVideos, setUploadedVideos] = useState([])
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0)
@@ -63,10 +63,8 @@ const CampaignWizard = ({ onClose }) => {
   })
 
   const steps = [
-    { id: 1, title: 'Kampagnenziel', description: 'Wählen Sie Ihr Ziel' },
-    { id: 2, title: 'Kanäle & Content', description: 'Kanäle und Inhalte' },
-    { id: 3, title: 'Medien-Upload', description: 'Bilder und Videos' },
-    { id: 4, title: 'Budget & Bestätigung', description: 'Mediabudget festlegen' }
+    { id: 1, title: 'Kampagne erstellen', description: '3-Spalten Ansicht: Ziel, Kanäle, Inhalte & Vorschau' },
+    { id: 2, title: 'Budget & Buchung', description: 'Budget festlegen und Kampagne buchen' }
   ]
 
   const handleImageUpload = (event, format) => {
@@ -600,7 +598,11 @@ const CampaignWizard = ({ onClose }) => {
         <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-xl">
           <div>
             <h2 className="text-2xl font-bold">Kampagne erstellen</h2>
-            <p className="text-purple-100">Schritt {currentStep} von {steps.length}: {steps[currentStep - 1]?.title}</p>
+            <p className="text-purple-100">
+              Schritt {currentStep} von 2: {
+                currentStep === 1 ? 'Kampagne erstellen' : 'Budget & Buchung'
+              }
+            </p>
           </div>
           <Button
             onClick={onClose}
@@ -613,34 +615,19 @@ const CampaignWizard = ({ onClose }) => {
         </div>
 
         {/* Progress Bar */}
-        <div className="px-6 py-4 border-b">
-          <div className="flex items-center justify-between mb-2">
-            {steps.map((step, index) => (
-              <div key={step.id} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                  currentStep >= step.id 
-                    ? 'bg-purple-600 text-white' 
-                    : 'bg-gray-200 text-gray-600'
-                }`}>
-                  {currentStep > step.id ? <CheckCircle className="w-5 h-5" /> : step.id}
-                </div>
-                {index < steps.length - 1 && (
-                  <div className={`w-24 h-1 mx-2 ${
-                    currentStep > step.id ? 'bg-purple-600' : 'bg-gray-200'
-                  }`} />
-                )}
-              </div>
-            ))}
-          </div>
+        <div className="bg-gray-200 h-2">
+          <div 
+            className="bg-gradient-to-r from-purple-600 to-pink-600 h-full transition-all duration-300"
+            style={{ width: `${(currentStep / 2) * 100}%` }}
+          />
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-hidden">
-          {currentStep <= 3 ? (
-            /* Steps 1-3: 3-Column Layout */
+        <div className="flex-1 overflow-y-auto">
+          {currentStep === 1 && (
             <div className="h-full flex">
-              {/* Left Column: Settings */}
-              <div className="w-1/3 p-6 border-r overflow-y-auto">
+              {/* Left Column: Goals & Channels */}
+              <div className="w-1/3 p-6 border-r overflow-y-auto max-h-[70vh]">
                 {currentStep === 1 && (
                   <div>
                     <h3 className="text-xl font-bold mb-4">Kampagnenziel auswählen</h3>
@@ -667,15 +654,9 @@ const CampaignWizard = ({ onClose }) => {
                         </Card>
                       ))}
                     </div>
-                  </div>
-                )}
-
-                {currentStep === 2 && (
-                  <div>
-                    <h3 className="text-xl font-bold mb-4">Kanäle & Content</h3>
                     
                     {/* Channel Selection */}
-                    <div className="mb-6">
+                    <div className="mt-6">
                       <h4 className="font-semibold mb-3">Kanäle auswählen</h4>
                       <div className="grid grid-cols-2 gap-2">
                         {channels.map((channel) => (
@@ -706,293 +687,200 @@ const CampaignWizard = ({ onClose }) => {
                         ))}
                       </div>
                     </div>
-
-                    {/* Content Creation */}
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="headline">Überschrift</Label>
-                        <Input
-                          id="headline"
-                          value={campaignData.content.headline}
-                          onChange={(e) => setCampaignData(prev => ({
-                            ...prev,
-                            content: { ...prev.content, headline: e.target.value }
-                          }))}
-                          placeholder="Ihre Kampagnen-Überschrift"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="description">Beschreibung</Label>
-                        <Textarea
-                          id="description"
-                          value={campaignData.content.description}
-                          onChange={(e) => setCampaignData(prev => ({
-                            ...prev,
-                            content: { ...prev.content, description: e.target.value }
-                          }))}
-                          placeholder="Beschreiben Sie Ihre Kampagne..."
-                          rows={4}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="cta">Call-to-Action</Label>
-                        <Input
-                          id="cta"
-                          value={campaignData.content.callToAction}
-                          onChange={(e) => setCampaignData(prev => ({
-                            ...prev,
-                            content: { ...prev.content, callToAction: e.target.value }
-                          }))}
-                          placeholder="Mehr erfahren"
-                        />
-                      </div>
-                    </div>
                   </div>
                 )}
 
-                {currentStep === 3 && (
-                  <div>
-                    <h3 className="text-xl font-bold mb-4">Medien hochladen</h3>
-                    <p className="text-gray-600 mb-6">Laden Sie Bilder und Videos für Ihre Kampagne hoch.</p>
-                    
-                    <div className="space-y-6">
-                      {imageFormats.map((format) => (
-                        <div key={format.id} className="border rounded-lg p-4">
-                          <h4 className="font-semibold mb-2">{format.name}</h4>
-                          <p className="text-sm text-gray-600 mb-3">{format.dimensions} - {format.description}</p>
-                          
-                          {/* Image Upload */}
-                          <div className="mb-4">
-                            <Label className="text-sm font-medium mb-2 block">Bild hochladen</Label>
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors">
-                              <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleImageUpload(e, format.id)}
-                                className="hidden"
-                                id={`image-${format.id}`}
-                              />
-                              <label htmlFor={`image-${format.id}`} className="cursor-pointer">
-                                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                <p className="text-sm text-gray-600">
-                                  Bild hochladen ({format.dimensions})
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">PNG, JPG bis 10MB</p>
-                              </label>
-                            </div>
-                          </div>
-
-                          {/* Video Upload */}
-                          <div>
-                            <Label className="text-sm font-medium mb-2 block">Video hochladen (optional)</Label>
-                            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors">
-                              <input
-                                type="file"
-                                accept="video/*"
-                                onChange={(e) => handleVideoUpload(e, format.id)}
-                                className="hidden"
-                                id={`video-${format.id}`}
-                              />
-                              <label htmlFor={`video-${format.id}`} className="cursor-pointer">
-                                <Play className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                <p className="text-sm text-gray-600">
-                                  Video hochladen (MP4, MOV, AVI)
-                                </p>
-                                <p className="text-xs text-gray-500 mt-1">Bis 100MB</p>
-                              </label>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
 
-              {/* Middle Column: Media Upload (only for step 3) */}
-              {currentStep === 3 && (
-                <div className="w-1/3 p-6 border-r overflow-y-auto">
-                  <h3 className="text-xl font-bold mb-4">Hochgeladene Medien</h3>
+              {/* Middle Column: Content Creation */}
+              <div className="w-1/3 p-6 border-r overflow-y-auto max-h-[70vh]">
+                <h3 className="text-xl font-bold mb-4">Inhalte erstellen</h3>
+                
+                {/* Content Creation */}
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="headline">Überschrift</Label>
+                    <Input
+                      id="headline"
+                      value={campaignData.content.headline}
+                      onChange={(e) => setCampaignData(prev => ({
+                        ...prev,
+                        content: { ...prev.content, headline: e.target.value }
+                      }))}
+                      placeholder="Ihre Kampagnen-Überschrift"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="description">Beschreibung</Label>
+                    <Textarea
+                      id="description"
+                      value={campaignData.content.description}
+                      onChange={(e) => setCampaignData(prev => ({
+                        ...prev,
+                        content: { ...prev.content, description: e.target.value }
+                      }))}
+                      placeholder="Beschreiben Sie Ihre Kampagne..."
+                      rows={4}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="cta">Call-to-Action</Label>
+                    <Input
+                      id="cta"
+                      value={campaignData.content.callToAction}
+                      onChange={(e) => setCampaignData(prev => ({
+                        ...prev,
+                        content: { ...prev.content, callToAction: e.target.value }
+                      }))}
+                      placeholder="Mehr erfahren"
+                    />
+                  </div>
                   
-                  {uploadedImages.length > 0 && (
-                    <div className="mb-6">
-                      <h4 className="font-semibold mb-3">Bilder</h4>
-                      <div className="space-y-3">
-                        {uploadedImages.map((image) => (
-                          <div key={image.id} className="border rounded-lg p-3">
-                            <img src={image.url} alt={image.name} className="w-full h-32 object-cover rounded mb-2" />
-                            <p className="text-sm font-medium">{image.name}</p>
-                            <p className="text-xs text-gray-500">{imageFormats.find(f => f.id === image.format)?.name}</p>
-                          </div>
-                        ))}
-                      </div>
+                  {/* Media Upload */}
+                  <div className="mt-6">
+                    <Label>Medien hochladen</Label>
+                    <div className="mt-2 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                      <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-600">Bilder oder Videos hochladen</p>
+                      <p className="text-xs text-gray-500">PNG, JPG, MP4 bis 10MB</p>
                     </div>
-                  )}
-
-                  {uploadedVideos.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold mb-3">Videos</h4>
-                      <div className="space-y-3">
-                        {uploadedVideos.map((video) => (
-                          <div key={video.id} className="border rounded-lg p-3">
-                            <video src={video.url} className="w-full h-32 object-cover rounded mb-2" controls />
-                            <p className="text-sm font-medium">{video.name}</p>
-                            <p className="text-xs text-gray-500">{imageFormats.find(f => f.id === video.format)?.name}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {uploadedImages.length === 0 && uploadedVideos.length === 0 && (
-                    <div className="text-center text-gray-500 py-8">
-                      <Upload className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                      <p>Keine Medien hochgeladen</p>
-                    </div>
-                  )}
+                  </div>
                 </div>
-              )}
+              </div>
 
               {/* Right Column: Live Preview */}
-              <div className="w-1/3 p-6 overflow-y-auto">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold">Live-Vorschau</h3>
-                  {getSelectedChannels().length > 1 && (
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 1))}
-                        disabled={currentPreviewIndex === 0}
-                        size="sm"
-                        className="bg-purple-500 hover:bg-purple-600 text-white"
-                      >
-                        <ArrowLeft className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        onClick={() => setCurrentPreviewIndex(Math.min(getSelectedChannels().length - 1, currentPreviewIndex + 1))}
-                        disabled={currentPreviewIndex >= getSelectedChannels().length - 1}
-                        size="sm"
-                        className="bg-purple-500 hover:bg-purple-600 text-white"
-                      >
-                        <ArrowRight className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-
-                {getSelectedChannels().length > 0 ? (
-                  <>
-                    <div className="mb-4">
-                      {renderPreview(getSelectedChannels()[currentPreviewIndex])}
-                    </div>
-                    
-                    {getSelectedChannels().length > 1 && (
-                      <div className="flex justify-center space-x-2">
-                        {getSelectedChannels().map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => setCurrentPreviewIndex(index)}
-                            className={`w-3 h-3 rounded-full ${
-                              index === currentPreviewIndex ? 'bg-purple-500' : 'bg-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
-                    
-                    <div className="mt-4 text-center">
-                      <div className="flex items-center justify-center space-x-2 mb-2">
-                        <div className={`w-6 h-6 ${getSelectedChannels()[currentPreviewIndex]?.color} rounded flex items-center justify-center`}>
-                          {React.createElement(getSelectedChannels()[currentPreviewIndex]?.icon, { className: "w-3 h-3 text-white" })}
+              <div className="w-1/3 p-6 overflow-y-auto max-h-[70vh]">
+                <h3 className="text-xl font-bold mb-4">Live-Vorschau</h3>
+                
+                {campaignData.channels.length > 0 ? (
+                  <div className="space-y-4">
+                    {campaignData.channels.map((channelId) => {
+                      const channel = channels.find(c => c.id === channelId)
+                      if (!channel) return null
+                      
+                      return (
+                        <div key={channelId} className="border rounded-lg p-4 bg-gray-50">
+                          <div className="flex items-center space-x-2 mb-3">
+                            <div className={`w-6 h-6 ${channel.color} rounded flex items-center justify-center`}>
+                              <channel.icon className="w-3 h-3 text-white" />
+                            </div>
+                            <span className="font-medium text-sm">{channel.name}</span>
+                          </div>
+                          
+                          {/* Mock Preview */}
+                          <div className="bg-white rounded-lg p-3 shadow-sm">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs font-bold">IU</span>
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium">Ihr Unternehmen</p>
+                                <p className="text-xs text-gray-500">Gesponsert</p>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <p className="text-sm font-medium">
+                                {campaignData.content.headline || 'Ihre Überschrift erscheint hier...'}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {campaignData.content.description || 'Ihre Beschreibung erscheint hier...'}
+                              </p>
+                              
+                              {/* Mock Image Placeholder */}
+                              <div className="bg-gray-200 rounded h-32 flex items-center justify-center">
+                                <span className="text-gray-500 text-sm">Bild-Vorschau</span>
+                              </div>
+                              
+                              {campaignData.content.callToAction && (
+                                <Button size="sm" className="w-full mt-2">
+                                  {campaignData.content.callToAction}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <span className="font-medium">{getSelectedChannels()[currentPreviewIndex]?.name}</span>
-                      </div>
-                      <p className="text-sm text-gray-600">
-                        {currentPreviewIndex + 1} von {getSelectedChannels().length}
-                      </p>
-                    </div>
-                  </>
+                      )
+                    })}
+                  </div>
                 ) : (
                   <div className="text-center text-gray-500 py-8">
-                    <Eye className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                    <Target className="w-12 h-12 mx-auto mb-3 text-gray-400" />
                     <p>Wählen Sie Kanäle für die Vorschau</p>
                   </div>
                 )}
               </div>
             </div>
-          ) : (
-            /* Step 4: Budget & Confirmation - Full Width */
-            <div className="h-full p-6 overflow-y-auto">
-              <div className="max-w-4xl mx-auto">
-                <h3 className="text-2xl font-bold mb-6">Budget & Bestätigung</h3>
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  {/* Budget Settings */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center space-x-2">
-                        <Euro className="w-5 h-5" />
-                        <span>Mediabudget festlegen</span>
-                      </CardTitle>
-                      <CardDescription>
-                        Legen Sie Ihr Werbebudget fest
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <Label>Budget-Typ</Label>
-                        <RadioGroup
-                          value={campaignData.budget.type}
-                          onValueChange={(value) => setCampaignData(prev => ({
-                            ...prev,
-                            budget: { ...prev.budget, type: value }
-                          }))}
-                          className="mt-2"
-                        >
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="daily" id="daily" />
-                            <Label htmlFor="daily">Tagesbudget</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="total" id="total" />
-                            <Label htmlFor="total">Gesamtbudget</Label>
-                          </div>
-                        </RadioGroup>
-                      </div>
+          )}
 
-                      <div>
-                        <Label htmlFor="budget-amount">
-                          {campaignData.budget.type === 'daily' ? 'Tagesbudget (€)' : 'Gesamtbudget (€)'}
-                        </Label>
-                        <Input
-                          id="budget-amount"
-                          type="number"
-                          min="1"
-                          value={campaignData.budget.amount}
-                          onChange={(e) => setCampaignData(prev => ({
-                            ...prev,
-                            budget: { ...prev.budget, amount: e.target.value }
-                          }))}
-                          placeholder="100"
-                          className="mt-1"
-                        />
-                      </div>
+          {currentStep === 2 && (
+            <div className="max-w-4xl mx-auto p-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Budget Settings */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Budget & Laufzeit</CardTitle>
+                    <CardDescription>Legen Sie Ihr Werbebudget und die Kampagnenlaufzeit fest</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Budget Type */}
+                    <div>
+                      <Label className="text-base font-medium">Budget-Typ</Label>
+                      <RadioGroup
+                        value={campaignData.budget.type}
+                        onValueChange={(value) => setCampaignData(prev => ({
+                          ...prev,
+                          budget: { ...prev.budget, type: value }
+                        }))}
+                        className="mt-2"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="daily" id="daily" />
+                          <Label htmlFor="daily">Tagesbudget</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="total" id="total" />
+                          <Label htmlFor="total">Gesamtbudget</Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
 
-                      <div>
-                        <Label htmlFor="duration">Laufzeit (Tage)</Label>
-                        <Input
-                          id="duration"
-                          type="number"
-                          min="1"
-                          value={campaignData.budget.duration}
-                          onChange={(e) => setCampaignData(prev => ({
-                            ...prev,
-                            budget: { ...prev.budget, duration: e.target.value }
-                          }))}
-                          placeholder="7"
-                          className="mt-1"
-                        />
-                      </div>
+                    {/* Budget Amount */}
+                    <div>
+                      <Label htmlFor="budget-amount">
+                        {campaignData.budget.type === 'daily' ? 'Tagesbudget (€)' : 'Gesamtbudget (€)'} *
+                      </Label>
+                      <Input
+                        id="budget-amount"
+                        type="number"
+                        value={campaignData.budget.amount}
+                        onChange={(e) => setCampaignData(prev => ({
+                          ...prev,
+                          budget: { ...prev.budget, amount: e.target.value }
+                        }))}
+                        placeholder="100"
+                        min="1"
+                      />
+                    </div>
 
+                    {/* Duration */}
+                    <div>
+                      <Label htmlFor="duration">Laufzeit (Tage) *</Label>
+                      <Input
+                        id="duration"
+                        type="number"
+                        value={campaignData.budget.duration}
+                        onChange={(e) => setCampaignData(prev => ({
+                          ...prev,
+                          budget: { ...prev.budget, duration: e.target.value }
+                        }))}
+                        placeholder="7"
+                        min="1"
+                      />
+                    </div>
+
+                    {/* Date Range */}
+                    <div className="grid grid-cols-2 gap-4">
                       <div>
                         <Label htmlFor="start-date">Startdatum</Label>
                         <Input
@@ -1003,99 +891,68 @@ const CampaignWizard = ({ onClose }) => {
                             ...prev,
                             budget: { ...prev.budget, startDate: e.target.value }
                           }))}
-                          className="mt-1"
                         />
                       </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Campaign Summary */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Kampagnen-Übersicht</CardTitle>
-                      <CardDescription>
-                        Überprüfen Sie Ihre Kampagnen-Einstellungen
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
                       <div>
-                        <h4 className="font-semibold mb-2">Ziel</h4>
-                        <p className="text-sm text-gray-600">
+                        <Label htmlFor="end-date">Enddatum</Label>
+                        <Input
+                          id="end-date"
+                          type="date"
+                          value={campaignData.budget.endDate}
+                          onChange={(e) => setCampaignData(prev => ({
+                            ...prev,
+                            budget: { ...prev.budget, endDate: e.target.value }
+                          }))}
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Campaign Summary */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Kampagnen-Zusammenfassung</CardTitle>
+                    <CardDescription>Überprüfen Sie Ihre Kampagnen-Einstellungen</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="font-medium text-gray-900">Ziel:</p>
+                        <p className="text-gray-600">
                           {goals.find(g => g.id === campaignData.goal)?.title || 'Nicht ausgewählt'}
                         </p>
                       </div>
-
                       <div>
-                        <h4 className="font-semibold mb-2">Kanäle ({campaignData.channels.length})</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {getSelectedChannels().map((channel) => (
-                            <Badge key={channel.id} variant="secondary" className="text-xs">
-                              {channel.name}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold mb-2">Medien</h4>
-                        <p className="text-sm text-gray-600">
-                          {uploadedImages.length} Bilder, {uploadedVideos.length} Videos
+                        <p className="font-medium text-gray-900">Kanäle:</p>
+                        <p className="text-gray-600">
+                          {campaignData.channels.length} ausgewählt
                         </p>
                       </div>
-
-                      {campaignData.budget.amount && (
-                        <div>
-                          <h4 className="font-semibold mb-2">Budget</h4>
-                          <p className="text-sm text-gray-600">
-                            {campaignData.budget.type === 'daily' ? 'Täglich' : 'Gesamt'}: €{campaignData.budget.amount}
-                            {campaignData.budget.duration && ` für ${campaignData.budget.duration} Tage`}
-                          </p>
-                          {campaignData.budget.type === 'daily' && campaignData.budget.duration && (
-                            <p className="text-sm text-gray-500">
-                              Geschätztes Gesamtbudget: €{campaignData.budget.amount * campaignData.budget.duration}
-                            </p>
-                          )}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-
-                {/* Budget Confirmation */}
-                <Card className="mt-8">
-                  <CardContent className="p-6">
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-6 h-6 bg-yellow-400 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                          <span className="text-white text-sm font-bold">!</span>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-yellow-800 mb-2">Wichtiger Hinweis zum Mediabudget</h4>
-                          <p className="text-sm text-yellow-700">
-                            Das von Ihnen festgelegte Budget wird als Mediabudget für Ihre Kampagne verwendet und 
-                            entsprechend abgerechnet. Dieses Budget wird direkt an die Werbeplattformen (Facebook, Google, etc.) 
-                            weitergeleitet, um Ihre Anzeigen zu schalten.
-                          </p>
-                        </div>
+                      <div>
+                        <p className="font-medium text-gray-900">Budget:</p>
+                        <p className="text-gray-600">
+                          €{campaignData.budget.amount} ({campaignData.budget.type === 'daily' ? 'täglich' : 'gesamt'})
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">Laufzeit:</p>
+                        <p className="text-gray-600">
+                          {campaignData.budget.duration} Tage
+                        </p>
                       </div>
                     </div>
 
-                    <div className="flex items-start space-x-3">
-                      <Checkbox
-                        id="budget-confirmation"
-                        checked={campaignData.budgetConfirmed}
-                        onCheckedChange={(checked) => setCampaignData(prev => ({
-                          ...prev,
-                          budgetConfirmed: checked
-                        }))}
-                        className="mt-1"
-                      />
-                      <Label htmlFor="budget-confirmation" className="text-sm leading-relaxed">
-                        Ich bestätige, dass ich verstehe, dass das festgelegte Budget von €{campaignData.budget.amount || '0'} 
-                        {campaignData.budget.type === 'daily' ? ' pro Tag' : ' insgesamt'} als Mediabudget für meine Kampagne 
-                        verwendet und entsprechend berechnet wird. Ich bin mit der Abrechnung dieses Betrags einverstanden.
-                      </Label>
-                    </div>
+                    {campaignData.budget.amount && campaignData.budget.duration && (
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <p className="text-sm font-medium text-blue-900">Geschätzte Gesamtkosten:</p>
+                        <p className="text-lg font-bold text-blue-900">
+                          €{campaignData.budget.type === 'daily' 
+                            ? (parseFloat(campaignData.budget.amount) * parseInt(campaignData.budget.duration)).toFixed(2)
+                            : campaignData.budget.amount}
+                        </p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </div>
@@ -1104,48 +961,73 @@ const CampaignWizard = ({ onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t bg-gray-50">
+        <div className="border-t border-gray-200 p-6 flex items-center justify-between bg-gray-50">
           <Button
-            onClick={prevStep}
-            disabled={currentStep === 1}
+            onClick={onClose}
             variant="outline"
             className="flex items-center space-x-2"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Zurück</span>
+            <X className="w-4 h-4" />
+            <span>Abbrechen</span>
           </Button>
-
-          <div className="text-sm text-gray-500">
-            Schritt {currentStep} von {steps.length}
+          
+          <div className="flex items-center space-x-3">
+            {currentStep > 1 && (
+              <Button
+                onClick={() => setCurrentStep(currentStep - 1)}
+                variant="outline"
+                className="flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Zurück</span>
+              </Button>
+            )}
+            
+            {currentStep < 2 ? (
+              <Button
+                onClick={() => setCurrentStep(currentStep + 1)}
+                disabled={!canProceedToNextStep()}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center space-x-2"
+              >
+                <span>Weiter</span>
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleCreateCampaign}
+                disabled={!canCreateCampaign()}
+                className="bg-gradient-to-r from-green-600 to-emerald-600 text-white flex items-center space-x-2"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>Kampagne erstellen</span>
+              </Button>
+            )}
           </div>
-
-          {currentStep < steps.length ? (
-            <Button
-              onClick={nextStep}
-              disabled={!canProceed()}
-              className="bg-purple-600 hover:bg-purple-700 text-white flex items-center space-x-2"
-            >
-              <span>Weiter</span>
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          ) : (
-            <Button
-              onClick={() => {
-                // TODO: Submit campaign
-                console.log('Campaign submitted:', campaignData)
-                onClose()
-              }}
-              disabled={!canProceed()}
-              className="bg-green-600 hover:bg-green-700 text-white flex items-center space-x-2"
-            >
-              <span>Kampagne erstellen</span>
-              <CheckCircle className="w-4 h-4" />
-            </Button>
-          )}
         </div>
       </div>
     </div>
   )
+
+  // Helper functions
+  const canProceedToNextStep = () => {
+    if (currentStep === 1) {
+      return campaignData.goal && campaignData.channels.length > 0
+    }
+    return true
+  }
+
+  const canCreateCampaign = () => {
+    return campaignData.goal && 
+           campaignData.channels.length > 0 && 
+           campaignData.budget.amount && 
+           campaignData.budget.duration
+  }
+
+  const handleCreateCampaign = () => {
+    // Here you would typically send the campaign data to your backend
+    console.log('Creating campaign:', campaignData)
+    onClose()
+  }
 }
 
 export default CampaignWizard
