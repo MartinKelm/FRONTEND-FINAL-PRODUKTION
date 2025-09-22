@@ -516,34 +516,28 @@ function App() {
         
         {authView === 'login' && (
           <>
-            <div className="pt-20">{/* Add padding for fixed navbar */}
-              <LoginForm 
-                onLogin={handleLogin}
-                onSwitchToRegister={() => setAuthView('register-simple')}
-              />
-            </div>
+            <LoginForm 
+              onLogin={handleLogin}
+              onSwitchToRegister={() => setAuthView('register-simple')}
+            />
             <Footer />
           </>
         )}
         {authView === 'register' && (
           <>
-            <div className="pt-20">{/* Add padding for fixed navbar */}
-              <RegisterForm 
-                onRegister={handleRegister}
-                onSwitchToLogin={() => setAuthView('login')}
-              />
-            </div>
+            <RegisterForm 
+              onRegister={handleRegister}
+              onSwitchToLogin={() => setAuthView('login')}
+            />
             <Footer />
           </>
         )}
         {authView === 'register-simple' && (
           <>
-            <div className="pt-20">{/* Add padding for fixed navbar */}
-              <RegisterFormSimple 
-                onShowCompanyProfile={handleShowCompanyProfile}
-                onSwitchToLogin={() => setAuthView('login')}
-              />
-            </div>
+            <RegisterFormSimple 
+              onShowCompanyProfile={handleShowCompanyProfile}
+              onSwitchToLogin={() => setAuthView('login')}
+            />
             <Footer />
           </>
         )}
