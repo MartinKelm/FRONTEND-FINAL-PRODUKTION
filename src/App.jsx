@@ -266,37 +266,55 @@ function App() {
             ) : (
               <>
                 <button 
-                  onClick={() => setCurrentView('home')}
+                  onClick={() => {
+                    setCurrentView('home')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'home' ? 'text-purple-600' : ''}`}
                 >
                   Home
                 </button>
                 <button 
-                  onClick={() => setCurrentView('features')}
+                  onClick={() => {
+                    setCurrentView('features')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'features' ? 'text-purple-600' : ''}`}
                 >
                   Features
                 </button>
                 <button 
-                  onClick={() => setCurrentView('pricing')}
+                  onClick={() => {
+                    setCurrentView('pricing')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'pricing' ? 'text-purple-600' : ''}`}
                 >
                   Preise
                 </button>
                 <button 
-                  onClick={() => setCurrentView('about')}
+                  onClick={() => {
+                    setCurrentView('about')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'about' ? 'text-purple-600' : ''}`}
                 >
                   Über uns
                 </button>
                 <button 
-                  onClick={() => setCurrentView('contact')}
+                  onClick={() => {
+                    setCurrentView('contact')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'contact' ? 'text-purple-600' : ''}`}
                 >
                   Kontakt
                 </button>
                 <button 
-                  onClick={() => setCurrentView('faq')}
+                  onClick={() => {
+                    setCurrentView('faq')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'faq' ? 'text-purple-600' : ''}`}
                 >
                   FAQ
@@ -428,6 +446,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('home')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -437,6 +456,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('features')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -446,6 +466,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('pricing')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
