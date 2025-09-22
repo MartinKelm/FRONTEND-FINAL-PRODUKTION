@@ -67,6 +67,14 @@ function App() {
   const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false)
   const [showPackageSelectionModal, setShowPackageSelectionModal] = useState(false)
   const [registrationUserData, setRegistrationUserData] = useState(null)
+  
+  // Message state
+  const [message, setMessage] = useState({ type: '', text: '' })
+
+  const showMessage = (type, text) => {
+    setMessage({ type, text })
+    setTimeout(() => setMessage({ type: '', text: '' }), 5000)
+  }
 
   const handleLogin = (userData) => {
     setCurrentUser(userData)
@@ -1079,7 +1087,17 @@ function App() {
                   </div>
                 )}
                 <Button 
-                  onClick={() => setShowCampaignWizard(true)}
+                  onClick={() => {
+                    // Check if user has a valid plan
+                    if (!currentUser?.plan?.id || currentUser?.plan?.id === 'none') {
+                      // No plan selected - redirect to package selection
+                      setShowPackageSelectionModal(true)
+                      showMessage('info', 'Bitte wählen Sie zuerst einen Plan aus, um Kampagnen zu erstellen.')
+                    } else {
+                      // Plan exists - allow campaign creation
+                      setShowCampaignWizard(true)
+                    }
+                  }}
                   className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
                 >
                   {dashboardData.campaigns.length > 0 ? 'Neue Kampagne erstellen' : 'Erste Kampagne erstellen'}
@@ -1173,6 +1191,19 @@ function App() {
   return (
     <div>
       <Navigation />
+      
+      {/* Message Display */}
+      {message.text && (
+        <div className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-50 p-4 rounded-lg shadow-lg max-w-md w-full mx-4 ${
+          message.type === 'success' 
+            ? 'bg-green-500 text-white'
+            : message.type === 'error'
+            ? 'bg-red-500 text-white'
+            : 'bg-blue-500 text-white'
+        }`}>
+          <p className="text-center font-medium">{message.text}</p>
+        </div>
+      )}
       
       {/* Multi-step Registration Modals - Always available */}
       <CompanyProfileModal 
