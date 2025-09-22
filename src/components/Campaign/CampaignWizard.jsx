@@ -184,7 +184,9 @@ const CampaignWizard = ({ onClose }) => {
       icon: Facebook,
       color: 'bg-blue-600',
       description: 'Erreichen Sie Ihre Zielgruppe auf Facebook',
-      users: '2.9B Nutzer weltweit'
+      users: '2.9B Nutzer weltweit',
+      format: 'square',
+      dimensions: '1080x1080px'
     },
     {
       id: 'instagram',
@@ -192,7 +194,9 @@ const CampaignWizard = ({ onClose }) => {
       icon: Instagram,
       color: 'bg-gradient-to-r from-purple-500 to-pink-500',
       description: 'Visuelle Inhalte für Instagram',
-      users: '2.0B Nutzer weltweit'
+      users: '2.0B Nutzer weltweit',
+      format: 'square',
+      dimensions: '1080x1080px'
     },
     {
       id: 'google',
@@ -200,7 +204,9 @@ const CampaignWizard = ({ onClose }) => {
       icon: Search,
       color: 'bg-green-600',
       description: 'Suchanzeigen bei Google',
-      users: '8.5B Suchanfragen täglich'
+      users: '8.5B Suchanfragen täglich',
+      format: 'square',
+      dimensions: '1080x1080px'
     },
     {
       id: 'tiktok',
@@ -208,7 +214,9 @@ const CampaignWizard = ({ onClose }) => {
       icon: Play,
       color: 'bg-black',
       description: 'Kurze Videos für TikTok',
-      users: '1.0B Nutzer weltweit'
+      users: '1.0B Nutzer weltweit',
+      format: 'story',
+      dimensions: '1080x1920px'
     },
     {
       id: 'snapchat',
@@ -216,7 +224,9 @@ const CampaignWizard = ({ onClose }) => {
       icon: Camera,
       color: 'bg-yellow-400',
       description: 'Junge Zielgruppe auf Snapchat',
-      users: '750M Nutzer weltweit'
+      users: '750M Nutzer weltweit',
+      format: 'story',
+      dimensions: '1080x1920px'
     },
     {
       id: 'reddit',
@@ -224,7 +234,9 @@ const CampaignWizard = ({ onClose }) => {
       icon: MessageCircle,
       color: 'bg-orange-600',
       description: 'Community-Marketing auf Reddit',
-      users: '430M Nutzer weltweit'
+      users: '430M Nutzer weltweit',
+      format: 'landscape',
+      dimensions: '1200x630px'
     },
     {
       id: 'linkedin',
@@ -232,7 +244,9 @@ const CampaignWizard = ({ onClose }) => {
       icon: Linkedin,
       color: 'bg-blue-700',
       description: 'B2B Marketing auf LinkedIn',
-      users: '900M Nutzer weltweit'
+      users: '900M Nutzer weltweit',
+      format: 'square',
+      dimensions: '1080x1080px'
     },
     {
       id: 'spotify',
@@ -240,9 +254,33 @@ const CampaignWizard = ({ onClose }) => {
       icon: Music,
       color: 'bg-green-500',
       description: 'Audio-Werbung auf Spotify',
-      users: '500M Nutzer weltweit'
+      users: '500M Nutzer weltweit',
+      format: 'square',
+      dimensions: '1080x1080px'
     }
   ]
+
+  // Image format definitions
+  const imageFormats = {
+    square: {
+      name: 'Square Format',
+      dimensions: '1080x1080px',
+      description: 'Für Facebook, Instagram, Google, Spotify, LinkedIn',
+      channels: ['facebook', 'instagram', 'google', 'spotify', 'linkedin']
+    },
+    vertical: {
+      name: 'Vertical Format',
+      dimensions: '1800x1920px', 
+      description: 'Für TikTok, Snapchat',
+      channels: ['tiktok', 'snapchat']
+    },
+    landscape: {
+      name: 'Landscape Format',
+      dimensions: '1200x630px',
+      description: 'Für Reddit',
+      channels: ['reddit']
+    }
+  }
 
   const handleGoalSelect = (goalId) => {
     setCampaignData({ ...campaignData, goal: goalId })
@@ -733,56 +771,110 @@ const CampaignWizard = ({ onClose }) => {
                   </CardContent>
                 </Card>
 
-                {/* Image Upload */}
+                {/* Media Upload */}
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">Bilder hochladen</CardTitle>
+                    <CardTitle className="text-lg">Medien hochladen</CardTitle>
                     <CardDescription>
-                      Laden Sie Bilder für verschiedene Formate hoch
+                      Laden Sie Bilder und Videos für verschiedene Formate hoch
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    {['square', 'landscape', 'story'].map((format) => (
-                      <div key={format} className="border-2 border-dashed border-gray-300 rounded-lg p-4">
-                        <div className="text-center">
-                          <h4 className="font-medium text-gray-900 mb-2">
-                            {format === 'square' && 'Quadratisch (1:1)'}
-                            {format === 'landscape' && 'Querformat (16:9)'}
-                            {format === 'story' && 'Story (9:16)'}
-                          </h4>
-                          
-                          {campaignData.content.images?.[format] ? (
-                            <div className="relative">
-                              <img
-                                src={campaignData.content.images[format].url}
-                                alt={`${format} preview`}
-                                className="mx-auto max-h-32 rounded"
-                              />
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="absolute top-0 right-0 transform translate-x-2 -translate-y-2"
-                                onClick={() => removeFormatImage(format)}
-                              >
-                                <X className="w-4 h-4" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div>
-                              <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                              <label className="cursor-pointer">
-                                <span className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                                  Bild hochladen
-                                </span>
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  onChange={(e) => handleFormatImageUpload(e, format)}
+                  <CardContent className="space-y-6">
+                    {Object.entries(imageFormats).map(([formatKey, format]) => (
+                      <div key={formatKey} className="space-y-4">
+                        <div className="border-b pb-2">
+                          <h4 className="font-medium text-gray-900">{format.name}</h4>
+                          <p className="text-sm text-gray-600">{format.dimensions} - {format.description}</p>
+                        </div>
+                        
+                        {/* Image Upload */}
+                        <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                          <div className="text-center">
+                            <h5 className="font-medium text-gray-800 mb-2">Bild</h5>
+                            {campaignData.content.images?.[formatKey] ? (
+                              <div className="relative">
+                                <img
+                                  src={campaignData.content.images[formatKey].url}
+                                  alt={`${formatKey} preview`}
+                                  className="mx-auto max-h-32 rounded"
                                 />
-                              </label>
-                            </div>
-                          )}
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="absolute top-0 right-0 transform translate-x-2 -translate-y-2"
+                                  onClick={() => removeFormatImage(formatKey)}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div>
+                                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                <label className="cursor-pointer">
+                                  <span className="text-sm text-purple-600 hover:text-purple-700 font-medium">
+                                    Bild hochladen ({format.dimensions})
+                                  </span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => handleFormatImageUpload(e, formatKey)}
+                                  />
+                                </label>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Video Upload */}
+                        <div className="border-2 border-dashed border-gray-200 rounded-lg p-4">
+                          <div className="text-center">
+                            <h5 className="font-medium text-gray-800 mb-2">Video (optional)</h5>
+                            {campaignData.content.videos?.[formatKey] ? (
+                              <div className="relative">
+                                <video
+                                  src={campaignData.content.videos[formatKey].url}
+                                  className="mx-auto max-h-32 rounded"
+                                  controls
+                                />
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  className="absolute top-0 right-0 transform translate-x-2 -translate-y-2"
+                                  onClick={() => {
+                                    setUploadedVideos(prev => prev.filter(vid => vid.format !== formatKey))
+                                    setCampaignData(prev => ({
+                                      ...prev,
+                                      content: {
+                                        ...prev.content,
+                                        videos: {
+                                          ...prev.content.videos,
+                                          [formatKey]: null
+                                        }
+                                      }
+                                    }))
+                                  }}
+                                >
+                                  <X className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div>
+                                <Play className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                <label className="cursor-pointer">
+                                  <span className="text-sm text-blue-600 hover:text-blue-700 font-medium">
+                                    Video hochladen (MP4, max. 100MB)
+                                  </span>
+                                  <input
+                                    type="file"
+                                    accept="video/mp4,video/mov,video/avi"
+                                    className="hidden"
+                                    onChange={(e) => handleVideoUpload(e, formatKey)}
+                                  />
+                                </label>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
