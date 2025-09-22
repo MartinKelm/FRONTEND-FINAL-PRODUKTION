@@ -508,46 +508,7 @@ function App() {
     </nav>
   )
 
-  // Auth Views
-  if (!isAuthenticated && (authView === 'login' || authView === 'register' || authView === 'register-simple')) {
-    return (
-      <div>
-        {authView === 'login' && (
-          <LoginForm 
-            onLogin={handleLogin}
-            onSwitchToRegister={() => setAuthView('register-simple')}
-          />
-        )}
-        {authView === 'register' && (
-          <RegisterForm 
-            onRegister={handleRegister}
-            onSwitchToLogin={() => setAuthView('login')}
-          />
-        )}
-        {authView === 'register-simple' && (
-          <RegisterFormSimple 
-            onShowCompanyProfile={handleShowCompanyProfile}
-            onSwitchToLogin={() => setAuthView('login')}
-          />
-        )}
-        
-        {/* Multi-step Registration Modals */}
-        <CompanyProfileModal 
-          userData={registrationUserData}
-          onComplete={handleCompanyProfileComplete}
-          onSkip={handleCompanyProfileSkip}
-          isOpen={showCompanyProfileModal}
-        />
-        
-        <PackageSelectionModal 
-          userData={registrationUserData}
-          onComplete={handlePackageSelectionComplete}
-          onSkip={handlePackageSelectionSkip}
-          isOpen={showPackageSelectionModal}
-        />
-      </div>
-    )
-  }
+
 
   // Admin Dashboard
   if (isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && currentView === 'admin') {
@@ -1140,6 +1101,43 @@ function App() {
         <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
       )}
       
+      {/* Auth Views */}
+      {!isAuthenticated && authView === 'login' && (
+        <>
+          <div className="pt-20">
+            <LoginForm 
+              onLogin={handleLogin}
+              onSwitchToRegister={() => setAuthView('register-simple')}
+            />
+          </div>
+          <Footer />
+        </>
+      )}
+      
+      {!isAuthenticated && authView === 'register' && (
+        <>
+          <div className="pt-20">
+            <RegisterForm 
+              onRegister={handleRegister}
+              onSwitchToLogin={() => setAuthView('login')}
+            />
+          </div>
+          <Footer />
+        </>
+      )}
+      
+      {!isAuthenticated && authView === 'register-simple' && (
+        <>
+          <div className="pt-20">
+            <RegisterFormSimple 
+              onShowCompanyProfile={handleShowCompanyProfile}
+              onSwitchToLogin={() => setAuthView('login')}
+            />
+          </div>
+          <Footer />
+        </>
+      )}
+
       {/* Main Content Views */}
       {currentView === 'home' && !authView && (
         <>
