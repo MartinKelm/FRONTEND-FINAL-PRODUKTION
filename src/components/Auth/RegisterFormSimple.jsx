@@ -167,7 +167,7 @@ const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
   const passwordStrength = getPasswordStrength(formData.password)
 
   return (
-    <div className="min-h-[calc(100vh-160px)] bg-gradient-to-br from-blue-600 via-purple-500 to-pink-400 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-500 to-pink-400 flex items-center justify-center p-4 pt-24">
       <div className="w-full max-w-lg">
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
