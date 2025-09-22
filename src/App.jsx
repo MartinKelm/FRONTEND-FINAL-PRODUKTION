@@ -26,6 +26,9 @@ import {
 } from 'lucide-react'
 import './App.css'
 
+// Import components
+import AccountManagement from './components/Account/AccountManagement'
+
 // Import images
 import FullLogo from './assets/Logo-socialmediakampagnen-voll.png'
 import heroDashboard from './assets/hero-dashboard.png'
@@ -35,12 +38,18 @@ import heroWizard from './assets/hero-wizard.png'
 // Import components
 import CampaignWizard from './components/Campaign/CampaignWizard'
 import LoginForm from './components/Auth/LoginForm'
+import RegisterForm from './components/Auth/RegisterForm'
 import RegisterFormSimple from './components/Auth/RegisterFormSimple'
+import CompanyProfileModal from './components/Auth/CompanyProfileModal'
+import PackageSelectionModal from './components/Auth/PackageSelectionModal'
 import AdminDashboard from './components/Admin/AdminDashboard'
 import AboutPage from './components/Pages/AboutPage'
 import ContactPage from './components/Pages/ContactPage'
 import FAQPage from './components/Pages/FAQPage'
 import FeaturesPage from './components/Pages/FeaturesPage'
+import ImpressumPage from './components/Legal/ImpressumPage'
+import TermsPage from './components/Legal/TermsPage'
+import PrivacyPage from './components/Legal/PrivacyPage'
 import Footer from './components/Footer'
 
 
@@ -52,12 +61,25 @@ function App() {
   // Auth states
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
-  const [authView, setAuthView] = useState(null) // null = Homepage, 'login' or 'register'
+  const [authView, setAuthView] = useState(null) // null = Homepage, 'login', 'register', 'register-simple'
+  
+  // Multi-step registration states
+  const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false)
+  const [showPackageSelectionModal, setShowPackageSelectionModal] = useState(false)
+  const [registrationUserData, setRegistrationUserData] = useState(null)
+  
+  // Message state
+  const [message, setMessage] = useState({ type: '', text: '' })
+
+  const showMessage = (type, text) => {
+    setMessage({ type, text })
+    setTimeout(() => setMessage({ type: '', text: '' }), 5000)
+  }
 
   const handleLogin = (userData) => {
     setCurrentUser(userData)
     setIsAuthenticated(true)
-    setAuthView(null) // Schließe Login-Formular
+    setAuthView(null) // Close login form
     if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
       setCurrentView('admin')
     } else {
@@ -68,15 +90,104 @@ function App() {
   const handleRegister = (userData) => {
     setCurrentUser(userData)
     setIsAuthenticated(true)
-    setAuthView(null) // Schließe Register-Formular
+    setAuthView(null) // Close register form
+    setCurrentView('dashboard')
+  }
+
+  // Multi-step registration handlers
+  const handleShowCompanyProfile = (userData) => {
+    setRegistrationUserData(userData)
+    setAuthView(null) // Close simple registration form
+    setShowCompanyProfileModal(true)
+  }
+
+  const handleCompanyProfileComplete = (completeUserData) => {
+    setRegistrationUserData(completeUserData)
+    setShowCompanyProfileModal(false)
+    setShowPackageSelectionModal(true)
+  }
+
+  const handleCompanyProfileSkip = () => {
+    setShowCompanyProfileModal(false)
+    setShowPackageSelectionModal(true)
+  }
+
+  const handlePackageSelectionComplete = (finalUserData) => {
+    setCurrentUser(finalUserData)
+    setIsAuthenticated(true)
+    setShowPackageSelectionModal(false)
+    setRegistrationUserData(null)
+    setCurrentView('dashboard')
+  }
+
+  const handlePackageSelectionSkip = () => {
+    // Complete registration without package selection
+    const userData = {
+      ...registrationUserData,
+      plan: null,
+      registrationStep: 'completed'
+    }
+    setCurrentUser(userData)
+    setIsAuthenticated(true)
+    setShowPackageSelectionModal(false)
+    setRegistrationUserData(null)
     setCurrentView('dashboard')
   }
 
   const handleLogout = () => {
     setCurrentUser(null)
     setIsAuthenticated(false)
-    setAuthView(null) // Zurück zur Homepage
+    setAuthView(null) // Back to homepage
     setCurrentView('home')
+    // Reset registration states
+    setShowCompanyProfileModal(false)
+    setShowPackageSelectionModal(false)
+    setRegistrationUserData(null)
+  }
+
+  // Get dashboard data based on user type
+  const getDashboardData = (user) => {
+    // Demo account gets sample data
+    if (user?.isDemoAccount) {
+      return {
+        activeCampaigns: 3,
+        totalReach: '12.5K',
+        clickRate: '2.4%',
+        budgetUsed: '€450',
+        budgetTotal: '€1,000',
+        campaigns: [
+          { name: 'Demo Kampagne 1', platform: 'Facebook', status: 'Aktiv', performance: 'Gut' },
+          { name: 'Test Anzeige', platform: 'Instagram', status: 'Aktiv', performance: 'Exzellent' },
+          { name: 'Beispiel Werbung', platform: 'Google', status: 'Pausiert', performance: 'Durchschnitt' }
+        ]
+      }
+    }
+    
+    // Admin gets full sample data
+    if (user?.role === 'ADMIN' || user?.role === 'SUPER_ADMIN') {
+      return {
+        activeCampaigns: 25,
+        totalReach: '156K',
+        clickRate: '4.2%',
+        budgetUsed: '€8,750',
+        budgetTotal: '€12,000',
+        campaigns: [
+          { name: 'Admin Test Kampagne', platform: 'Facebook', status: 'Aktiv', performance: 'Exzellent' },
+          { name: 'System Monitor', platform: 'Instagram', status: 'Aktiv', performance: 'Gut' },
+          { name: 'Performance Test', platform: 'TikTok', status: 'Aktiv', performance: 'Exzellent' }
+        ]
+      }
+    }
+    
+    // New users get clean data (all zeros)
+    return {
+      activeCampaigns: 0,
+      totalReach: '0',
+      clickRate: '0%',
+      budgetUsed: '€0',
+      budgetTotal: '€0',
+      campaigns: []
+    }
   }
 
   const UserMenu = () => (
@@ -85,6 +196,8 @@ function App() {
         <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
           (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN')
             ? 'bg-gradient-to-br from-red-500 to-pink-500' 
+            : currentUser?.isDemoAccount
+            ? 'bg-gradient-to-br from-green-500 to-emerald-500'
             : 'bg-gradient-to-br from-blue-500 to-purple-500'
         }`}>
           {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') ? (
@@ -94,20 +207,26 @@ function App() {
           )}
         </div>
         <div className="text-sm">
-          <div className="font-medium text-white">{currentUser?.name}</div>
+          <div className="font-medium text-white">
+            {currentUser?.name}
+            {currentUser?.isDemoAccount && <span className="text-green-300 ml-1">(Demo)</span>}
+          </div>
           <div className="text-white/70 text-xs">
-            {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') ? 'Administrator' : 'Benutzer'}
+            {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') 
+              ? 'Administrator' 
+              : currentUser?.isDemoAccount 
+              ? 'Demo-Benutzer' 
+              : 'Benutzer'}
           </div>
         </div>
       </div>
       <Button
         onClick={handleLogout}
-        variant="ghost"
         size="sm"
-        className="text-white hover:bg-white/10"
+        className="bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full p-0 flex items-center justify-center shadow-lg"
+        title="Abmelden"
       >
-        <LogOut className="w-4 h-4 mr-2" />
-        Abmelden
+        <LogOut className="w-4 h-4" />
       </Button>
     </div>
   )
@@ -143,6 +262,14 @@ function App() {
                     >
                       Preise
                     </button>
+                    <Button 
+                      onClick={() => setCurrentView('account')}
+                      variant={currentView === 'account' ? 'default' : 'outline'}
+                      size="sm"
+                      className="text-sm"
+                    >
+                      Mein Account
+                    </Button>
                   </>
                 )}
                 {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
@@ -157,37 +284,55 @@ function App() {
             ) : (
               <>
                 <button 
-                  onClick={() => setCurrentView('home')}
+                  onClick={() => {
+                    setCurrentView('home')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'home' ? 'text-purple-600' : ''}`}
                 >
                   Home
                 </button>
                 <button 
-                  onClick={() => setCurrentView('features')}
+                  onClick={() => {
+                    setCurrentView('features')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'features' ? 'text-purple-600' : ''}`}
                 >
                   Features
                 </button>
                 <button 
-                  onClick={() => setCurrentView('pricing')}
+                  onClick={() => {
+                    setCurrentView('pricing')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'pricing' ? 'text-purple-600' : ''}`}
                 >
                   Preise
                 </button>
                 <button 
-                  onClick={() => setCurrentView('about')}
+                  onClick={() => {
+                    setCurrentView('about')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'about' ? 'text-purple-600' : ''}`}
                 >
                   Über uns
                 </button>
                 <button 
-                  onClick={() => setCurrentView('contact')}
+                  onClick={() => {
+                    setCurrentView('contact')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'contact' ? 'text-purple-600' : ''}`}
                 >
                   Kontakt
                 </button>
                 <button 
-                  onClick={() => setCurrentView('faq')}
+                  onClick={() => {
+                    setCurrentView('faq')
+                    setAuthView(null)
+                  }}
                   className={`text-gray-700 hover:text-purple-600 transition-colors text-sm font-medium ${currentView === 'faq' ? 'text-purple-600' : ''}`}
                 >
                   FAQ
@@ -197,7 +342,6 @@ function App() {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-
             {isAuthenticated ? (
               <UserMenu />
             ) : (
@@ -209,7 +353,7 @@ function App() {
                   Login
                 </Button>
                 <Button 
-                  onClick={() => setAuthView('register')}
+                  onClick={() => setAuthView('register-simple')}
                   className="brand-gradient text-white hover:opacity-90 text-sm px-4 py-2 touch-manipulation"
                 >
                   Registrieren
@@ -262,6 +406,15 @@ function App() {
                       >
                         Preise
                       </button>
+                      <button 
+                        onClick={() => {
+                          setCurrentView('account')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                      >
+                        Mein Account
+                      </button>
                     </>
                   )}
                   {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
@@ -280,6 +433,8 @@ function App() {
                       <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
                         (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') 
                           ? 'bg-gradient-to-br from-red-500 to-pink-500' 
+                          : currentUser?.isDemoAccount
+                          ? 'bg-gradient-to-br from-green-500 to-emerald-500'
                           : 'bg-gradient-to-br from-blue-500 to-purple-500'
                       }`}>
                         {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') ? (
@@ -289,9 +444,16 @@ function App() {
                         )}
                       </div>
                       <div className="text-sm">
-                        <div className="font-medium text-white">{currentUser?.name}</div>
+                        <div className="font-medium text-white">
+                          {currentUser?.name}
+                          {currentUser?.isDemoAccount && <span className="text-green-300 ml-1">(Demo)</span>}
+                        </div>
                         <div className="text-gray-300 text-xs">
-                          {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') ? 'Administrator' : 'Benutzer'}
+                          {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') 
+                            ? 'Administrator' 
+                            : currentUser?.isDemoAccount 
+                            ? 'Demo-Benutzer' 
+                            : 'Benutzer'}
                         </div>
                       </div>
                     </div>
@@ -311,6 +473,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('home')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -320,6 +483,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('features')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -329,6 +493,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('pricing')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -338,6 +503,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('about')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -347,6 +513,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('contact')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -356,6 +523,7 @@ function App() {
                   <button 
                     onClick={() => {
                       setCurrentView('faq')
+                      setAuthView(null)
                       setIsMobileMenuOpen(false)
                     }}
                     className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
@@ -374,7 +542,7 @@ function App() {
                     </Button>
                     <Button 
                       onClick={() => {
-                        setAuthView('register')
+                        setAuthView('register-simple')
                         setIsMobileMenuOpen(false)
                       }}
                       className="brand-gradient text-white hover:opacity-90 w-full text-sm touch-manipulation"
@@ -391,21 +559,54 @@ function App() {
     </nav>
   )
 
-  // Auth Views
-  if (!isAuthenticated && (authView === 'login' || authView === 'register')) {
+  // Auth Views - now with Navigation and Footer
+  if (!isAuthenticated && (authView === 'login' || authView === 'register' || authView === 'register-simple')) {
     return (
       <div>
-        {authView === 'login' ? (
-          <LoginForm 
-            onLogin={handleLogin}
-            onSwitchToRegister={() => setAuthView('register')}
-          />
-        ) : (
-          <RegisterFormSimple 
-            onRegister={handleRegister}
-            onSwitchToLogin={() => setAuthView('login')}
-          />
+        <Navigation />
+        
+        {authView === 'login' && (
+          <>
+            <LoginForm 
+              onLogin={handleLogin}
+              onSwitchToRegister={() => setAuthView('register-simple')}
+            />
+            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+          </>
         )}
+        {authView === 'register' && (
+          <>
+            <RegisterForm 
+              onRegister={handleRegister}
+              onSwitchToLogin={() => setAuthView('login')}
+            />
+            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+          </>
+        )}
+        {authView === 'register-simple' && (
+          <>
+            <RegisterFormSimple 
+              onShowCompanyProfile={handleShowCompanyProfile}
+              onSwitchToLogin={() => setAuthView('login')}
+            />
+            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+          </>
+        )}
+        
+        {/* Multi-step Registration Modals */}
+        <CompanyProfileModal 
+          userData={registrationUserData}
+          onComplete={handleCompanyProfileComplete}
+          onSkip={handleCompanyProfileSkip}
+          isOpen={showCompanyProfileModal}
+        />
+        
+        <PackageSelectionModal 
+          userData={registrationUserData}
+          onComplete={handlePackageSelectionComplete}
+          onSkip={handlePackageSelectionSkip}
+          isOpen={showPackageSelectionModal}
+        />
       </div>
     )
   }
@@ -429,7 +630,7 @@ function App() {
     )
   }
 
-  // Hero Section
+  // Hero Section - ORIGINAL DESIGN PRESERVED (Wording aktualisiert)
   const HeroSection = () => (
     <section className="hero-section relative overflow-hidden px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
       <div className="max-w-7xl mx-auto">
@@ -447,19 +648,20 @@ function App() {
           </div>
           
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-            <span className="text-yellow-300">Social Media</span> Kampagnen{' '}
-            <span className="text-green-300">ohne</span> technisches{' '}
-            <span className="text-blue-300">Know-how</span>
+            <span className="text-yellow-300">Alle Werbeanzeigen</span> in einem Editor –{' '}
+            <span className="text-green-300">einfach</span>,{' '}
+            <span className="text-blue-300">schnell</span>,{' '}
+            <span className="text-pink-300">effektiv</span>
           </h1>
           
           <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-10 max-w-4xl mx-auto leading-relaxed">
-            Ohne technisches Know-how. Ohne Agentur. Ohne Stress.
+            Eine Plattform für alle Kanäle. Erstelle Anzeigen für Meta, Google, TikTok, Spotify & mehr –
+            ohne Ads-Manager, ohne Agentur, ohne Umwege.
           </p>
           <p className="text-base sm:text-lg text-white/80 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
-            Unsere intuitive Plattform führt Sie Schritt für Schritt durch die Erstellung erfolgreicher Kampagnen für Facebook, Instagram, TikTok und mehr.
+            Ob Recruiting, E-Commerce oder lokale Werbung: Socialmediakampagnen.com bündelt alles,
+            was du brauchst, um in Minuten live zu sein und messbar neue Kunden & Bewerber zu erreichen.
           </p>
-          
-
         </div>
 
         <div className="relative">
@@ -476,7 +678,7 @@ function App() {
     </section>
   )
 
-  // Features Section
+  // Features Section - ORIGINAL DESIGN PRESERVED (Wording aktualisiert)
   const FeaturesSection = () => (
     <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-br from-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto">
@@ -496,10 +698,10 @@ function App() {
             </Badge>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-            Warum <span className="text-purple-600">socialmediakampagnen.com</span> wählen?
+            Warum <span className="text-purple-600">socialmediakampagnen.com</span>?
           </h2>
           <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Unsere Plattform macht Social Media Marketing so einfach wie nie zuvor
+            Die zentrale Plattform für Unternehmen, Recruiter und Werbetreibende – alle Anzeigen in einem Editor erstellen, überall ausspielen und zentral auswerten.
           </p>
         </div>
 
@@ -518,8 +720,7 @@ function App() {
             </CardHeader>
             <CardContent>
               <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                Was früher Stunden dauerte, erledigen Sie jetzt in wenigen Minuten. 
-                Automatisierte Kampagnenerstellung für alle Plattformen.
+                Einmal erstellen, überall ausspielen. Schluss mit fünf Ads-Managern, zig Formaten und Copy-Paste.
               </p>
             </CardContent>
           </Card>
@@ -538,8 +739,7 @@ function App() {
             </CardHeader>
             <CardContent>
               <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                Unser intuitiver Wizard führt Sie Schritt für Schritt durch die 
-                Kampagnenerstellung. Kein technisches Wissen erforderlich.
+                Intuitiv wie ein Formular – jeder im Team kann Kampagnen live schalten. Optional mit KI-Texten & Vorlagen.
               </p>
             </CardContent>
           </Card>
@@ -553,13 +753,12 @@ function App() {
                 <BarChart3 className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
               </div>
               <CardTitle className="text-xl sm:text-2xl font-bold text-orange-100">
-                Live-Vorschau
+                Live-Vorschau & Kontrolle
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                Sehen Sie in Echtzeit, wie Ihre Anzeigen auf Facebook, Instagram, 
-                TikTok und anderen Plattformen aussehen werden.
+                Sofort sehen, wie deine Anzeigen auf Meta, Google, TikTok & Co. wirken – inklusive zentraler Abrechnung.
               </p>
             </CardContent>
           </Card>
@@ -570,7 +769,7 @@ function App() {
             Unterstützte Plattformen
           </h3>
           <p className="text-lg sm:text-xl mb-8 sm:mb-10 text-white/90">
-            Erstellen Sie Kampagnen für alle wichtigen Social Media Kanäle
+            Erstelle Anzeigen für alle relevanten Kanäle – zentral gesteuert in einem Editor.
           </p>
           
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
@@ -604,7 +803,7 @@ function App() {
     </section>
   )
 
-  // Pricing Section
+  // Pricing Section (Wording aktualisiert)
   const PricingSection = () => (
     <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
       <div className="max-w-7xl mx-auto">
@@ -621,10 +820,10 @@ function App() {
             </Badge>
           </div>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
-            Einfache <span className="text-yellow-400">Preise</span>
+            Einfache <span className="text-yellow-400">Preise</span> – voller Zugang
           </h2>
           <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto">
-            Wählen Sie den Plan, der zu Ihrem Unternehmen passt. Jederzeit kündbar.
+            Alle Funktionen, alle Kanäle, ein Preis. Ideal für Start-ups, KMU, Recruiter und Agenturen.
           </p>
         </div>
 
@@ -656,10 +855,13 @@ function App() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                  <span className="text-white/90 text-sm sm:text-base">E-Mail Support</span>
+                  <span className="text-white/90 text-sm sm:text-base">E-Mail-Support</span>
                 </div>
               </div>
-              <Button className="w-full bg-white text-blue-600 hover:bg-gray-100 font-semibold py-3 text-base sm:text-lg mt-6 touch-manipulation">
+              <Button 
+                onClick={() => setAuthView('register-simple')}
+                className="w-full bg-white text-blue-600 hover:bg-gray-100 font-semibold py-3 text-base sm:text-lg mt-6 touch-manipulation"
+              >
                 🚀 Jetzt starten
               </Button>
             </CardContent>
@@ -697,14 +899,17 @@ function App() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                  <span className="text-white/90 text-sm sm:text-base">Priority Support</span>
+                  <span className="text-white/90 text-sm sm:text-base">Priority-Support</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div>
-                  <span className="text-white/90 text-sm sm:text-base">White-Label Option</span>
+                  <span className="text-white/90 text-sm sm:text-base">White-Label-Option</span>
                 </div>
               </div>
-              <Button className="w-full bg-white text-purple-600 hover:bg-gray-100 font-semibold py-3 text-base sm:text-lg mt-6 touch-manipulation">
+              <Button 
+                onClick={() => setAuthView('register-simple')}
+                className="w-full bg-white text-purple-600 hover:bg-gray-100 font-semibold py-3 text-base sm:text-lg mt-6 touch-manipulation"
+              >
                 👑 Pro werden
               </Button>
             </CardContent>
@@ -720,7 +925,7 @@ function App() {
               ✅ Keine Einrichtungsgebühr
             </Badge>
             <Badge className="bg-white/10 text-white border-white/20 text-xs sm:text-sm px-3 py-2">
-              ✅ Jährliche Abrechnung
+              ✅ Einheitliche Abrechnung
             </Badge>
             <Badge className="bg-white/10 text-white border-white/20 text-xs sm:text-sm px-3 py-2">
               ✅ DSGVO-konform
@@ -731,214 +936,384 @@ function App() {
     </section>
   )
 
-  // Dashboard Section (for authenticated users)
-  const DashboardSection = () => (
-    <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Willkommen zurück, {currentUser?.name}!
-          </h1>
-          <p className="text-gray-600">
-            Hier ist eine Übersicht Ihrer aktuellen Kampagnen und Performance
-          </p>
-        </div>
+  // Dashboard Section (for authenticated users) - WITH CLEANED DATA
+  const DashboardSection = () => {
+    const dashboardData = getDashboardData(currentUser)
+    
+    return (
+      <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
+              Willkommen zurück, {currentUser?.name}!
+              {currentUser?.isDemoAccount && (
+                <span className="text-green-600 text-lg ml-2">(Demo-Account)</span>
+              )}
+            </h1>
+            <p className="text-gray-600">
+              {currentUser?.isDemoAccount 
+                ? "Dies ist ein Demo-Account mit Beispieldaten. Registrieren Sie sich für Ihren eigenen Account."
+                : "Hier ist eine Übersicht Ihrer aktuellen Kampagnen und Performance"
+              }
+            </p>
+            {currentUser?.registrationStep !== 'completed' && !currentUser?.isDemoAccount && (
+              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-yellow-800 text-sm">
+                  <strong>Hinweis:</strong> Vervollständigen Sie Ihr Profil für bessere Kampagnenvorschläge.
+                  {!currentUser?.company && (
+                    <button 
+                      onClick={() => setShowCompanyProfileModal(true)}
+                      className="ml-2 text-yellow-600 hover:text-yellow-700 underline"
+                    >
+                      Firmenprofil vervollständigen
+                    </button>
+                  )}
+                  {!currentUser?.plan && (
+                    <button 
+                      onClick={() => setShowPackageSelectionModal(true)}
+                      className="ml-2 text-yellow-600 hover:text-yellow-700 underline"
+                    >
+                      Plan auswählen
+                    </button>
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-blue-100">
-                Aktive Kampagnen
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-blue-200">+2 diese Woche</p>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-blue-100">
+                  Aktive Kampagnen
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.activeCampaigns}</div>
+                <p className="text-xs text-blue-200">
+                  {dashboardData.activeCampaigns > 0 ? '+2 diese Woche' : 'Erstellen Sie Ihre erste Kampagne'}
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-green-100">
-                Gesamtreichweite
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">45.2K</div>
-              <p className="text-xs text-green-200">+15% vs. letzter Monat</p>
-            </CardContent>
-          </Card>
+            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-green-100">
+                  Gesamtreichweite
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.totalReach}</div>
+                <p className="text-xs text-green-200">
+                  {dashboardData.totalReach !== '0' ? '+15% vs. letzter Monat' : 'Starten Sie Ihre erste Kampagne'}
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-purple-100">
-                Klickrate
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">3.8%</div>
-              <p className="text-xs text-purple-200">Über dem Durchschnitt</p>
-            </CardContent>
-          </Card>
+            <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-purple-100">
+                  Klickrate
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.clickRate}</div>
+                <p className="text-xs text-purple-200">
+                  {dashboardData.clickRate !== '0%' ? 'Über dem Durchschnitt' : 'Wird nach ersten Kampagnen angezeigt'}
+                </p>
+              </CardContent>
+            </Card>
 
-          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-orange-100">
-                Budget verwendet
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">€2,340</div>
-              <p className="text-xs text-orange-200">von €3,000</p>
-            </CardContent>
-          </Card>
-        </div>
+            <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-orange-100">
+                  Budget verwendet
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardData.budgetUsed}</div>
+                <p className="text-xs text-orange-200">
+                  {dashboardData.budgetTotal !== '€0' ? `von ${dashboardData.budgetTotal}` : 'Kein Budget festgelegt'}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Aktuelle Kampagnen</CardTitle>
-              <CardDescription>Ihre laufenden Werbekampagnen</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { name: 'Sommer Sale 2024', platform: 'Facebook', status: 'Aktiv', performance: 'Gut' },
-                  { name: 'Produktlaunch', platform: 'Instagram', status: 'Aktiv', performance: 'Exzellent' },
-                  { name: 'Brand Awareness', platform: 'TikTok', status: 'Pausiert', performance: 'Durchschnitt' }
-                ].map((campaign, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>
+                  {dashboardData.campaigns.length > 0 ? 'Aktuelle Kampagnen' : 'Ihre Kampagnen'}
+                </CardTitle>
+                <CardDescription>
+                  {dashboardData.campaigns.length > 0 
+                    ? 'Ihre laufenden Werbekampagnen' 
+                    : 'Sie haben noch keine Kampagnen erstellt'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {dashboardData.campaigns.length > 0 ? (
+                  <div className="space-y-4">
+                    {dashboardData.campaigns.map((campaign, index) => (
+                      <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                        <div>
+                          <h4 className="font-medium text-gray-900">{campaign.name}</h4>
+                          <p className="text-sm text-gray-500">{campaign.platform}</p>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge className={
+                            campaign.status === 'Aktiv' 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }>
+                            {campaign.status}
+                          </Badge>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 mb-4">
+                      <Target className="w-12 h-12 mx-auto" />
+                    </div>
+                    <p className="text-gray-500 mb-4">
+                      Erstellen Sie Ihre erste Kampagne und erreichen Sie Ihre Zielgruppe.
+                    </p>
+                  </div>
+                )}
+                <Button 
+                  onClick={() => {
+                    // Check if user has a valid plan
+                    if (!currentUser?.plan?.id || currentUser?.plan?.id === 'none') {
+                      // No plan selected - redirect to package selection
+                      setShowPackageSelectionModal(true)
+                      showMessage('info', 'Bitte wählen Sie zuerst einen Plan aus, um Kampagnen zu erstellen.')
+                    } else {
+                      // Plan exists - allow campaign creation
+                      setShowCampaignWizard(true)
+                    }
+                  }}
+                  className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                >
+                  {dashboardData.campaigns.length > 0 ? 'Neue Kampagne erstellen' : 'Erste Kampagne erstellen'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Performance Übersicht</CardTitle>
+                <CardDescription>
+                  {dashboardData.activeCampaigns > 0 
+                    ? 'Ihre wichtigsten Metriken' 
+                    : 'Metriken werden nach ersten Kampagnen angezeigt'
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {dashboardData.activeCampaigns > 0 ? (
+                  <div className="space-y-6">
                     <div>
-                      <h4 className="font-medium text-gray-900">{campaign.name}</h4>
-                      <p className="text-sm text-gray-500">{campaign.platform}</p>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Impressions</span>
+                        <span>89%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: '89%' }}></div>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge className={
-                        campaign.status === 'Aktiv' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-yellow-100 text-yellow-800'
-                      }>
-                        {campaign.status}
-                      </Badge>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Klicks</span>
+                        <span>76%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '76%' }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Conversions</span>
+                        <span>62%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-purple-500 h-2 rounded-full" style={{ width: '62%' }}></div>
+                      </div>
                     </div>
                   </div>
-                ))}
-              </div>
-              <Button 
-                onClick={() => setShowCampaignWizard(true)}
-                className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-              >
-                Neue Kampagne erstellen
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Performance Übersicht</CardTitle>
-              <CardDescription>Ihre wichtigsten Metriken</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Impressions</span>
-                    <span>89%</span>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 mb-4">
+                      <BarChart3 className="w-12 h-12 mx-auto" />
+                    </div>
+                    <p className="text-gray-500 mb-4">
+                      Performance-Daten werden angezeigt, sobald Sie Kampagnen erstellt haben.
+                    </p>
+                    <div className="space-y-4">
+                      <div className="flex justify-between text-sm">
+                        <span>Impressions</span>
+                        <span>0%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Klicks</span>
+                        <span>0%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Conversions</span>
+                        <span>0%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: '89%' }}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Klicks</span>
-                    <span>76%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '76%' }}></div>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>Conversions</span>
-                    <span>62%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-purple-500 h-2 rounded-full" style={{ width: '62%' }}></div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
-    </section>
-  )
+      </section>
+    )
+  }
 
   // Main render logic
   return (
     <div>
       <Navigation />
       
-      {authView === 'login' && <LoginForm onBack={() => setAuthView(null)} onLogin={handleLogin} />}
-      {authView === 'register' && <RegisterFormSimple onBack={() => setAuthView(null)} onRegister={handleRegister} />}
+      {/* Message Display */}
+      {message.text && (
+        <div className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-50 p-4 rounded-lg shadow-lg max-w-md w-full mx-4 ${
+          message.type === 'success' 
+            ? 'bg-green-500 text-white'
+            : message.type === 'error'
+            ? 'bg-red-500 text-white'
+            : 'bg-blue-500 text-white'
+        }`}>
+          <p className="text-center font-medium">{message.text}</p>
+        </div>
+      )}
       
+      {/* Multi-step Registration Modals - Always available */}
+      <CompanyProfileModal 
+        userData={registrationUserData}
+        onComplete={handleCompanyProfileComplete}
+        onSkip={handleCompanyProfileSkip}
+        isOpen={showCompanyProfileModal}
+      />
+      
+      <PackageSelectionModal 
+        userData={registrationUserData}
+        onComplete={handlePackageSelectionComplete}
+        onSkip={handlePackageSelectionSkip}
+        isOpen={showPackageSelectionModal}
+      />
+      
+      {/* Campaign Wizard */}
       {showCampaignWizard && (
         <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
       )}
       
+      {/* Main Content Views */}
       {currentView === 'home' && !authView && (
         <>
           <HeroSection />
           <FeaturesSection />
           <PricingSection />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
       
       {currentView === 'features' && !authView && (
         <>
           <FeaturesPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
+      
       {currentView === 'pricing' && !authView && (
         <>
           <PricingSection />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
+      
       {currentView === 'about' && !authView && (
         <>
           <AboutPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
+      
       {currentView === 'contact' && !authView && (
         <>
           <ContactPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
+      
       {currentView === 'faq' && !authView && (
         <>
           <FAQPage />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
+      
+      {/* Legal Pages */}
+      {currentView === 'impressum' && (
+        <>
+          <ImpressumPage />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+        </>
+      )}
+      
+      {currentView === 'terms' && (
+        <>
+          <TermsPage />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+        </>
+      )}
+      
+      {currentView === 'privacy' && (
+        <>
+          <PrivacyPage />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+        </>
+      )}
+      
+      {/* Authenticated Views */}
       {currentView === 'dashboard' && isAuthenticated && (
         <>
           <DashboardSection />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
+      
+      {currentView === 'account' && isAuthenticated && (
+        <>
+          <AccountManagement 
+            currentUser={currentUser} 
+            onUpdateUser={setCurrentUser}
+          />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+        </>
+      )}
+      
       {currentView === 'admin' && isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
         <>
           <AdminDashboard />
-          <Footer />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
     </div>
@@ -946,4 +1321,3 @@ function App() {
 }
 
 export default App
-
