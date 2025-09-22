@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Button } from './components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card'
 import { Badge } from './components/ui/badge'
@@ -62,6 +62,29 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [authView, setAuthView] = useState(null) // null = Homepage, 'login', 'register', 'register-simple'
+
+  // Load session from localStorage on app start
+  useEffect(() => {
+    const savedUser = localStorage.getItem('currentUser')
+    const savedView = localStorage.getItem('currentView')
+    const savedAuth = localStorage.getItem('isAuthenticated')
+    
+    if (savedUser && savedAuth === 'true') {
+      try {
+        const userData = JSON.parse(savedUser)
+        setCurrentUser(userData)
+        setIsAuthenticated(true)
+        setCurrentView(savedView || 'dashboard')
+        console.log('Session restored:', userData)
+      } catch (error) {
+        console.error('Error parsing saved user data:', error)
+        // Clear corrupted data
+        localStorage.removeItem('currentUser')
+        localStorage.removeItem('currentView')
+        localStorage.removeItem('isAuthenticated')
+      }
+    }
+  }, [])
   
   // Multi-step registration states
   const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false)
@@ -80,10 +103,17 @@ function App() {
     setCurrentUser(userData)
     setIsAuthenticated(true)
     setAuthView(null) // Close login form
+    
+    // Save to localStorage
+    localStorage.setItem('currentUser', JSON.stringify(userData))
+    localStorage.setItem('isAuthenticated', 'true')
+    
     if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
       setCurrentView('admin')
+      localStorage.setItem('currentView', 'admin')
     } else {
       setCurrentView('dashboard')
+      localStorage.setItem('currentView', 'dashboard')
     }
   }
 
@@ -139,6 +169,12 @@ function App() {
     setIsAuthenticated(false)
     setAuthView(null) // Back to homepage
     setCurrentView('home')
+    
+    // Clear localStorage
+    localStorage.removeItem('currentUser')
+    localStorage.removeItem('isAuthenticated')
+    localStorage.removeItem('currentView')
+    
     // Reset registration states
     setShowCompanyProfileModal(false)
     setShowPackageSelectionModal(false)
