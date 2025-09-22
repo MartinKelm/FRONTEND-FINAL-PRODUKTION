@@ -38,6 +38,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 const CampaignWizard = ({ onClose }) => {
   const [currentStep, setCurrentStep] = useState(1)
   const [uploadedImages, setUploadedImages] = useState([])
+  const [uploadedVideos, setUploadedVideos] = useState([])
   const [campaignData, setCampaignData] = useState({
     goal: '',
     channels: [],
@@ -46,7 +47,8 @@ const CampaignWizard = ({ onClose }) => {
       description: '',
       callToAction: '',
       targetAudience: '',
-      images: {}
+      images: {},
+      videos: {}
     },
     budget: {
       type: 'daily',
@@ -82,6 +84,39 @@ const CampaignWizard = ({ onClose }) => {
             images: {
               ...prev.content.images,
               [format]: newImage
+            }
+          }
+        }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleVideoUpload = (event, format) => {
+    const file = event.target.files[0]
+    if (file && file.type.startsWith('video/') && file.size <= 100 * 1024 * 1024) { // 100MB limit for videos
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const newVideo = {
+          id: Date.now() + Math.random(),
+          file: file,
+          url: e.target.result,
+          name: file.name,
+          format: format
+        }
+        
+        setUploadedVideos(prev => {
+          const filtered = prev.filter(vid => vid.format !== format)
+          return [...filtered, newVideo]
+        })
+        
+        setCampaignData(prev => ({
+          ...prev,
+          content: {
+            ...prev.content,
+            videos: {
+              ...prev.content.videos,
+              [format]: newVideo
             }
           }
         }))
