@@ -824,7 +824,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
       </div>
 
       {/* Right Column: Channel Selection */}
-      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -834,7 +834,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
             <CardDescription>Wählen Sie die Plattformen für Ihre Kampagne</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3">
               {channels.map((channel) => (
                 <div
                   key={channel.id}
@@ -845,18 +845,36 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className={`p-1 rounded text-white ${channel.color}`}>
-                      {channel.icon}
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    {/* Logo Placeholder - Replace with actual logos */}
+                    <div className="w-12 h-12 bg-gray-100 border-2 border-gray-200 rounded-lg flex items-center justify-center relative">
+                      {/* Placeholder for actual logo */}
+                      <img 
+                        src={`/src/assets/logos/${channel.id}.png`}
+                        alt={`${channel.name} Logo`}
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          // Fallback to colored icon if logo not found
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      {/* Fallback colored icon */}
+                      <div className={`w-8 h-8 rounded text-white ${channel.color} items-center justify-center hidden`}>
+                        {channel.icon}
+                      </div>
+                      {/* Selection indicator */}
+                      {campaignData.channels.includes(channel.id) && (
+                        <div className="absolute -top-1 -right-1">
+                          <CheckCircle className="w-5 h-5 text-purple-600 bg-white rounded-full" />
+                        </div>
+                      )}
                     </div>
-                    <span className="font-medium text-sm">{channel.name}</span>
-                    {campaignData.channels.includes(channel.id) && (
-                      <CheckCircle className="w-4 h-4 text-purple-600 ml-auto" />
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {channel.format}px Format<br />
-                    {channel.dimensions}
+                    
+                    {/* Channel name */}
+                    <div className="flex flex-col items-center">
+                      <span className="font-medium text-sm">{channel.name}</span>
+                    </div>
                   </div>
                 </div>
               ))}
