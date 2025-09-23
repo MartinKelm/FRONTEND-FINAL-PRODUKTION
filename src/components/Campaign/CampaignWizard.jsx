@@ -850,7 +850,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                     <div className="w-12 h-12 bg-gray-100 border-2 border-gray-200 rounded-lg flex items-center justify-center relative">
                       {/* Placeholder for actual logo */}
                       <img 
-                        src={`/src/assets/logos/${channel.id}.png`}
+                        src={`/logos/${channel.id}.png`}
                         alt={`${channel.name} Logo`}
                         className="w-8 h-8 object-contain"
                         onError={(e) => {
