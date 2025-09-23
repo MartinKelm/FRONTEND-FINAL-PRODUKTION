@@ -889,7 +889,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
   const renderStep2 = () => (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
       {/* Left Column: Content Creation */}
-      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -937,7 +937,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
       </div>
 
       {/* Right Column: Media Upload */}
-      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+      <div className="space-y-6">
         {getSelectedChannels().length > 0 && (
           <Card>
             <CardHeader>
@@ -1428,7 +1428,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 p-6 overflow-hidden">
+        <div className="flex-1 p-6 overflow-y-auto">
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
