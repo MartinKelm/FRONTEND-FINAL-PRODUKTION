@@ -936,9 +936,9 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                 <h4 className="text-sm font-medium text-blue-800 mb-2">Ausgewählte Kanäle:</h4>
                 <div className="flex flex-wrap gap-2">
                   {getSelectedChannels().map(channel => (
-                    <div key={channel.id} className="flex items-center space-x-1 bg-white px-2 py-1 rounded text-xs border border-gray-200">
-                      <div className="w-4 h-4 flex-shrink-0">{channel.icon}</div>
-                      <span className="text-gray-700">{channel.name}</span>
+                    <div key={channel.id} className="flex items-center space-x-2 bg-white px-3 py-2 rounded text-xs border border-gray-200">
+                      <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">{channel.icon}</div>
+                      <span className="text-gray-700 font-medium">{channel.name}</span>
                     </div>
                   ))}
                 </div>
@@ -1084,6 +1084,14 @@ const CampaignWizard = ({ onClose, currentUser }) => {
   const renderStep3 = () => {
     const selectedChannels = getSelectedChannels()
     
+    // Calculate indices for two mockups side by side
+    const firstIndex = currentPreviewIndex
+    const secondIndex = currentPreviewIndex + 1 < selectedChannels.length ? currentPreviewIndex + 1 : null
+    
+    // Calculate total pages (pairs of mockups)
+    const totalPages = Math.ceil(selectedChannels.length / 2)
+    const currentPage = Math.floor(currentPreviewIndex / 2) + 1
+    
     return (
       <div className="space-y-8">
         <div className="text-center">
@@ -1094,27 +1102,26 @@ const CampaignWizard = ({ onClose, currentUser }) => {
         <div className="space-y-6">
           <div className="text-center">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Kampagnen-Vorschau in Handy-Mockups</h3>
-            <p className="text-gray-600 mb-6">So sehen Ihre Anzeigen auf den mobilen Geräten aus</p>
             
-            {selectedChannels.length > 1 && (
+            {selectedChannels.length > 2 && (
               <div className="flex items-center justify-center space-x-4 mb-6">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 1))}
+                  onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 2))}
                   disabled={currentPreviewIndex === 0}
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Vorherige
                 </Button>
                 <span className="text-sm text-gray-600">
-                  {currentPreviewIndex + 1} von {selectedChannels.length} Seiten
+                  Seite {currentPage} von {totalPages}
                 </span>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setCurrentPreviewIndex(Math.min(selectedChannels.length - 1, currentPreviewIndex + 1))}
-                  disabled={currentPreviewIndex === selectedChannels.length - 1}
+                  onClick={() => setCurrentPreviewIndex(Math.min(selectedChannels.length - 1, currentPreviewIndex + 2))}
+                  disabled={currentPreviewIndex >= selectedChannels.length - 2}
                 >
                   Nächste
                   <ChevronRight className="w-4 h-4 ml-1" />
@@ -1124,18 +1131,36 @@ const CampaignWizard = ({ onClose, currentUser }) => {
           </div>
 
           {selectedChannels.length > 0 && (
-            <div className="flex justify-center">
-              <div className="text-center">
-                <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${selectedChannels[currentPreviewIndex]?.color} text-white`}>
-                  {selectedChannels[currentPreviewIndex]?.icon}
-                  <span>{selectedChannels[currentPreviewIndex]?.name}</span>
-                  <span className="text-xs opacity-75">{selectedChannels[currentPreviewIndex]?.dimensions}</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
+              {/* First Mockup */}
+              <div className="text-center w-full">
+                <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${selectedChannels[firstIndex]?.color} text-white`}>
+                  {selectedChannels[firstIndex]?.icon}
+                  <span>{selectedChannels[firstIndex]?.name}</span>
                 </div>
                 
-                <MobileMockup channel={selectedChannels[currentPreviewIndex]}>
-                  {renderMockup(selectedChannels[currentPreviewIndex])}
-                </MobileMockup>
+                <div className="flex justify-center">
+                  <MobileMockup channel={selectedChannels[firstIndex]}>
+                    {renderMockup(selectedChannels[firstIndex])}
+                  </MobileMockup>
+                </div>
               </div>
+              
+              {/* Second Mockup (if available) */}
+              {secondIndex !== null && (
+                <div className="text-center w-full">
+                  <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${selectedChannels[secondIndex]?.color} text-white`}>
+                    {selectedChannels[secondIndex]?.icon}
+                    <span>{selectedChannels[secondIndex]?.name}</span>
+                  </div>
+                  
+                  <div className="flex justify-center">
+                    <MobileMockup channel={selectedChannels[secondIndex]}>
+                      {renderMockup(selectedChannels[secondIndex])}
+                    </MobileMockup>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
