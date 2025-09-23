@@ -53,6 +53,7 @@ import RegisterFormSimple from './components/Auth/RegisterFormSimple'
 import CompanyProfileModal from './components/Auth/CompanyProfileModal'
 import PackageSelectionModal from './components/Auth/PackageSelectionModal'
 import AdminDashboard from './components/Admin/AdminDashboard'
+import CampaignAdminDashboard from './components/Admin/CampaignAdminDashboard'
 import AboutPage from './components/Pages/AboutPage'
 import ContactPage from './components/Pages/ContactPage'
 import FAQPage from './components/Pages/FAQPage'
@@ -63,7 +64,7 @@ import PrivacyPage from './components/Legal/PrivacyPage'
 import Footer from './components/Footer'
 
 // Import campaign utilities
-import { getCampaigns, getCampaignStats } from './utils/campaignStorage.js'
+import { getCampaigns, getCampaignStats } from './utils/campaignStorage'
 
 function App() {
   const [currentView, setCurrentView] = useState('home')
@@ -401,12 +402,20 @@ function App() {
                   </>
                 )}
                 {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
-                  <button 
-                    onClick={() => setCurrentView('admin')}
-                    className={`text-gray-700 hover:text-red-600 transition-colors text-sm font-medium ${currentView === 'admin' ? 'text-red-600' : ''}`}
-                  >
-                    Admin Dashboard
-                  </button>
+                  <>
+                    <button 
+                      onClick={() => setCurrentView('admin')}
+                      className={`text-gray-700 hover:text-red-600 transition-colors text-sm font-medium ${currentView === 'admin' ? 'text-red-600' : ''}`}
+                    >
+                      Admin Dashboard
+                    </button>
+                    <button 
+                      onClick={() => setCurrentView('campaign-admin')}
+                      className={`text-gray-700 hover:text-red-600 transition-colors text-sm font-medium ${currentView === 'campaign-admin' ? 'text-red-600' : ''}`}
+                    >
+                      Kampagnen-Verwaltung
+                    </button>
+                  </>
                 )}
               </>
             ) : (
@@ -548,15 +557,26 @@ function App() {
                     </>
                   )}
                   {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
-                    <button 
-                      onClick={() => {
-                        setCurrentView('admin')
-                        setIsMobileMenuOpen(false)
-                      }}
-                      className="text-white hover:text-red-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
-                    >
-                      Admin Dashboard
-                    </button>
+                    <>
+                      <button 
+                        onClick={() => {
+                          setCurrentView('admin')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="text-white hover:text-red-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                      >
+                        Admin Dashboard
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setCurrentView('campaign-admin')
+                          setIsMobileMenuOpen(false)
+                        }}
+                        className="text-white hover:text-red-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                      >
+                        Kampagnen-Verwaltung
+                      </button>
+                    </>
                   )}
                   <div className="pt-2 border-t border-gray-600">
                     <Button
@@ -1528,6 +1548,13 @@ function App() {
       {currentView === 'admin' && isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
         <>
           <AdminDashboard />
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+        </>
+      )}
+      
+      {currentView === 'campaign-admin' && isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
+        <>
+          <CampaignAdminDashboard />
           <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
