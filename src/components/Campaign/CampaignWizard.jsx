@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { 
   Target, 
   Globe, 
@@ -28,6 +28,7 @@ import {
   ChevronRight,
   Phone
 } from 'lucide-react'
+import { saveCampaign } from '../../utils/campaignStorage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -38,7 +39,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Checkbox } from '../ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 
-const CampaignWizard = ({ onClose }) => {
+const CampaignWizard = ({ onClose, currentUser }) => {
   const [currentStep, setCurrentStep] = useState(1)
   const [uploadedImages, setUploadedImages] = useState([])
   const [uploadedVideos, setUploadedVideos] = useState([])
@@ -154,7 +155,14 @@ const CampaignWizard = ({ onClose }) => {
   }
 
   const canCreateCampaign = () => {
-    return campaignData.budget.amount && campaignData.budgetConfirmed && campaignData.finalApproval
+    return (
+      campaignData.goal &&
+      campaignData.channels.length > 0 &&
+      campaignData.content.headline &&
+      campaignData.content.description &&
+      campaignData.budget.amount &&
+      campaignData.budget.startDate
+    )
   }
 
   const nextStep = () => {
@@ -1419,8 +1427,19 @@ const CampaignWizard = ({ onClose }) => {
           ) : (
             <Button
               onClick={() => {
-                console.log('Campaign created:', campaignData)
-                onClose()
+                try {
+                  // Save campaign to storage
+                  const savedCampaign = saveCampaign(campaignData, currentUser?.id || 'demo_user')
+                  console.log('Campaign saved successfully:', savedCampaign)
+                  
+                  // Show success message (you can add a toast notification here)
+                  alert(`Kampagne "${campaignData.content.headline || 'Neue Kampagne'}" wurde erfolgreich erstellt!`)
+                  
+                  onClose()
+                } catch (error) {
+                  console.error('Error saving campaign:', error)
+                  alert('Fehler beim Speichern der Kampagne. Bitte versuchen Sie es erneut.')
+                }
               }}
               disabled={!canCreateCampaign()}
               className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white flex items-center space-x-2 shadow-md"
