@@ -181,36 +181,6 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     }
   }
 
-  const handleCreateCampaign = async () => {
-    if (!canCreateCampaign()) {
-      alert('Bitte füllen Sie alle erforderlichen Felder aus.')
-      return
-    }
-
-    try {
-      const userId = currentUser?.id || 'demo'
-      
-      // Prepare campaign data with uploaded media
-      const campaignDataWithMedia = {
-        ...campaignData,
-        content: {
-          ...campaignData.content,
-          images: campaignData.content.images,
-          videos: uploadedVideos
-        },
-        status: 'draft' // Start as draft for admin review
-      }
-
-      const savedCampaign = await saveCampaign(campaignDataWithMedia, userId)
-      alert('Kampagne erfolgreich erstellt und zur Prüfung eingereicht!')
-      console.log('Campaign saved with ID:', savedCampaign.id)
-      onClose()
-    } catch (error) {
-      console.error('Fehler beim Erstellen der Kampagne:', error)
-      alert('Fehler beim Erstellen der Kampagne. Bitte versuchen Sie es erneut.')
-    }
-  }
-
   const goals = [
     {
       id: 'awareness',
@@ -253,7 +223,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'facebook',
       name: 'Facebook',
-      icon: <img src="/logos/facebook.png" alt="Facebook" className="w-5 h-5 object-contain" />,
+      icon: <div className="w-5 h-5 bg-white rounded text-blue-600 flex items-center justify-center text-xs font-bold">f</div>,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-blue-600'
@@ -261,7 +231,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'instagram',
       name: 'Instagram',
-      icon: <img src="/logos/instagram.png" alt="Instagram" className="w-5 h-5 object-contain" />,
+      icon: <div className="w-5 h-5 bg-white rounded text-pink-600 flex items-center justify-center text-xs font-bold">IG</div>,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-pink-600'
@@ -269,7 +239,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'google',
       name: 'Google Ads',
-      icon: <img src="/logos/google.png" alt="Google Ads" className="w-5 h-5 object-contain" />,
+      icon: <div className="w-5 h-5 bg-white rounded text-red-600 flex items-center justify-center text-xs font-bold">G</div>,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-red-600'
@@ -277,7 +247,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'tiktok',
       name: 'TikTok',
-      icon: <img src="/logos/tiktok.png" alt="TikTok" className="w-5 h-5 object-contain" />,
+      icon: <div className="w-5 h-5 bg-white rounded text-black flex items-center justify-center text-xs font-bold">TT</div>,
       format: '1080x1920',
       dimensions: '1080x1920px',
       color: 'bg-black'
@@ -285,7 +255,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'snapchat',
       name: 'Snapchat',
-      icon: <img src="/logos/snapchat.png" alt="Snapchat" className="w-5 h-5 object-contain" />,
+      icon: <div className="w-5 h-5 bg-white rounded text-yellow-600 flex items-center justify-center text-xs font-bold">SC</div>,
       format: '1080x1920',
       dimensions: '1080x1920px',
       color: 'bg-yellow-400'
@@ -293,7 +263,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'reddit',
       name: 'Reddit',
-      icon: <img src="/logos/reddit.png" alt="Reddit" className="w-5 h-5 object-contain" />,
+      icon: <div className="w-5 h-5 bg-white rounded text-orange-600 flex items-center justify-center text-xs font-bold">R</div>,
       format: '1200x630',
       dimensions: '1200x630px',
       color: 'bg-orange-600'
@@ -301,7 +271,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      icon: <img src="/logos/linkedin.png" alt="LinkedIn" className="w-5 h-5 object-contain" />,
+      icon: <div className="w-5 h-5 bg-white rounded text-blue-700 flex items-center justify-center text-xs font-bold">LI</div>,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-blue-700'
@@ -309,7 +279,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'spotify',
       name: 'Spotify',
-      icon: <img src="/logos/spotify.png" alt="Spotify" className="w-5 h-5 object-contain" />,
+      icon: <div className="w-5 h-5 bg-white rounded text-green-600 flex items-center justify-center text-xs font-bold">SP</div>,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-green-600'
@@ -528,7 +498,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
           </div>
           <div className="text-center">
             <Share className="w-8 h-8 mx-auto mb-1" />
-            <span className="text-xs">Share</span>
+            <span className="text-xs">3</span>
           </div>
         </div>
       </div>
@@ -540,37 +510,48 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     <div className="bg-white h-full">
       {/* Google Header */}
       <div className="bg-white p-3 flex items-center space-x-2 border-b border-gray-200">
-        <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-          <span className="text-blue-600 font-bold text-lg">G</span>
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <span className="text-red-600 font-bold text-sm">G</span>
         </div>
         <span className="font-semibold">Google</span>
       </div>
       
-      {/* Search Result */}
-      <div className="p-4">
-        <div className="mb-2">
-          <span className="text-xs text-green-600 font-medium">Anzeige</span>
+      {/* Search Results */}
+      <div className="p-3">
+        <div className="mb-4">
+          <div className="bg-gray-100 rounded-full p-2 flex items-center">
+            <Search className="w-4 h-4 text-gray-500 mr-2" />
+            <span className="text-sm text-gray-600">Ihre Suchbegriffe...</span>
+          </div>
         </div>
         
-        {content.headline && (
-          <h3 className="text-blue-600 text-lg font-medium mb-1 underline">{content.headline}</h3>
-        )}
-        
-        <p className="text-green-700 text-sm mb-2">www.ihr-unternehmen.de</p>
-        
-        {content.description && (
-          <p className="text-gray-700 text-sm leading-relaxed mb-3 whitespace-pre-line">{content.description}</p>
-        )}
-        
-        {image && (
-          <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
-        )}
-        
-        {content.callToAction && (
-          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium">
-            {content.callToAction}
-          </button>
-        )}
+        {/* Ad Result */}
+        <div className="border border-gray-200 rounded-lg p-3 mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs text-gray-500 bg-yellow-100 px-2 py-1 rounded">Anzeige</span>
+            <span className="text-xs text-gray-500">gesponsert</span>
+          </div>
+          
+          {content.headline && (
+            <h3 className="text-blue-600 font-medium text-sm mb-1 whitespace-pre-line">{content.headline}</h3>
+          )}
+          
+          <p className="text-xs text-green-600 mb-2">www.ihr-unternehmen.de</p>
+          
+          {content.description && (
+            <p className="text-sm text-gray-700 mb-2 whitespace-pre-line">{content.description}</p>
+          )}
+          
+          {image && (
+            <img src={image} alt="Ad" className="w-full rounded mb-2" style={{ maxHeight: '120px', objectFit: 'cover' }} />
+          )}
+          
+          {content.callToAction && (
+            <button className="bg-blue-600 text-white px-3 py-1 rounded text-xs font-medium">
+              {content.callToAction}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -594,7 +575,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
           </div>
           <div>
             <p className="font-semibold text-sm">Ihr Unternehmen</p>
-            <p className="text-xs text-gray-500">Gesponsert · 2 Min</p>
+            <p className="text-xs text-gray-500">Gesponsert · 2h</p>
           </div>
         </div>
         
@@ -619,48 +600,10 @@ const CampaignWizard = ({ onClose, currentUser }) => {
         {/* Engagement */}
         <div className="flex items-center justify-between mt-3 pt-3 border-t text-gray-500">
           <div className="flex items-center space-x-4 text-xs">
-            <span>42 Gefällt mir</span>
+            <span>42 Reaktionen</span>
             <span>8 Kommentare</span>
           </div>
         </div>
-      </div>
-    </div>
-  )
-
-  // Spotify Mockup
-  const SpotifyMockup = ({ content, image }) => (
-    <div className="bg-black h-full text-white">
-      {/* Spotify Header */}
-      <div className="bg-green-500 p-3 flex items-center space-x-2">
-        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
-          <Music className="w-4 h-4 text-green-500" />
-        </div>
-        <span className="text-white font-semibold">Spotify</span>
-      </div>
-      
-      {/* Ad Content */}
-      <div className="p-4">
-        <div className="mb-3">
-          <span className="text-xs text-green-500 font-medium">WERBUNG</span>
-        </div>
-        
-        {image && (
-          <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
-        )}
-        
-        {content.headline && (
-          <h3 className="text-white text-lg font-medium mb-2 whitespace-pre-line">{content.headline}</h3>
-        )}
-        
-        {content.description && (
-          <p className="text-gray-300 text-sm mb-4 whitespace-pre-line">{content.description}</p>
-        )}
-        
-        {content.callToAction && (
-          <button className="bg-green-500 text-black px-4 py-2 rounded-full text-sm font-medium w-full">
-            {content.callToAction}
-          </button>
-        )}
       </div>
     </div>
   )
@@ -677,38 +620,45 @@ const CampaignWizard = ({ onClose, currentUser }) => {
       </div>
       
       {/* Post */}
-      <div className="p-3">
-        <div className="flex items-center space-x-2 mb-2">
-          <span className="text-xs text-blue-500 font-medium">Promoted</span>
-          <span className="text-xs text-gray-500">• r/business • 2h</span>
-        </div>
-        
-        {content.headline && (
-          <h3 className="font-medium mb-2 text-base whitespace-pre-line">{content.headline}</h3>
-        )}
-        
-        {content.description && (
-          <p className="text-sm text-gray-700 mb-3 whitespace-pre-line">{content.description}</p>
-        )}
-        
-        {image && (
-          <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
-        )}
-        
-        {content.callToAction && (
-          <button className="bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium">
-            {content.callToAction}
-          </button>
-        )}
-        
-        {/* Engagement */}
-        <div className="flex items-center space-x-4 mt-3 pt-3 border-t text-gray-500">
-          <div className="flex items-center space-x-1 text-xs">
-            <ArrowRight className="w-3 h-3" />
-            <span>42</span>
+      <div className="p-3 border-b border-gray-200">
+        <div className="flex items-start space-x-2">
+          <div className="flex flex-col items-center">
+            <button className="text-gray-400 hover:text-orange-500">▲</button>
+            <span className="text-xs font-bold">42</span>
+            <button className="text-gray-400 hover:text-blue-500">▼</button>
           </div>
-          <span className="text-xs">8 Kommentare</span>
-          <span className="text-xs">Teilen</span>
+          
+          <div className="flex-1">
+            <div className="flex items-center space-x-1 mb-2">
+              <span className="text-xs text-gray-500">r/werbung</span>
+              <span className="text-xs text-gray-400">•</span>
+              <span className="text-xs text-gray-500">Gesponsert</span>
+            </div>
+            
+            {content.headline && (
+              <h3 className="font-medium mb-2 text-sm whitespace-pre-line">{content.headline}</h3>
+            )}
+            
+            {content.description && (
+              <p className="text-sm text-gray-700 mb-3 whitespace-pre-line">{content.description}</p>
+            )}
+            
+            {image && (
+              <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+            )}
+            
+            {content.callToAction && (
+              <button className="bg-orange-600 text-white px-3 py-1 rounded text-sm font-medium">
+                {content.callToAction}
+              </button>
+            )}
+            
+            <div className="flex items-center space-x-4 mt-3 text-xs text-gray-500">
+              <span>💬 8 Kommentare</span>
+              <span>🔗 Teilen</span>
+              <span>💾 Speichern</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -716,34 +666,85 @@ const CampaignWizard = ({ onClose, currentUser }) => {
 
   // Snapchat Mockup
   const SnapchatMockup = ({ content, image }) => (
-    <div className="bg-yellow-400 h-full relative">
+    <div className="bg-black h-full relative text-white">
       {/* Snapchat Header */}
-      <div className="absolute top-0 left-0 right-0 z-10 p-3 flex items-center justify-center">
-        <span className="font-bold text-lg text-white">Snapchat</span>
+      <div className="absolute top-0 left-0 right-0 z-10 p-3 flex items-center justify-between">
+        <span className="font-bold text-lg">👻 Snapchat</span>
+        <div className="flex space-x-2">
+          <div className="w-6 h-6 bg-yellow-400 rounded-full"></div>
+        </div>
       </div>
       
-      {/* Snap Content */}
-      <div className="relative h-full flex items-center justify-center">
+      {/* Story Content */}
+      <div className="relative h-full">
         {image ? (
           <img src={image} alt="Ad" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-yellow-500 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
             <Camera className="w-16 h-16 text-white opacity-50" />
           </div>
         )}
         
         {/* Overlay Content */}
-        <div className="absolute bottom-20 left-4 right-4 text-center">
+        <div className="absolute bottom-20 left-4 right-4">
+          <div className="bg-black bg-opacity-50 rounded-lg p-3">
+            {content.headline && (
+              <p className="font-medium mb-1 text-sm whitespace-pre-line">{content.headline}</p>
+            )}
+            
+            {content.description && (
+              <p className="text-sm opacity-90 whitespace-pre-line">{content.description}</p>
+            )}
+            
+            {content.callToAction && (
+              <button className="bg-yellow-400 text-black px-3 py-1 rounded-full text-sm font-medium mt-2 w-full">
+                {content.callToAction}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Spotify Mockup
+  const SpotifyMockup = ({ content, image }) => (
+    <div className="bg-black h-full text-white">
+      {/* Spotify Header */}
+      <div className="bg-green-600 p-3 flex items-center space-x-2">
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <span className="text-green-600 font-bold text-sm">♫</span>
+        </div>
+        <span className="text-white font-semibold">Spotify</span>
+      </div>
+      
+      {/* Ad Content */}
+      <div className="p-4">
+        <div className="bg-gray-900 rounded-lg p-4 mb-4">
+          <div className="flex items-center space-x-2 mb-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">IU</span>
+            </div>
+            <div>
+              <p className="font-semibold text-sm">Ihr Unternehmen</p>
+              <p className="text-xs text-gray-400">Gesponsert</p>
+            </div>
+          </div>
+          
+          {image && (
+            <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+          )}
+          
           {content.headline && (
-            <p className="font-bold mb-2 text-white text-lg drop-shadow-lg whitespace-pre-line">{content.headline}</p>
+            <p className="font-medium mb-2 text-sm whitespace-pre-line">{content.headline}</p>
           )}
           
           {content.description && (
-            <p className="text-white text-sm drop-shadow-lg mb-4 whitespace-pre-line">{content.description}</p>
+            <p className="text-sm text-gray-300 mb-3 whitespace-pre-line">{content.description}</p>
           )}
           
           {content.callToAction && (
-            <button className="bg-white text-black px-6 py-2 rounded-full text-sm font-medium">
+            <button className="bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium w-full">
               {content.callToAction}
             </button>
           )}
@@ -752,10 +753,10 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     </div>
   )
 
-  const renderMockup = (channel) => {
+  const renderMockupForChannel = (channel) => {
     const content = campaignData.content
     const image = campaignData.content.images[channel.format]
-    
+
     switch (channel.id) {
       case 'facebook':
         return <FacebookMockup content={content} image={image} />
@@ -767,582 +768,667 @@ const CampaignWizard = ({ onClose, currentUser }) => {
         return <GoogleAdsMockup content={content} image={image} />
       case 'linkedin':
         return <LinkedInMockup content={content} image={image} />
-      case 'spotify':
-        return <SpotifyMockup content={content} image={image} />
       case 'reddit':
         return <RedditMockup content={content} image={image} />
       case 'snapchat':
         return <SnapchatMockup content={content} image={image} />
+      case 'spotify':
+        return <SpotifyMockup content={content} image={image} />
       default:
-        return <div className="bg-gray-100 h-full flex items-center justify-center">
-          <p className="text-gray-500">Vorschau nicht verfügbar</p>
-        </div>
+        return <FacebookMockup content={content} image={image} />
     }
   }
 
+  // Step 1: Goal & Channels Selection (2 columns)
   const renderStep1 = () => (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Ziel & Kanäle</h2>
-        <p className="text-gray-600">Legen Sie Ihr Kampagnenziel fest und wählen Sie die passenden Kanäle</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column: Campaign Goals */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2 mb-4">
-            <Target className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Kampagnenziel wählen</h3>
-          </div>
-          
-          <div className="grid gap-3">
-            {goals.map((goal) => (
-              <Card
-                key={goal.id}
-                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  campaignData.goal === goal.id
-                    ? 'ring-2 ring-purple-500 bg-purple-50'
-                    : 'hover:bg-gray-50'
-                }`}
-                onClick={() => handleGoalSelect(goal.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${goal.color} text-white`}>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+      {/* Left Column: Campaign Goals */}
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Target className="w-5 h-5 text-purple-600" />
+              <span>Kampagnenziel auswählen</span>
+            </CardTitle>
+            <CardDescription>Was möchten Sie mit Ihrer Kampagne erreichen?</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
+              {goals.map((goal) => (
+                <div
+                  key={goal.id}
+                  onClick={() => handleGoalSelect(goal.id)}
+                  className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                    campaignData.goal === goal.id
+                      ? 'border-purple-500 bg-purple-50 shadow-md'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className={`p-2 rounded-lg text-white ${goal.color} flex-shrink-0`}>
                       {goal.icon}
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{goal.title}</h4>
-                      <p className="text-sm text-gray-600">{goal.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm">{goal.title}</h3>
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{goal.description}</p>
                     </div>
                     {campaignData.goal === goal.id && (
-                      <CheckCircle className="w-5 h-5 text-purple-600" />
+                      <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
                     )}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Column: Channel Selection */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2 mb-4">
-            <Globe className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Kanäle auswählen</h3>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3">
-            {channels.map((channel) => (
-              <Card
-                key={channel.id}
-                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  campaignData.channels.includes(channel.id)
-                    ? 'ring-2 ring-purple-500 bg-purple-50'
-                    : 'hover:bg-gray-50'
-                }`}
-                onClick={() => handleChannelToggle(channel.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div className={`p-3 rounded-lg ${channel.color} text-white`}>
-                      {channel.icon}
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-gray-900 text-sm">{channel.name}</h4>
-                      <p className="text-xs text-gray-500">{channel.dimensions}</p>
-                    </div>
-                    {campaignData.channels.includes(channel.id) && (
-                      <CheckCircle className="w-4 h-4 text-purple-600" />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          {campaignData.channels.length > 0 && (
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <strong>Ausgewählt:</strong> {campaignData.channels.length} Kanal{campaignData.channels.length !== 1 ? 'e' : ''}
-              </p>
+                </div>
+              ))}
             </div>
-          )}
-        </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Right Column: Channel Selection */}
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Globe className="w-5 h-5 text-purple-600" />
+              <span>Kanäle auswählen</span>
+            </CardTitle>
+            <CardDescription>Wählen Sie die Plattformen für Ihre Kampagne</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+              {channels.map((channel) => (
+                <div
+                  key={channel.id}
+                  onClick={() => handleChannelToggle(channel.id)}
+                  className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                    campaignData.channels.includes(channel.id)
+                      ? 'border-purple-500 bg-purple-50 shadow-md'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    {/* Logo Placeholder - Replace with actual logos */}
+                    <div className="w-12 h-12 bg-gray-100 border-2 border-gray-200 rounded-lg flex items-center justify-center relative">
+                      {/* Placeholder for actual logo */}
+                      <img 
+                        src={`/logos/${channel.id}.png`}
+                        alt={`${channel.name} Logo`}
+                        className="w-8 h-8 object-contain"
+                        onError={(e) => {
+                          // Fallback to colored icon if logo not found
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      {/* Fallback colored icon */}
+                      <div className={`w-8 h-8 rounded text-white ${channel.color} items-center justify-center hidden`}>
+                        {channel.icon}
+                      </div>
+                      {/* Selection indicator */}
+                      {campaignData.channels.includes(channel.id) && (
+                        <div className="absolute -top-1 -right-1">
+                          <CheckCircle className="w-5 h-5 text-purple-600 bg-white rounded-full" />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Channel name */}
+                    <div className="flex flex-col items-center">
+                      <span className="font-medium text-sm">{channel.name}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
 
+  // Step 2: Content & Media (2 columns)
   const renderStep2 = () => (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Inhalte & Medien</h2>
-        <p className="text-gray-600">Erstellen Sie ansprechende Inhalte für Ihre Kampagne</p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column: Content Creation */}
-        <div className="space-y-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <MessageCircle className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Inhalte erstellen</h3>
-          </div>
-          
-          <p className="text-sm text-gray-600">Erstellen Sie ansprechende Inhalte für Ihre Kampagne</p>
-
-          <div className="space-y-4">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+      {/* Left Column: Content Creation */}
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <MessageCircle className="w-5 h-5 text-purple-600" />
+              <span>Inhalte erstellen</span>
+            </CardTitle>
+            <CardDescription>Erstellen Sie ansprechende Inhalte für Ihre Kampagne</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <Label htmlFor="headline" className="text-sm font-medium text-gray-700 mb-2 block">
-                Überschrift *
-              </Label>
+              <Label htmlFor="headline">Überschrift *</Label>
               <Input
                 id="headline"
                 placeholder="Ihre aussagekräftige Überschrift..."
                 value={campaignData.content.headline}
                 onChange={(e) => handleContentChange('headline', e.target.value)}
-                className="w-full"
+                className="mt-1"
               />
             </div>
 
             <div>
-              <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
-                Beschreibung *
-              </Label>
+              <Label htmlFor="description">Beschreibung *</Label>
               <Textarea
                 id="description"
-                placeholder="Beschreiben Sie Ihr Angebot detailliert..."
+                placeholder="Beschreiben Sie Ihr Angebot..."
                 value={campaignData.content.description}
                 onChange={(e) => handleContentChange('description', e.target.value)}
+                className="mt-1"
                 rows={4}
-                className="w-full"
               />
             </div>
 
             <div>
-              <Label htmlFor="cta" className="text-sm font-medium text-gray-700 mb-2 block">
-                Call-to-Action
-              </Label>
+              <Label htmlFor="cta">Call-to-Action</Label>
               <Input
                 id="cta"
                 placeholder="z.B. Jetzt kaufen, Mehr erfahren..."
                 value={campaignData.content.callToAction}
                 onChange={(e) => handleContentChange('callToAction', e.target.value)}
-                className="w-full"
+                className="mt-1"
               />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Right Column: Media Upload */}
-        <div className="space-y-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <Upload className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Medien hochladen</h3>
-          </div>
-          
-          <p className="text-sm text-gray-600">Laden Sie Bilder und Videos für Ihre Kampagne hoch</p>
-
-          {/* Image Upload for each required format */}
-          {getRequiredFormats().map((format) => (
-            <div key={format} className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">
-                {format} Format
-              </Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
-                {campaignData.content.images[format] ? (
-                  <div className="space-y-2">
-                    <img
-                      src={campaignData.content.images[format]}
-                      alt={`Preview ${format}`}
-                      className="mx-auto max-h-32 rounded"
-                    />
-                    <p className="text-sm text-green-600">✓ Bild hochgeladen</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const input = document.createElement('input')
-                        input.type = 'file'
-                        input.accept = 'image/*'
-                        input.onchange = (e) => handleImageUpload(e, format)
-                        input.click()
-                      }}
-                    >
-                      Bild ändern
-                    </Button>
+      {/* Right Column: Media Upload */}
+      <div className="space-y-6">
+        {getSelectedChannels().length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Upload className="w-5 h-5 text-purple-600" />
+                <span>Medien hochladen</span>
+              </CardTitle>
+              <CardDescription>Laden Sie Bilder und Videos für Ihre Kampagne hoch</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Image Upload by Format */}
+              {getRequiredFormats().map((format) => (
+                <div key={format} className="border rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="font-medium text-purple-700">{format}px Format</span>
+                    <Badge variant="outline" className="bg-white">
+                      {format}px
+                    </Badge>
                   </div>
-                ) : (
                   <div className="space-y-2">
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto" />
-                    <p className="text-sm text-gray-600">
-                      Klicken Sie hier oder ziehen Sie Bilder hierher
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleImageUpload(e, format)}
+                        className="flex-1"
+                      />
+                      {campaignData.content.images[format] && (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      )}
+                    </div>
+                    <p className="text-xs text-gray-600">
+                      Für: {getSelectedChannels().filter(ch => ch.format === format).map(ch => ch.name).join(', ')}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      Für {getSelectedChannels().filter(c => c.format === format).map(c => c.name).join(', ')}
-                    </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const input = document.createElement('input')
-                        input.type = 'file'
-                        input.accept = 'image/*'
-                        input.onchange = (e) => handleImageUpload(e, format)
-                        input.click()
-                      }}
-                    >
-                      Bild auswählen
-                    </Button>
+                    {campaignData.content.images[format] && (
+                      <div className="mt-2">
+                        <img
+                          src={campaignData.content.images[format]}
+                          alt={`${format} Preview`}
+                          className="w-20 h-20 object-cover rounded border"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              {/* Video Upload */}
+              <div className="border rounded-lg p-4 bg-gray-50">
+                <div className="flex items-center space-x-2 mb-3">
+                  <Play className="w-5 h-5 text-purple-600" />
+                  <span className="font-medium text-purple-700">Video hochladen (optional)</span>
+                </div>
+                <Input
+                  type="file"
+                  accept="video/mp4,video/mov,video/avi"
+                  onChange={handleVideoUpload}
+                  className="mb-2"
+                />
+                <p className="text-xs text-gray-600">Unterstützte Formate: MP4, MOV, AVI</p>
+                {uploadedVideos.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {uploadedVideos.map((video) => (
+                      <div key={video.id} className="flex items-center space-x-2 text-sm text-green-600">
+                        <CheckCircle className="w-4 h-4" />
+                        <span>{video.name}</span>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>
-            </div>
-          ))}
+            </CardContent>
+          </Card>
+        )}
 
-          {/* Video Upload */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
-              <Play className="w-4 h-4" />
-              <span>Video hochladen (optional)</span>
-            </Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
-              <div className="space-y-2">
-                <Play className="w-8 h-8 text-gray-400 mx-auto" />
-                <p className="text-sm text-gray-600">Video hochladen</p>
-                <p className="text-xs text-gray-500">Unterstützte Formate: MP4, MOV, AVI</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const input = document.createElement('input')
-                    input.type = 'file'
-                    input.accept = 'video/*'
-                    input.onchange = handleVideoUpload
-                    input.click()
-                  }}
-                >
-                  Video auswählen
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Placeholder when no channels selected */}
+        {getSelectedChannels().length === 0 && (
+          <Card>
+            <CardContent className="text-center py-12 text-gray-500">
+              <Upload className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+              <p className="text-lg">Keine Kanäle ausgewählt</p>
+              <p className="text-sm">Gehen Sie zurück und wählen Sie Kanäle aus, um Medien hochzuladen</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   )
 
+  // Step 3: Mobile Mockup Previews (2 columns)
   const renderStep3 = () => {
     const selectedChannels = getSelectedChannels()
-    
+    const totalPairs = Math.ceil(selectedChannels.length / 2)
+    const currentPair = Math.floor(currentPreviewIndex / 2)
+    const leftChannelIndex = currentPair * 2
+    const rightChannelIndex = leftChannelIndex + 1
+
     return (
-      <div className="space-y-8">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Vorschau</h2>
+      <div className="space-y-6">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold mb-2 text-gray-800">
+            Kampagnen-Vorschau in Handy-Mockups
+          </h2>
           <p className="text-gray-600">So sehen Ihre Anzeigen auf den mobilen Geräten aus</p>
         </div>
 
-        <div className="space-y-6">
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Kampagnen-Vorschau in Handy-Mockups</h3>
-            <p className="text-gray-600 mb-6">So sehen Ihre Anzeigen auf den mobilen Geräten aus</p>
-            
-            {selectedChannels.length > 1 && (
-              <div className="flex items-center justify-center space-x-4 mb-6">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 1))}
-                  disabled={currentPreviewIndex === 0}
-                >
-                  <ChevronLeft className="w-4 h-4 mr-1" />
-                  Vorherige
-                </Button>
-                <span className="text-sm text-gray-600">
-                  {currentPreviewIndex + 1} von {selectedChannels.length} Seiten
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setCurrentPreviewIndex(Math.min(selectedChannels.length - 1, currentPreviewIndex + 1))}
-                  disabled={currentPreviewIndex === selectedChannels.length - 1}
-                >
-                  Nächste
-                  <ChevronRight className="w-4 h-4 ml-1" />
-                </Button>
-              </div>
-            )}
-          </div>
-
-          {selectedChannels.length > 0 && (
-            <div className="flex justify-center">
-              <div className="text-center">
-                <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${selectedChannels[currentPreviewIndex]?.color} text-white`}>
-                  {selectedChannels[currentPreviewIndex]?.icon}
-                  <span>{selectedChannels[currentPreviewIndex]?.name}</span>
-                  <span className="text-xs opacity-75">{selectedChannels[currentPreviewIndex]?.dimensions}</span>
-                </div>
-                
-                <MobileMockup channel={selectedChannels[currentPreviewIndex]}>
-                  {renderMockup(selectedChannels[currentPreviewIndex])}
-                </MobileMockup>
-              </div>
+        {selectedChannels.length > 0 ? (
+          <div className="space-y-6">
+            {/* Navigation */}
+            <div className="flex items-center justify-between">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 2))}
+                disabled={currentPreviewIndex === 0}
+                className="flex items-center space-x-2"
+              >
+                <ChevronLeft className="w-4 h-4 text-purple-600" />
+                <span>Vorherige</span>
+              </Button>
+              
+              <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                {currentPair + 1} von {totalPairs} Seiten
+              </Badge>
+              
+              <Button
+                variant="outline"
+                onClick={() => setCurrentPreviewIndex(Math.min(selectedChannels.length - 1, currentPreviewIndex + 2))}
+                disabled={rightChannelIndex >= selectedChannels.length}
+                className="flex items-center space-x-2"
+              >
+                <span>Nächste</span>
+                <ChevronRight className="w-4 h-4 text-purple-600" />
+              </Button>
             </div>
-          )}
-        </div>
+
+            {/* Mobile Mockups */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 justify-items-center">
+              {/* Left Mockup */}
+              {selectedChannels[leftChannelIndex] && (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center space-x-2 mb-2">
+                      <div className={`p-2 rounded ${selectedChannels[leftChannelIndex].color}`}>
+                        {selectedChannels[leftChannelIndex].icon}
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {selectedChannels[leftChannelIndex].name}
+                      </h3>
+                    </div>
+                    <Badge variant="outline" className="bg-gray-100">
+                      {selectedChannels[leftChannelIndex].dimensions}
+                    </Badge>
+                  </div>
+                  
+                  <MobileMockup channel={selectedChannels[leftChannelIndex]}>
+                    {renderMockupForChannel(selectedChannels[leftChannelIndex])}
+                  </MobileMockup>
+                </div>
+              )}
+
+              {/* Right Mockup */}
+              {selectedChannels[rightChannelIndex] && (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="flex items-center justify-center space-x-2 mb-2">
+                      <div className={`p-2 rounded ${selectedChannels[rightChannelIndex].color}`}>
+                        {selectedChannels[rightChannelIndex].icon}
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {selectedChannels[rightChannelIndex].name}
+                      </h3>
+                    </div>
+                    <Badge variant="outline" className="bg-gray-100">
+                      {selectedChannels[rightChannelIndex].dimensions}
+                    </Badge>
+                  </div>
+                  
+                  <MobileMockup channel={selectedChannels[rightChannelIndex]}>
+                    {renderMockupForChannel(selectedChannels[rightChannelIndex])}
+                  </MobileMockup>
+                </div>
+              )}
+            </div>
+
+            {/* Navigation Arrows */}
+            <div className="flex justify-center space-x-4 mt-6">
+              {Array.from({ length: totalPairs }, (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentPreviewIndex(index * 2)}
+                  className={`flex items-center justify-center w-10 h-10 rounded-lg border-2 transition-all ${
+                    index === currentPair 
+                      ? 'bg-purple-600 border-purple-600 text-white shadow-md' 
+                      : 'bg-white border-gray-300 text-gray-600 hover:border-purple-300 hover:text-purple-600'
+                  }`}
+                >
+                  {index < currentPair ? (
+                    <ChevronLeft className="w-5 h-5" />
+                  ) : index > currentPair ? (
+                    <ChevronRight className="w-5 h-5" />
+                  ) : (
+                    <div className="w-2 h-2 bg-current rounded-full"></div>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="text-center py-12 text-gray-500">
+            <Phone className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg">Keine Kanäle ausgewählt</p>
+            <p className="text-sm">Gehen Sie zurück und wählen Sie Kanäle aus, um Vorschauen zu sehen</p>
+          </div>
+        )}
       </div>
     )
   }
 
+  // Step 4: Budget & Final Approval
   const renderStep4 = () => (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Budget & Finale Freigabe</h2>
+    <div className="max-w-7xl mx-auto space-y-6 max-h-[70vh] overflow-y-auto">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          Budget & Finale Freigabe
+        </h2>
         <p className="text-gray-600">Legen Sie Ihr Budget fest und geben Sie Ihre Kampagne frei</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column: Budget Settings */}
-        <div className="space-y-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <Euro className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Budget & Laufzeit</h3>
-          </div>
-          
-          <p className="text-sm text-gray-600">Bestimmen Sie Ihr Werbebudget</p>
-
-          <div className="space-y-4">
+      {/* 3-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Budget & Laufzeit */}
+        <Card className="border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Euro className="w-5 h-5 text-purple-600" />
+              <span>Budget & Laufzeit</span>
+            </CardTitle>
+            <CardDescription>Bestimmen Sie Ihr Werbebudget</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
             <div>
-              <Label className="text-sm font-medium text-gray-700 mb-3 block">Budget-Typ</Label>
+              <Label className="text-sm font-medium mb-3 block">Budget-Typ</Label>
               <RadioGroup
                 value={campaignData.budget.type}
                 onValueChange={(value) => setCampaignData(prev => ({
                   ...prev,
                   budget: { ...prev.budget, type: value }
                 }))}
+                className="space-y-3"
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="daily" id="daily" />
-                  <Label htmlFor="daily" className="text-sm">
-                    <span className="font-medium">Tagesbudget</span>
-                    <span className="text-gray-500 block text-xs">Festes Budget pro Tag</span>
+                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-purple-50 transition-colors">
+                  <RadioGroupItem value="daily" id="daily" className="text-purple-600" />
+                  <Label htmlFor="daily" className="flex-1 cursor-pointer">
+                    <div className="font-medium">Tagesbudget</div>
+                    <div className="text-xs text-gray-500">Festes Budget pro Tag</div>
                   </Label>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="total" id="total" />
-                  <Label htmlFor="total" className="text-sm">
-                    <span className="font-medium">Gesamtbudget</span>
-                    <span className="text-gray-500 block text-xs">Einmaliges Gesamtbudget</span>
+                <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-purple-50 transition-colors">
+                  <RadioGroupItem value="total" id="total" className="text-purple-600" />
+                  <Label htmlFor="total" className="flex-1 cursor-pointer">
+                    <div className="font-medium">Gesamtbudget</div>
+                    <div className="text-xs text-gray-500">Einmaliges Gesamtbudget</div>
                   </Label>
                 </div>
               </RadioGroup>
             </div>
 
             <div>
-              <Label htmlFor="amount" className="text-sm font-medium text-gray-700 mb-2 block">
-                {campaignData.budget.type === 'daily' ? 'Tagesbudget (€)' : 'Gesamtbudget (€)'} *
+              <Label htmlFor="budget-amount" className="flex items-center space-x-2">
+                <Euro className="w-4 h-4 text-purple-600" />
+                <span>{campaignData.budget.type === 'daily' ? 'Tagesbudget' : 'Gesamtbudget'} (€) *</span>
               </Label>
               <Input
-                id="amount"
+                id="budget-amount"
                 type="number"
+                min="1"
                 placeholder="z.B. 50"
                 value={campaignData.budget.amount}
                 onChange={(e) => setCampaignData(prev => ({
                   ...prev,
                   budget: { ...prev.budget, amount: e.target.value }
                 }))}
-                className="w-full"
+                className="mt-2 border-purple-200 focus:border-purple-500"
               />
             </div>
 
             {campaignData.budget.type === 'daily' && (
               <div>
-                <Label htmlFor="duration" className="text-sm font-medium text-gray-700 mb-2 block">
-                  Laufzeit (Tage)
+                <Label htmlFor="duration" className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4 text-purple-600" />
+                  <span>Laufzeit (Tage)</span>
                 </Label>
                 <Input
                   id="duration"
                   type="number"
+                  min="1"
                   placeholder="z.B. 7"
                   value={campaignData.budget.duration}
                   onChange={(e) => setCampaignData(prev => ({
                     ...prev,
                     budget: { ...prev.budget, duration: e.target.value }
                   }))}
-                  className="w-full"
+                  className="mt-2 border-purple-200 focus:border-purple-500"
                 />
               </div>
             )}
 
             <div>
-              <Label htmlFor="startDate" className="text-sm font-medium text-gray-700 mb-2 block">
-                Startdatum
+              <Label htmlFor="start-date" className="flex items-center space-x-2">
+                <Calendar className="w-4 h-4 text-purple-600" />
+                <span>Startdatum</span>
               </Label>
               <Input
-                id="startDate"
+                id="start-date"
                 type="date"
                 value={campaignData.budget.startDate}
                 onChange={(e) => setCampaignData(prev => ({
                   ...prev,
                   budget: { ...prev.budget, startDate: e.target.value }
                 }))}
-                className="w-full"
+                className="mt-2 border-purple-200 focus:border-purple-500"
               />
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        {/* Right Column: Campaign Summary */}
-        <div className="space-y-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <CheckCircle className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Kampagnen-Zusammenfassung</h3>
-          </div>
-          
-          <p className="text-sm text-gray-600">Überprüfen Sie Ihre Einstellungen</p>
-
-          <div className="space-y-4">
-            <div>
-              <Label className="text-sm font-medium text-gray-700">Ziel</Label>
-              <p className="text-purple-600 font-medium">
+        {/* Middle Column: Kampagnen-Zusammenfassung */}
+        <Card className="border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <CheckCircle className="w-5 h-5 text-purple-600" />
+              <span>Kampagnen-Zusammenfassung</span>
+            </CardTitle>
+            <CardDescription>Überprüfen Sie Ihre Einstellungen</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="p-3 bg-purple-50 rounded-lg">
+              <h4 className="font-semibold mb-2 text-purple-800">Ziel</h4>
+              <p className="text-sm text-purple-600">
                 {goals.find(g => g.id === campaignData.goal)?.title || 'Nicht ausgewählt'}
               </p>
             </div>
 
-            <div>
-              <Label className="text-sm font-medium text-gray-700">Kanäle ({campaignData.channels.length})</Label>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {getSelectedChannels().map(channel => (
-                  <Badge key={channel.id} variant="secondary" className="flex items-center space-x-1">
-                    {channel.icon}
-                    <span>{channel.name}</span>
+            <div className="p-3 bg-blue-50 rounded-lg">
+              <h4 className="font-semibold mb-2 text-blue-800">Kanäle ({campaignData.channels.length})</h4>
+              <div className="flex flex-wrap gap-2">
+                {getSelectedChannels().map((channel) => (
+                  <Badge key={channel.id} variant="secondary" className="text-xs bg-white border-blue-200">
+                    <div className={`w-2 h-2 rounded-full mr-1 ${channel.color}`}></div>
+                    {channel.name}
                   </Badge>
                 ))}
               </div>
             </div>
 
-            <div>
-              <Label className="text-sm font-medium text-gray-700">Inhalte</Label>
-              <div className="space-y-1 text-sm">
-                <p><span className="font-medium">Überschrift:</span> {campaignData.content.headline || 'Nicht gesetzt'}</p>
-                <p><span className="font-medium">Beschreibung:</span> {campaignData.content.description || 'Nicht gesetzt'}</p>
-                <p><span className="font-medium">Medien:</span> {Object.keys(campaignData.content.images).length} Bilder</p>
-              </div>
+            <div className="p-3 bg-green-50 rounded-lg">
+              <h4 className="font-semibold mb-2 text-green-800">Inhalte</h4>
+              <p className="text-sm text-green-600">
+                Überschrift: {campaignData.content.headline || 'Nicht gesetzt'}<br />
+                Beschreibung: {campaignData.content.description ? 'Gesetzt' : 'Nicht gesetzt'}<br />
+                Medien: {Object.keys(campaignData.content.images).length} Bilder
+                {uploadedVideos.length > 0 && `, ${uploadedVideos.length} Videos`}
+              </p>
             </div>
 
             {campaignData.budget.amount && (
-              <div>
-                <Label className="text-sm font-medium text-gray-700">Budget</Label>
-                <div className="space-y-1 text-sm">
-                  <p><span className="font-medium">{campaignData.budget.type === 'daily' ? 'Tagesbudget:' : 'Gesamtbudget:'}</span> {campaignData.budget.amount}€</p>
-                  {campaignData.budget.type === 'daily' && campaignData.budget.duration && (
-                    <>
-                      <p><span className="font-medium">Laufzeit:</span> {campaignData.budget.duration} Tage</p>
-                      <p><span className="font-medium">Geschätztes Gesamtbudget:</span> {campaignData.budget.amount * campaignData.budget.duration}€</p>
-                    </>
-                  )}
-                </div>
+              <div className="p-3 bg-orange-50 rounded-lg">
+                <h4 className="font-semibold mb-2 text-orange-800">Budget</h4>
+                <p className="text-sm text-orange-600">
+                  {campaignData.budget.type === 'daily' ? 'Täglich' : 'Gesamt'}: €{campaignData.budget.amount}
+                  {campaignData.budget.duration && ` für ${campaignData.budget.duration} Tage`}
+                </p>
+                {campaignData.budget.type === 'daily' && campaignData.budget.duration && (
+                  <p className="text-sm font-semibold text-orange-700 mt-1">
+                    Geschätztes Gesamtbudget: €{campaignData.budget.amount * campaignData.budget.duration}
+                  </p>
+                )}
               </div>
             )}
-          </div>
+          </CardContent>
+        </Card>
 
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="flex items-start space-x-2">
-              <div className="w-5 h-5 text-yellow-600 mt-0.5">⚠️</div>
-              <div>
-                <h4 className="font-medium text-yellow-800 mb-1">Wichtiger Hinweis zum Mediabudget</h4>
-                <p className="text-sm text-yellow-700">
-                  Das von Ihnen festgelegte Budget wird als Mediabudget für Ihre Kampagne verwendet und entsprechend abgerechnet. Dieses Budget wird direkt an die Werbeplattformen weitergeleitet.
-                </p>
+        {/* Right Column: Wichtiger Hinweis zum Mediabudget und Bestätigungen */}
+        <Card className="border-yellow-200 bg-yellow-50">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <div className="w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+              <span>Wichtiger Hinweis zum Mediabudget</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4">
+              <p className="text-sm text-yellow-700">
+                Das von Ihnen festgelegte Budget wird als Mediabudget für Ihre Kampagne verwendet und 
+                entsprechend abgerechnet. Dieses Budget wird direkt an die Werbeplattformen weitergeleitet.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="budget-confirmation"
+                  checked={campaignData.budgetConfirmed}
+                  onCheckedChange={(checked) => setCampaignData(prev => ({
+                    ...prev,
+                    budgetConfirmed: checked
+                  }))}
+                  className="mt-1"
+                />
+                <Label htmlFor="budget-confirmation" className="text-sm leading-relaxed">
+                  Ich bestätige, dass ich verstehe, dass das festgelegte Budget von €{campaignData.budget.amount || '0'} 
+                  {campaignData.budget.type === 'daily' ? ' pro Tag' : ' insgesamt'} als Mediabudget für meine Kampagne 
+                  verwendet und entsprechend berechnet wird.
+                </Label>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="final-approval"
+                  checked={campaignData.finalApproval}
+                  onCheckedChange={(checked) => setCampaignData(prev => ({
+                    ...prev,
+                    finalApproval: checked
+                  }))}
+                  className="mt-1"
+                />
+                <Label htmlFor="final-approval" className="text-sm leading-relaxed font-semibold text-purple-800">
+                  Ich gebe meine finale Freigabe für diese Kampagne und möchte sie jetzt starten. Alle Angaben sind korrekt und ich bin mit der Umsetzung einverstanden.
+                </Label>
               </div>
             </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-start space-x-2">
-              <Checkbox
-                id="budgetConfirm"
-                checked={campaignData.budgetConfirmed}
-                onCheckedChange={(checked) => setCampaignData(prev => ({
-                  ...prev,
-                  budgetConfirmed: checked
-                }))}
-              />
-              <Label htmlFor="budgetConfirm" className="text-sm text-gray-700">
-                Ich bestätige, dass ich verstehe, dass das festgelegte Budget von {campaignData.budget.amount || '0'}€ pro Tag als Mediabudget für meine Kampagne verwendet und entsprechend berechnet wird.
-              </Label>
-            </div>
-
-            <div className="flex items-start space-x-2">
-              <Checkbox
-                id="finalApproval"
-                checked={campaignData.finalApproval}
-                onCheckedChange={(checked) => setCampaignData(prev => ({
-                  ...prev,
-                  finalApproval: checked
-                }))}
-              />
-              <Label htmlFor="finalApproval" className="text-sm text-gray-700">
-                Ich gebe meine finale Freigabe für diese Kampagne und möchte sie jetzt starten. Alle Angaben sind korrekt und ich bin mit der Umsetzung einverstanden.
-              </Label>
-            </div>
-          </div>
-
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start space-x-2">
-              <div className="w-5 h-5 text-blue-600 mt-0.5">ℹ️</div>
-              <div>
-                <h4 className="font-medium text-blue-800 mb-1">Hinweis zur Kampagnenprüfung</h4>
-                <p className="text-sm text-blue-700">
-                  Die Kampagnenprüfung nach Werberichtlinien kann bis zu <strong>24 Stunden</strong> dauern. Sind alle vorgegebenen Richtlinien eingehalten, startet die Kampagne innerhalb von <strong>12 Stunden</strong>.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Additional Notice about Campaign Review */}
+      <Card className="border-blue-200 bg-blue-50 mt-6">
+        <CardContent className="p-6">
+          <div className="flex items-start space-x-3">
+            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-white text-sm font-bold">i</span>
+            </div>
+            <div>
+              <h4 className="font-semibold text-blue-800 mb-2">Hinweis zur Kampagnenprüfung</h4>
+              <p className="text-sm text-blue-700 leading-relaxed">
+                Die Kampagnenprüfung nach Werberichtlinien kann bis zu <strong>24 Stunden</strong> dauern. 
+                Sind alle vorgegebenen Richtlinien eingehalten, startet die Kampagne innerhalb von <strong>12 Stunden</strong>. 
+                Sie erhalten eine E-Mail-Benachrichtigung, sobald Ihre Kampagne live geschaltet wurde.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
+      <div className="bg-white rounded-[10px] shadow-xl w-full max-w-7xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">Kampagne erstellen</h1>
-              <p className="text-purple-100 mt-1">
-                Schritt {currentStep} von {steps.length}: {steps.find(s => s.id === currentStep)?.title}
-              </p>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-white hover:bg-white/20"
-            >
-              <X className="w-5 h-5" />
-            </Button>
+        <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-purple-600 to-pink-600 rounded-t-[10px]">
+          <div>
+            <h1 className="text-2xl font-bold text-white">
+              Kampagne erstellen
+            </h1>
+            <p className="text-purple-100">Schritt {currentStep} von {steps.length}: {steps[currentStep - 1]?.title}</p>
           </div>
-          
-          {/* Progress Bar */}
-          <div className="mt-4">
-            <div className="flex items-center justify-between text-sm mb-2">
-              <span>Start</span>
-              <span>{Math.round((currentStep / steps.length) * 100)}% abgeschlossen</span>
-              <span>Fertig</span>
-            </div>
-            <div className="w-full bg-purple-400 rounded-full h-2">
-              <div 
-                className="bg-white h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(currentStep / steps.length) * 100}%` }}
-              ></div>
-            </div>
+          <Button variant="ghost" size="sm" onClick={onClose} className="hover:bg-white hover:bg-opacity-20 text-white hover:text-white">
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
+
+        {/* Progress Bar */}
+        <div className="px-6 py-4 border-b bg-gray-50">
+          <div className="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              className="bg-gradient-to-r from-purple-600 to-pink-600 h-3 rounded-full transition-all duration-500 shadow-sm"
+              style={{ width: `${(currentStep / steps.length) * 100}%` }}
+            ></div>
+          </div>
+          <div className="flex justify-between mt-2 text-xs text-gray-500">
+            <span>Start</span>
+            <span>{Math.round((currentStep / steps.length) * 100)}% abgeschlossen</span>
+            <span>Fertig</span>
           </div>
         </div>
 
         {/* Content */}
-        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
+        <div className="flex-1 p-6 overflow-y-auto">
           {currentStep === 1 && renderStep1()}
           {currentStep === 2 && renderStep2()}
           {currentStep === 3 && renderStep3()}
@@ -1350,47 +1436,58 @@ const CampaignWizard = ({ onClose, currentUser }) => {
         </div>
 
         {/* Footer */}
-        <div className="border-t bg-gray-50 p-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+        <div className="flex items-center justify-between p-6 border-t bg-gray-50">
+          <Button
+            onClick={prevStep}
+            disabled={currentStep === 1}
+            variant="outline"
+            className="flex items-center space-x-2 hover:bg-gray-100"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Zurück</span>
+          </Button>
+
+          <div className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full border">
             Schritt {currentStep} von {steps.length}
           </div>
-          
-          <div className="flex space-x-3">
-            {currentStep > 1 && (
-              <Button
-                variant="outline"
-                onClick={prevStep}
-                className="flex items-center space-x-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Zurück</span>
-              </Button>
-            )}
-            
-            {currentStep < steps.length ? (
-              <Button
-                onClick={nextStep}
-                disabled={
-                  (currentStep === 1 && !canProceedToStep2()) ||
-                  (currentStep === 2 && !canProceedToStep3()) ||
-                  (currentStep === 3 && !canProceedToStep4())
+
+          {currentStep < steps.length ? (
+            <Button
+              onClick={nextStep}
+              disabled={
+                (currentStep === 1 && !canProceedToStep2()) ||
+                (currentStep === 2 && !canProceedToStep3()) ||
+                (currentStep === 3 && !canProceedToStep4())
+              }
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex items-center space-x-2 shadow-md"
+            >
+              <span>Weiter</span>
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          ) : (
+            <Button
+              onClick={() => {
+                try {
+                  // Save campaign to storage
+                  const savedCampaign = saveCampaign(campaignData, currentUser?.id || 'demo_user')
+                  console.log('Campaign saved successfully:', savedCampaign)
+                  
+                  // Show success message (you can add a toast notification here)
+                  alert(`Kampagne "${campaignData.content.headline || 'Neue Kampagne'}" wurde erfolgreich erstellt!`)
+                  
+                  onClose()
+                } catch (error) {
+                  console.error('Error saving campaign:', error)
+                  alert('Fehler beim Speichern der Kampagne. Bitte versuchen Sie es erneut.')
                 }
-                className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-              >
-                <span>Weiter</span>
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            ) : (
-              <Button
-                onClick={handleCreateCampaign}
-                disabled={!canCreateCampaign() || !campaignData.budgetConfirmed || !campaignData.finalApproval}
-                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-              >
-                <CheckCircle className="w-4 h-4" />
-                <span>Kampagne starten</span>
-              </Button>
-            )}
-          </div>
+              }}
+              disabled={!canCreateCampaign()}
+              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white flex items-center space-x-2 shadow-md"
+            >
+              <span>Kampagne starten</span>
+              <CheckCircle className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </div>
     </div>
