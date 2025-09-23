@@ -74,6 +74,7 @@ function App() {
   const [showCampaignDashboard, setShowCampaignDashboard] = useState(false)
   const [showCampaignDetail, setShowCampaignDetail] = useState(false)
   const [selectedCampaignId, setSelectedCampaignId] = useState(null)
+  const [wizardOpenedFrom, setWizardOpenedFrom] = useState(null) // Track where wizard was opened from
   
   // Auth states
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -217,6 +218,10 @@ function App() {
   const handleCreateCampaign = () => {
     // Demo users can access campaign wizard directly
     if (currentUser?.isDemoAccount) {
+      // Track where wizard was opened from
+      setWizardOpenedFrom(showCampaignDashboard ? 'campaignDashboard' : 'mainDashboard')
+      // Close campaign dashboard when opening wizard
+      setShowCampaignDashboard(false)
       setShowCampaignWizard(true)
     } else {
       // Check if user has a valid plan
@@ -226,6 +231,10 @@ function App() {
         showMessage('info', 'Bitte wählen Sie zuerst einen Plan aus, um Kampagnen zu erstellen.')
       } else {
         // Plan exists - allow campaign creation
+        // Track where wizard was opened from
+        setWizardOpenedFrom(showCampaignDashboard ? 'campaignDashboard' : 'mainDashboard')
+        // Close campaign dashboard when opening wizard
+        setShowCampaignDashboard(false)
         setShowCampaignWizard(true)
       }
     }
@@ -1417,7 +1426,15 @@ function App() {
       
       {/* Campaign Wizard */}
       {showCampaignWizard && (
-        <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
+        <CampaignWizard onClose={() => {
+          setShowCampaignWizard(false)
+          // Return to the view where wizard was opened from
+          if (wizardOpenedFrom === 'campaignDashboard') {
+            setShowCampaignDashboard(true)
+          }
+          // Reset the tracking state
+          setWizardOpenedFrom(null)
+        }} />
       )}
       
       {/* Main Content Views */}
