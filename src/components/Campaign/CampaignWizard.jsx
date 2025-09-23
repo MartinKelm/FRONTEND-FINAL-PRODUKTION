@@ -787,87 +787,85 @@ const CampaignWizard = ({ onClose, currentUser }) => {
         <p className="text-gray-600">Legen Sie Ihr Kampagnenziel fest und wählen Sie die passenden Kanäle</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column: Campaign Goals */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2 mb-4">
-            <Target className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Kampagnenziel wählen</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 gap-3">
-            {goals.map((goal) => (
-              <Card
-                key={goal.id}
-                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  campaignData.goal === goal.id
-                    ? 'ring-2 ring-purple-500 bg-purple-50'
-                    : 'hover:bg-gray-50'
-                }`}
-                onClick={() => handleGoalSelect(goal.id)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${goal.color} text-white flex-shrink-0`}>
-                      {goal.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 text-sm">{goal.title}</h4>
-                      <p className="text-xs text-gray-600 truncate">{goal.description}</p>
-                    </div>
-                    {campaignData.goal === goal.id && (
-                      <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+      {/* Campaign Goals - Horizontal Row */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2 mb-4">
+          <Target className="w-5 h-5 text-purple-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Kampagnenziel wählen</h3>
         </div>
+        
+        <div className="grid grid-cols-5 gap-3">
+          {goals.map((goal) => (
+            <Card
+              key={goal.id}
+              className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                campaignData.goal === goal.id
+                  ? 'ring-2 ring-purple-500 bg-purple-50'
+                  : 'hover:bg-gray-50'
+              }`}
+              onClick={() => handleGoalSelect(goal.id)}
+            >
+              <CardContent className="p-2">
+                <div className="flex flex-col items-center text-center space-y-2">
+                  <div className={`p-2 rounded-lg ${goal.color} text-white`}>
+                    {goal.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-xs">{goal.title}</h4>
+                    <p className="text-xs text-gray-600 leading-tight">{goal.description}</p>
+                  </div>
+                  {campaignData.goal === goal.id && (
+                    <CheckCircle className="w-4 h-4 text-purple-600" />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
 
-        {/* Right Column: Channel Selection */}
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2 mb-4">
-            <Globe className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Kanäle auswählen</h3>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3">
-            {channels.map((channel) => (
-              <Card
-                key={channel.id}
-                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  campaignData.channels.includes(channel.id)
-                    ? 'ring-2 ring-purple-500 bg-purple-50'
-                    : 'hover:bg-gray-50'
-                }`}
-                onClick={() => handleChannelToggle(channel.id)}
-              >
-                <CardContent className="p-3">
-                  <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${channel.color} flex-shrink-0`}>
-                      {channel.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-gray-900 text-sm">{channel.name}</h4>
-                    </div>
-                    {campaignData.channels.includes(channel.id) && (
-                      <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          
-          {campaignData.channels.length > 0 && (
-            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-sm text-blue-800">
-                <strong>Ausgewählt:</strong> {campaignData.channels.length} Kanal{campaignData.channels.length !== 1 ? 'e' : ''}
-              </p>
-            </div>
-          )}
+      {/* Channel Selection - Horizontal Row */}
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2 mb-4">
+          <Globe className="w-5 h-5 text-purple-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Kanäle auswählen</h3>
         </div>
+        
+        <div className="grid grid-cols-8 gap-2">
+          {channels.map((channel) => (
+            <Card
+              key={channel.id}
+              className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                campaignData.channels.includes(channel.id)
+                  ? 'ring-2 ring-purple-500 bg-purple-50'
+                  : 'hover:bg-gray-50'
+              }`}
+              onClick={() => handleChannelToggle(channel.id)}
+            >
+              <CardContent className="p-2">
+                <div className="flex flex-col items-center text-center space-y-2">
+                  <div className={`p-1 rounded-lg ${channel.color}`}>
+                    {channel.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-gray-900 text-xs">{channel.name}</h4>
+                  </div>
+                  {campaignData.channels.includes(channel.id) && (
+                    <CheckCircle className="w-3 h-3 text-purple-600" />
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        {campaignData.channels.length > 0 && (
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg text-center">
+            <p className="text-sm text-blue-800">
+              <strong>Ausgewählt:</strong> {campaignData.channels.length} Kanal{campaignData.channels.length !== 1 ? 'e' : ''}
+            </p>
+          </div>
+        )}
       </div>
     </div>
   )
