@@ -792,7 +792,10 @@ function App() {
   if (showCampaignWizard) {
     return (
       <div>
-        <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
+        <CampaignWizard 
+          onClose={() => setShowCampaignWizard(false)} 
+          currentUser={currentUser}
+        />
       </div>
     )
   }
