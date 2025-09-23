@@ -253,66 +253,66 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'facebook',
       name: 'Facebook',
-      icon: <img src="/logos/facebook.png" alt="Facebook" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/facebook.png" alt="Facebook" className="w-8 h-8 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
-      color: 'bg-blue-600'
+      color: 'bg-gray-100'
     },
     {
       id: 'instagram',
       name: 'Instagram',
-      icon: <img src="/logos/instagram.png" alt="Instagram" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/instagram.png" alt="Instagram" className="w-8 h-8 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
-      color: 'bg-pink-600'
+      color: 'bg-gray-100'
     },
     {
       id: 'google',
       name: 'Google Ads',
-      icon: <img src="/logos/google.png" alt="Google Ads" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/google.png" alt="Google Ads" className="w-8 h-8 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
-      color: 'bg-red-600'
+      color: 'bg-gray-100'
     },
     {
       id: 'tiktok',
       name: 'TikTok',
-      icon: <img src="/logos/tiktok.png" alt="TikTok" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/tiktok.png" alt="TikTok" className="w-8 h-8 object-contain" />,
       format: '1080x1920',
       dimensions: '1080x1920px',
-      color: 'bg-black'
+      color: 'bg-gray-100'
     },
     {
       id: 'snapchat',
       name: 'Snapchat',
-      icon: <img src="/logos/snapchat.png" alt="Snapchat" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/snapchat.png" alt="Snapchat" className="w-8 h-8 object-contain" />,
       format: '1080x1920',
       dimensions: '1080x1920px',
-      color: 'bg-yellow-400'
+      color: 'bg-gray-100'
     },
     {
       id: 'reddit',
       name: 'Reddit',
-      icon: <img src="/logos/reddit.png" alt="Reddit" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/reddit.png" alt="Reddit" className="w-8 h-8 object-contain" />,
       format: '1200x630',
       dimensions: '1200x630px',
-      color: 'bg-orange-600'
+      color: 'bg-gray-100'
     },
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      icon: <img src="/logos/linkedin.png" alt="LinkedIn" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/linkedin.png" alt="LinkedIn" className="w-8 h-8 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
-      color: 'bg-blue-700'
+      color: 'bg-gray-100'
     },
     {
       id: 'spotify',
       name: 'Spotify',
-      icon: <img src="/logos/spotify.png" alt="Spotify" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/spotify.png" alt="Spotify" className="w-8 h-8 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
-      color: 'bg-green-600'
+      color: 'bg-gray-100'
     }
   ]
 
@@ -795,7 +795,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
             <h3 className="text-lg font-semibold text-gray-900">Kampagnenziel wählen</h3>
           </div>
           
-          <div className="grid gap-3">
+          <div className="grid grid-cols-1 gap-3">
             {goals.map((goal) => (
               <Card
                 key={goal.id}
@@ -806,17 +806,17 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                 }`}
                 onClick={() => handleGoalSelect(goal.id)}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex items-center space-x-3">
-                    <div className={`p-2 rounded-lg ${goal.color} text-white`}>
+                    <div className={`p-2 rounded-lg ${goal.color} text-white flex-shrink-0`}>
                       {goal.icon}
                     </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{goal.title}</h4>
-                      <p className="text-sm text-gray-600">{goal.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-gray-900 text-sm">{goal.title}</h4>
+                      <p className="text-xs text-gray-600 truncate">{goal.description}</p>
                     </div>
                     {campaignData.goal === goal.id && (
-                      <CheckCircle className="w-5 h-5 text-purple-600" />
+                      <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
                     )}
                   </div>
                 </CardContent>
@@ -843,17 +843,17 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                 }`}
                 onClick={() => handleChannelToggle(channel.id)}
               >
-                <CardContent className="p-4">
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    <div className={`p-3 rounded-lg ${channel.color} text-white`}>
+                <CardContent className="p-3">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${channel.color} flex-shrink-0`}>
                       {channel.icon}
                     </div>
-                    <div>
+                    <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-gray-900 text-sm">{channel.name}</h4>
-                      <p className="text-xs text-gray-500">{channel.dimensions}</p>
+                      <p className="text-xs text-gray-500 truncate">{channel.dimensions}</p>
                     </div>
                     {campaignData.channels.includes(channel.id) && (
-                      <CheckCircle className="w-4 h-4 text-purple-600" />
+                      <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
                     )}
                   </div>
                 </CardContent>
@@ -862,7 +862,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
           </div>
           
           {campaignData.channels.length > 0 && (
-            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg">
               <p className="text-sm text-blue-800">
                 <strong>Ausgewählt:</strong> {campaignData.channels.length} Kanal{campaignData.channels.length !== 1 ? 'e' : ''}
               </p>
