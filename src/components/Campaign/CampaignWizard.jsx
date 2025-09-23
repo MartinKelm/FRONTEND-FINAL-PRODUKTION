@@ -1138,7 +1138,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
 
   // Step 4: Budget & Final Approval
   const renderStep4 = () => (
-    <div className="max-w-4xl mx-auto space-y-6 max-h-[70vh] overflow-y-auto">
+    <div className="max-w-7xl mx-auto space-y-6 max-h-[70vh] overflow-y-auto">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           Budget & Finale Freigabe
@@ -1146,8 +1146,9 @@ const CampaignWizard = ({ onClose, currentUser }) => {
         <p className="text-gray-600">Legen Sie Ihr Budget fest und geben Sie Ihre Kampagne frei</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Budget Settings */}
+      {/* 3-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Budget & Laufzeit */}
         <Card className="border-purple-200">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -1243,7 +1244,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
           </CardContent>
         </Card>
 
-        {/* Campaign Summary */}
+        {/* Middle Column: Kampagnen-Zusammenfassung */}
         <Card className="border-purple-200">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -1298,57 +1299,76 @@ const CampaignWizard = ({ onClose, currentUser }) => {
             )}
           </CardContent>
         </Card>
+
+        {/* Right Column: Wichtiger Hinweis zum Mediabudget und Bestätigungen */}
+        <Card className="border-yellow-200 bg-yellow-50">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <div className="w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs font-bold">!</span>
+              </div>
+              <span>Wichtiger Hinweis zum Mediabudget</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4">
+              <p className="text-sm text-yellow-700">
+                Das von Ihnen festgelegte Budget wird als Mediabudget für Ihre Kampagne verwendet und 
+                entsprechend abgerechnet. Dieses Budget wird direkt an die Werbeplattformen weitergeleitet.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="budget-confirmation"
+                  checked={campaignData.budgetConfirmed}
+                  onCheckedChange={(checked) => setCampaignData(prev => ({
+                    ...prev,
+                    budgetConfirmed: checked
+                  }))}
+                  className="mt-1"
+                />
+                <Label htmlFor="budget-confirmation" className="text-sm leading-relaxed">
+                  Ich bestätige, dass ich verstehe, dass das festgelegte Budget von €{campaignData.budget.amount || '0'} 
+                  {campaignData.budget.type === 'daily' ? ' pro Tag' : ' insgesamt'} als Mediabudget für meine Kampagne 
+                  verwendet und entsprechend berechnet wird.
+                </Label>
+              </div>
+
+              <div className="flex items-start space-x-3">
+                <Checkbox
+                  id="final-approval"
+                  checked={campaignData.finalApproval}
+                  onCheckedChange={(checked) => setCampaignData(prev => ({
+                    ...prev,
+                    finalApproval: checked
+                  }))}
+                  className="mt-1"
+                />
+                <Label htmlFor="final-approval" className="text-sm leading-relaxed font-semibold text-purple-800">
+                  Ich gebe meine finale Freigabe für diese Kampagne und möchte sie jetzt starten. Alle Angaben sind korrekt und ich bin mit der Umsetzung einverstanden.
+                </Label>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Budget Confirmation */}
-      <Card className="border-yellow-200 bg-yellow-50">
+      {/* Additional Notice about Campaign Review */}
+      <Card className="border-blue-200 bg-blue-50 mt-6">
         <CardContent className="p-6">
-          <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 mb-4">
-            <div className="flex items-start space-x-3">
-              <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                <span className="text-white text-sm font-bold">!</span>
-              </div>
-              <div>
-                <h4 className="font-semibold text-yellow-800 mb-2">Wichtiger Hinweis zum Mediabudget</h4>
-                <p className="text-sm text-yellow-700">
-                  Das von Ihnen festgelegte Budget wird als Mediabudget für Ihre Kampagne verwendet und 
-                  entsprechend abgerechnet. Dieses Budget wird direkt an die Werbeplattformen weitergeleitet.
-                </p>
-              </div>
+          <div className="flex items-start space-x-3">
+            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+              <span className="text-white text-sm font-bold">i</span>
             </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-start space-x-3">
-              <Checkbox
-                id="budget-confirmation"
-                checked={campaignData.budgetConfirmed}
-                onCheckedChange={(checked) => setCampaignData(prev => ({
-                  ...prev,
-                  budgetConfirmed: checked
-                }))}
-                className="mt-1"
-              />
-              <Label htmlFor="budget-confirmation" className="text-sm leading-relaxed">
-                Ich bestätige, dass ich verstehe, dass das festgelegte Budget von €{campaignData.budget.amount || '0'} 
-                {campaignData.budget.type === 'daily' ? ' pro Tag' : ' insgesamt'} als Mediabudget für meine Kampagne 
-                verwendet und entsprechend berechnet wird.
-              </Label>
-            </div>
-
-            <div className="flex items-start space-x-3">
-              <Checkbox
-                id="final-approval"
-                checked={campaignData.finalApproval}
-                onCheckedChange={(checked) => setCampaignData(prev => ({
-                  ...prev,
-                  finalApproval: checked
-                }))}
-                className="mt-1"
-              />
-              <Label htmlFor="final-approval" className="text-sm leading-relaxed font-semibold text-purple-800">
-                Ich gebe meine finale Freigabe für diese Kampagne und möchte sie jetzt starten. Alle Angaben sind korrekt und ich bin mit der Umsetzung einverstanden.
-              </Label>
+            <div>
+              <h4 className="font-semibold text-blue-800 mb-2">Hinweis zur Kampagnenprüfung</h4>
+              <p className="text-sm text-blue-700 leading-relaxed">
+                Die Kampagnenprüfung nach Werberichtlinien kann bis zu <strong>24 Stunden</strong> dauern. 
+                Sind alle vorgegebenen Richtlinien eingehalten, startet die Kampagne innerhalb von <strong>12 Stunden</strong>. 
+                Sie erhalten eine E-Mail-Benachrichtigung, sobald Ihre Kampagne live geschaltet wurde.
+              </p>
             </div>
           </div>
         </CardContent>
