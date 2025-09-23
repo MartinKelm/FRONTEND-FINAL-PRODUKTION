@@ -554,22 +554,21 @@ const CampaignWizard = ({ onClose, currentUser }) => {
           )}
 
           {selected.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
-              <div className="text-center w-full">
-                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 bg-white border-2 border-gray-200 text-gray-900 shadow-sm">
-                  <div className="w-5 h-5 flex items-center justify-center">{selected[firstIndex]?.icon}</div>
-                  <span className="font-medium">{selected[firstIndex]?.name}</span>
-                </div>
+           <div className="text-center w-full">
+  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 bg-white border-2 border-gray-200 text-gray-900 shadow-sm">
+    <div className="w-5 h-5 flex items-center justify-center">{selected[firstIndex]?.icon}</div>
+    <span className="font-medium">{selected[firstIndex]?.name}</span>
+  </div>
                 <div className="flex justify-center">
                   <MobileMockup>{renderMockup(selected[firstIndex])}</MobileMockup>
                 </div>
               </div>
               {secondIndex !== null && (
                 <div className="text-center w-full">
-                  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 bg-white border-2 border-gray-200 text-gray-900 shadow-sm">
-                    <div className="w-5 h-5 flex items-center justify-center">{selected[secondIndex]?.icon}</div>
-                    <span className="font-medium">{selected[secondIndex]?.name}</span>
-                  </div>
+  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 bg-white border-2 border-gray-200 text-gray-900 shadow-sm">
+    <div className="w-5 h-5 flex items-center justify-center">{selected[secondIndex]?.icon}</div>
+    <span className="font-medium">{selected[secondIndex]?.name}</span>
+  </div>
                   <div className="flex justify-center">
                     <MobileMockup>{renderMockup(selected[secondIndex])}</MobileMockup>
                   </div>
