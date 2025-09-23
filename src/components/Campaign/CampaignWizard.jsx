@@ -38,17 +38,6 @@ import { Textarea } from '../ui/textarea'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Checkbox } from '../ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-// Kanal-Logos (aus src/assets/logos)
-import FacebookLogo from '../../assets/logos/facebook.png'
-import InstagramLogo from '../../assets/logos/instagram.png'
-import YoutubeLogo from '../../assets/logos/youtube.png'
-import LinkedinLogo from '../../assets/logos/linkedin.png'
-import TikTokLogo from '../../assets/logos/tiktok.png'
-import SnapchatLogo from '../../assets/logos/snapchat.png'
-import GoogleLogo from '../../assets/logos/google.png'
-import SpotifyLogo from '../../assets/logos/spotify.png'
-import RedditLogo from '../../assets/logos/reddit.png'
-
 
 const CampaignWizard = ({ onClose, currentUser }) => {
   const [currentStep, setCurrentStep] = useState(1)
@@ -264,7 +253,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'facebook',
       name: 'Facebook',
-      icon: <img src={FacebookLogo} alt="Facebook" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/facebook.png" alt="Facebook" className="w-5 h-5 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-blue-600'
@@ -272,7 +261,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'instagram',
       name: 'Instagram',
-      icon: <img src={InstagramLogo} alt="Instagram" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/instagram.png" alt="Instagram" className="w-5 h-5 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-pink-600'
@@ -280,7 +269,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'google',
       name: 'Google Ads',
-      icon: <img src={GoogleLogo} alt="Google Ads" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/google.png" alt="Google Ads" className="w-5 h-5 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-red-600'
@@ -288,7 +277,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'tiktok',
       name: 'TikTok',
-      icon: <img src={TikTokLogo} alt="TikTok" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/tiktok.png" alt="TikTok" className="w-5 h-5 object-contain" />,
       format: '1080x1920',
       dimensions: '1080x1920px',
       color: 'bg-black'
@@ -296,7 +285,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'snapchat',
       name: 'Snapchat',
-      icon: <img src={SnapchatLogo} alt="Snapchat" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/snapchat.png" alt="Snapchat" className="w-5 h-5 object-contain" />,
       format: '1080x1920',
       dimensions: '1080x1920px',
       color: 'bg-yellow-400'
@@ -304,7 +293,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'reddit',
       name: 'Reddit',
-      icon: <img src={RedditLogo} alt="Reddit" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/reddit.png" alt="Reddit" className="w-5 h-5 object-contain" />,
       format: '1200x630',
       dimensions: '1200x630px',
       color: 'bg-orange-600'
@@ -312,7 +301,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      icon: <img src={LinkedinLogo} alt="LinkedIn" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/linkedin.png" alt="LinkedIn" className="w-5 h-5 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-blue-700'
@@ -320,7 +309,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'spotify',
       name: 'Spotify',
-      icon: <img src={SpotifyLogo} alt="Spotify" className="w-5 h-5 object-contain" />,
+      icon: <img src="/logos/spotify.png" alt="Spotify" className="w-5 h-5 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-green-600'
@@ -1042,15 +1031,9 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     </div>
   )
 
-  
-const renderStep3 = () => {
+  const renderStep3 = () => {
     const selectedChannels = getSelectedChannels()
-    const channelsPerPage = 2
-    const totalPages = Math.max(1, Math.ceil(selectedChannels.length / channelsPerPage))
-    const pageIndex = Math.min(currentPreviewIndex, totalPages - 1)
-    const start = pageIndex * channelsPerPage
-    const pageChannels = selectedChannels.slice(start, start + channelsPerPage)
-
+    
     return (
       <div className="space-y-8">
         <div className="text-center">
@@ -1063,53 +1046,79 @@ const renderStep3 = () => {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Kampagnen-Vorschau in Handy-Mockups</h3>
             <p className="text-gray-600 mb-6">So sehen Ihre Anzeigen auf den mobilen Geräten aus</p>
             
-            {selectedChannels.length > 0 && (
+            {selectedChannels.length > 1 && (
               <div className="flex items-center justify-center space-x-4 mb-6">
                 <Button
                   variant="outline"
-                  onClick={() => setCurrentPreviewIndex(prev => Math.max(0, prev - 1))}
-                  disabled={pageIndex === 0}
+                  size="sm"
+                  onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 1))}
+                  disabled={currentPreviewIndex === 0}
                 >
-                  <ArrowLeft className="w-4 h-4 mr-1" /> Zurück
+                  <ChevronLeft className="w-4 h-4 mr-1" />
+                  Vorherige
                 </Button>
                 <span className="text-sm text-gray-600">
-                  Seite {pageIndex + 1} von {totalPages}
+                  {currentPreviewIndex + 1} von {selectedChannels.length} Seiten
                 </span>
                 <Button
                   variant="outline"
-                  onClick={() => setCurrentPreviewIndex(prev => Math.min(totalPages - 1, prev + 1))}
-                  disabled={pageIndex >= totalPages - 1}
+                  size="sm"
+                  onClick={() => setCurrentPreviewIndex(Math.min(selectedChannels.length - 1, currentPreviewIndex + 1))}
+                  disabled={currentPreviewIndex === selectedChannels.length - 1}
                 >
-                  Weiter <ArrowRight className="w-4 h-4 ml-1" />
+                  Nächste
+                  <ChevronRight className="w-4 h-4 ml-1" />
                 </Button>
               </div>
             )}
-
-            {selectedChannels.length === 0 ? (
-              <p className="text-gray-500">Bitte wählen Sie im Schritt 1 mindestens einen Kanal aus.</p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {pageChannels.map((channel) => (
-                  <div key={channel.id} className="text-center">
-                    <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${channel.color} text-white`}>
-                      {channel.icon}
-                      <span>{channel.name}</span>
-                      <span className="text-xs opacity-75">{channel.dimensions}</span>
-                    </div>
-                    
-                    <MobileMockup channel={channel}>
-                      {renderMockup(channel)}
-                    </MobileMockup>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
+
+          {selectedChannels.length > 0 && (
+            <div className="flex justify-center">
+              <div className="text-center">
+                <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${selectedChannels[currentPreviewIndex]?.color} text-white`}>
+                  {selectedChannels[currentPreviewIndex]?.icon}
+                  <span>{selectedChannels[currentPreviewIndex]?.name}</span>
+                  <span className="text-xs opacity-75">{selectedChannels[currentPreviewIndex]?.dimensions}</span>
+                </div>
+                
+                <MobileMockup channel={selectedChannels[currentPreviewIndex]}>
+                  {renderMockup(selectedChannels[currentPreviewIndex])}
+                </MobileMockup>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     )
   }
-))}
+
+  const renderStep4 = () => (
+    <div className="space-y-8">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Budget & Finale Freigabe</h2>
+        <p className="text-gray-600">Legen Sie Ihr Budget fest und geben Sie Ihre Kampagne frei</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column: Budget Settings */}
+        <div className="space-y-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <Euro className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Budget & Laufzeit</h3>
+          </div>
+          
+          <p className="text-sm text-gray-600">Bestimmen Sie Ihr Werbebudget</p>
+
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium text-gray-700 mb-3 block">Budget-Typ</Label>
+              <RadioGroup
+                value={campaignData.budget.type}
+                onValueChange={(value) => setCampaignData(prev => ({
+                  ...prev,
+                  budget: { ...prev.budget, type: value }
+                }))}
               >
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="daily" id="daily" />
@@ -1191,7 +1200,6 @@ const renderStep3 = () => {
           
           <p className="text-sm text-gray-600">Überprüfen Sie Ihre Einstellungen</p>
 
-          
           <div className="space-y-4">
             <div>
               <Label className="text-sm font-medium text-gray-700">Ziel</Label>
@@ -1203,37 +1211,41 @@ const renderStep3 = () => {
             <div>
               <Label className="text-sm font-medium text-gray-700">Kanäle ({campaignData.channels.length})</Label>
               <div className="flex flex-wrap gap-2 mt-1">
-                {getSelectedChannels().length ? getSelectedChannels().map(ch => (
-                  <span key={ch.id} className="inline-flex items-center space-x-2 border rounded-full px-2.5 py-1">
-                    {ch.icon}
-                    <span className="text-xs">{ch.name}</span>
-                  </span>
-                )) : <span className="text-sm">–</span>}
+                {getSelectedChannels().map(channel => (
+                  <Badge key={channel.id} variant="secondary" className="flex items-center space-x-1">
+                    {channel.icon}
+                    <span>{channel.name}</span>
+                  </Badge>
+                ))}
               </div>
             </div>
 
             <div>
-              <Label className="text-sm font-medium text-gray-700">Texte</Label>
-              <div className="text-sm space-y-1">
-                <div><span className="text-gray-500">Überschrift:</span> {campaignData.content.headline || '–'}</div>
-                <div className="line-clamp-3"><span className="text-gray-500">Beschreibung:</span> {campaignData.content.description || '–'}</div>
-                <div><span className="text-gray-500">CTA:</span> {campaignData.content.callToAction || '–'}</div>
+              <Label className="text-sm font-medium text-gray-700">Inhalte</Label>
+              <div className="space-y-1 text-sm">
+                <p><span className="font-medium">Überschrift:</span> {campaignData.content.headline || 'Nicht gesetzt'}</p>
+                <p><span className="font-medium">Beschreibung:</span> {campaignData.content.description || 'Nicht gesetzt'}</p>
+                <p><span className="font-medium">Medien:</span> {Object.keys(campaignData.content.images).length} Bilder</p>
               </div>
             </div>
 
-            <div>
-              <Label className="text-sm font-medium text-gray-700">Zeitraum & Budget</Label>
-              <div className="text-sm space-y-1">
-                <div>Budget: <b>{campaignData.budget.amount || 0}€</b> {campaignData.budget.type === 'daily' ? '(täglich)' : '(gesamt)'}</div>
-                {campaignData.budget.type === 'daily' && campaignData.budget.duration && (
-                  <div>Laufzeit: {campaignData.budget.duration} Tage · geschätzt: <b>{(Number(campaignData.budget.amount || 0) * Number(campaignData.budget.duration || 0))}€</b></div>
-                )}
-                {campaignData.budget.startDate && <div>Start: {campaignData.budget.startDate}</div>}
-                {campaignData.budget.endDate && <div>Ende: {campaignData.budget.endDate}</div>}
+            {campaignData.budget.amount && (
+              <div>
+                <Label className="text-sm font-medium text-gray-700">Budget</Label>
+                <div className="space-y-1 text-sm">
+                  <p><span className="font-medium">{campaignData.budget.type === 'daily' ? 'Tagesbudget:' : 'Gesamtbudget:'}</span> {campaignData.budget.amount}€</p>
+                  {campaignData.budget.type === 'daily' && campaignData.budget.duration && (
+                    <>
+                      <p><span className="font-medium">Laufzeit:</span> {campaignData.budget.duration} Tage</p>
+                      <p><span className="font-medium">Geschätztes Gesamtbudget:</span> {campaignData.budget.amount * campaignData.budget.duration}€</p>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
             <div className="flex items-start space-x-2">
               <div className="w-5 h-5 text-yellow-600 mt-0.5">⚠️</div>
               <div>
