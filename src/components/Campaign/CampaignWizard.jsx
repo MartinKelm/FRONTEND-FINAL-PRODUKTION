@@ -1,632 +1,1388 @@
-
-import React, { useMemo, useState } from "react";
-
-// --- UI (shadcn/ui) ---
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
-
-// --- Icons (kept only as fallbacks) ---
-import {
-  Target,
-  Globe,
-  ShoppingCart,
-  Smartphone,
+import { useState } from 'react'
+import { 
+  Target, 
+  Globe, 
+  ShoppingCart, 
+  Smartphone, 
   Eye,
+  Facebook,
+  Instagram,
+  Youtube,
+  Linkedin,
   CheckCircle,
   ArrowRight,
   ArrowLeft,
   Upload,
-  Image as ImageIcon,
-  Info,
-} from "lucide-react"
+  Calendar,
+  Euro,
+  Music,
+  MessageCircle,
+  Camera,
+  Search,
+  X,
+  Play,
+  Heart,
+  Share,
+  MoreHorizontal,
+  ChevronLeft,
+  ChevronRight,
+  Phone
+} from 'lucide-react'
+import { saveCampaign } from '../../utils/campaignStorage'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { Button } from '../ui/button'
+import { Badge } from '../ui/badge'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Textarea } from '../ui/textarea'
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
+import { Checkbox } from '../ui/checkbox'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+// Kanal-Logos (aus src/assets/logos)
+import FacebookLogo from '../../assets/logos/facebook.png'
+import InstagramLogo from '../../assets/logos/instagram.png'
+import YoutubeLogo from '../../assets/logos/youtube.png'
+import LinkedinLogo from '../../assets/logos/linkedin.png'
+import TikTokLogo from '../../assets/logos/tiktok.png'
+import SnapchatLogo from '../../assets/logos/snapchat.png'
+import GoogleLogo from '../../assets/logos/google.png'
+import SpotifyLogo from '../../assets/logos/spotify.png'
+import RedditLogo from '../../assets/logos/reddit.png'
 
-// --- Channel logos from src/assets/logos/ (adjust relative paths if needed) ---
-import FacebookLogo from "../../assets/logos/facebook.png"
-import InstagramLogo from "../../assets/logos/instagram.png"
-import TikTokLogo from "../../assets/logos/tiktok.png"
-import SnapchatLogo from "../../assets/logos/snapchat.png"
-import GoogleLogo from "../../assets/logos/google.png"
-import SpotifyLogo from "../../assets/logos/spotify.png"
-import LinkedinLogo from "../../assets/logos/linkedin.png"
-import RedditLogo from "../../assets/logos/reddit.png"
-import YoutubeLogo from "../../assets/logos/youtube.png"
 
-/**
- * Helper component: phone mockup frame for previews
- */
-const PhoneMockup = ({ children }) => (
-  <div className="mx-auto w-[240px] rounded-[38px] bg-black p-3 shadow-xl">
-    <div className="h-[12px] w-[92px] mx-auto my-2 rounded-full bg-neutral-800" />
-    <div className="rounded-[30px] overflow-hidden bg-white h-[480px] shadow-inner">
-      {children}
-    </div>
-  </div>
-)
-
-/**
- * Channels master list (id, label, brand color, logo import, default dimensions hint)
- */
-const ALL_CHANNELS = [
-  { id: "facebook", name: "Facebook", color: "bg-[#1877F2]", logo: FacebookLogo, dims: "1:1 / 1080×1080" },
-  { id: "instagram", name: "Instagram", color: "bg-[#E1306C]", logo: InstagramLogo, dims: "1:1 / 1080×1080" },
-  { id: "tiktok", name: "TikTok", color: "bg-[#000000]", logo: TikTokLogo, dims: "9:16 / 1080×1920" },
-  { id: "snapchat", name: "Snapchat", color: "bg-[#FFFC00] text-black", logo: SnapchatLogo, dims: "9:16 / 1080×1920" },
-  { id: "google", name: "Google Search", color: "bg-[#4285F4]", logo: GoogleLogo, dims: "Text/RSAs" },
-  { id: "spotify", name: "Spotify", color: "bg-[#1DB954]", logo: SpotifyLogo, dims: "Audio 30s" },
-  { id: "linkedin", name: "LinkedIn", color: "bg-[#0A66C2]", logo: LinkedinLogo, dims: "1.91:1 / 1200×628" },
-  { id: "reddit", name: "Reddit", color: "bg-[#FF4500]", logo: RedditLogo, dims: "1:1 / 1200×1200" },
-  { id: "youtube", name: "YouTube", color: "bg-[#FF0000]", logo: YoutubeLogo, dims: "16:9 / 1920×1080" },
-]
-
-/**
- * Goals
- */
-const GOALS = [
-  { id: "applications", icon: Target, title: "Bewerbungen", desc: "Mehr Bewerbungen für offene Stellen generieren" },
-  { id: "traffic", icon: Globe, title: "Traffic", desc: "Besucher auf Karriereseiten oder Landingpages bringen" },
-  { id: "leads", icon: ShoppingCart, title: "Leads", desc: "Kontaktdaten & qualifizierte Anfragen sammeln" },
-  { id: "reach", icon: Smartphone, title: "Reichweite", desc: "Bekanntheit & Sichtbarkeit steigern" },
-]
-
-/**
- * Image upload helper: which formats do we want the user to provide?
- * (Simple example; extend as needed)
- */
-const REQUIRED_FORMATS = ["Quadrat 1:1 (1080×1080)", "Story 9:16 (1080×1920)", "Landscape 1.91:1 (1200×628)"]
-
-/**
- * CampaignWizard
- * NOTE: The overall look & feel (layout, spacing, typography) is intentionally aligned with your existing design.
- */
-export default function CampaignWizard() {
-  const [step, setStep] = useState(1)
-
-  const [data, setData] = useState({
-    goal: "",
+const CampaignWizard = ({ onClose, currentUser }) => {
+  const [currentStep, setCurrentStep] = useState(1)
+  const [uploadedImages, setUploadedImages] = useState([])
+  const [uploadedVideos, setUploadedVideos] = useState([])
+  const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0)
+  const [campaignData, setCampaignData] = useState({
+    goal: '',
     channels: [],
     content: {
-      headline: "",
-      description: "",
-      cta: "",
-      url: "",
-    },
-    media: {
-      "Quadrat 1:1 (1080×1080)": null,
-      "Story 9:16 (1080×1920)": null,
-      "Landscape 1.91:1 (1200×628)": null,
-    },
-    targeting: {
-      locations: "",
-      interests: "",
-      age: [18, 65],
+      headline: '',
+      description: '',
+      callToAction: '',
+      images: {},
+      videos: {}
     },
     budget: {
-      total: 500,
-      startDate: "",
-      endDate: "",
+      type: 'daily',
+      amount: '',
+      duration: '',
+      startDate: '',
+      endDate: ''
     },
     budgetConfirmed: false,
-    finalApproval: false,
+    finalApproval: false
   })
 
-  // --- Steps (titles unchanged) ---
   const steps = [
-    { id: 1, title: "Ziel & Kanäle", description: "Kampagnenziel und Plattformen auswählen" },
-    { id: 2, title: "Inhalte & Medien", description: "Texte erstellen und Bilder hochladen" },
-    { id: 3, title: "Vorschau", description: "Kampagnen in Handy-Mockups betrachten" },
-    { id: 4, title: "Budget & Freigabe", description: "Budget festlegen und Kampagne freigeben" },
+    { id: 1, title: 'Ziel & Kanäle', description: 'Kampagnenziel und Plattformen auswählen' },
+    { id: 2, title: 'Inhalte & Medien', description: 'Texte erstellen und Bilder hochladen' },
+    { id: 3, title: 'Vorschau', description: 'Kampagnen in Handy-Mockups betrachten' },
+    { id: 4, title: 'Budget & Freigabe', description: 'Budget festlegen und Kampagne freigeben' }
   ]
 
-  const selectedChannels = useMemo(
-    () => ALL_CHANNELS.filter((c) => data.channels.includes(c.id)),
-    [data.channels]
-  )
+  const handleImageUpload = (event, format) => {
+    const file = event.target.files[0]
+    if (file) {
+      // Validate image dimensions
+      const img = new Image()
+      img.onload = () => {
+        let isValid = false
+        if (format === '1080x1080' && img.width === 1080 && img.height === 1080) isValid = true
+        if (format === '1080x1920' && img.width === 1080 && img.height === 1920) isValid = true
+        if (format === '1200x630' && img.width === 1200 && img.height === 630) isValid = true
 
-  // --- Step 3 Pagination (exactly 2 channels per page) ---
-  const channelsPerPage = 2
-  const totalPages = Math.max(1, Math.ceil(selectedChannels.length / channelsPerPage))
-  const [previewPage, setPreviewPage] = useState(0)
-  const pageChannels = useMemo(() => {
-    const start = previewPage * channelsPerPage
-    return selectedChannels.slice(start, start + channelsPerPage)
-  }, [selectedChannels, previewPage])
+        if (isValid) {
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            setCampaignData(prev => ({
+              ...prev,
+              content: {
+                ...prev.content,
+                images: {
+                  ...prev.content.images,
+                  [format]: e.target.result
+                }
+              }
+            }))
+          }
+          reader.readAsDataURL(file)
+        } else {
+          alert(`Bitte laden Sie ein Bild mit den korrekten Abmessungen hoch: ${format}px`)
+        }
+      }
+      img.src = URL.createObjectURL(file)
+    }
+  }
 
-  const canNext = step < steps.length
-  const canPrev = step > 1
+  const handleVideoUpload = (event) => {
+    const file = event.target.files[0]
+    if (file && file.type.startsWith('video/')) {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        setUploadedVideos(prev => [...prev, {
+          id: Date.now(),
+          name: file.name,
+          url: e.target.result,
+          type: file.type
+        }])
+      }
+      reader.readAsDataURL(file)
+    }
+  }
 
-  const next = () => setStep((s) => Math.min(s + 1, steps.length))
-  const prev = () => setStep((s) => Math.max(s - 1, 1))
+  const handleGoalSelect = (goalId) => {
+    setCampaignData(prev => ({ ...prev, goal: goalId }))
+  }
 
-  const toggleChannel = (id) => {
-    setData((prev) => ({
+  const handleChannelToggle = (channelId) => {
+    setCampaignData(prev => {
+      const newChannels = prev.channels.includes(channelId)
+        ? prev.channels.filter(id => id !== channelId)
+        : [...prev.channels, channelId]
+      return { ...prev, channels: newChannels }
+    })
+  }
+
+  const handleContentChange = (field, value) => {
+    setCampaignData(prev => ({
       ...prev,
-      channels: prev.channels.includes(id)
-        ? prev.channels.filter((c) => c !== id)
-        : [...prev.channels, id],
+      content: { ...prev.content, [field]: value }
     }))
   }
 
-  const updateContent = (field, value) => {
-    setData((prev) => ({ ...prev, content: { ...prev.content, [field]: value } }))
+  const canProceedToStep2 = () => {
+    return campaignData.goal && campaignData.channels.length > 0
   }
 
-  const updateBudget = (field, value) => {
-    setData((prev) => ({ ...prev, budget: { ...prev.budget, [field]: value } }))
+  const canProceedToStep3 = () => {
+    return campaignData.content.headline && campaignData.content.description
   }
 
-  const updateTargeting = (field, value) => {
-    setData((prev) => ({ ...prev, targeting: { ...prev.targeting, [field]: value } }))
+  const canProceedToStep4 = () => {
+    return true // Step 3 is just preview, always allow to proceed
   }
 
-  const onUpload = (key, file) => {
-    setData((prev) => ({ ...prev, media: { ...prev.media, [key]: file } }))
+  const canCreateCampaign = () => {
+    return (
+      campaignData.goal &&
+      campaignData.channels.length > 0 &&
+      campaignData.content.headline &&
+      campaignData.content.description &&
+      campaignData.budget.amount &&
+      campaignData.budget.startDate
+    )
   }
 
-  const brandPill = (channel) => (
-    <span
-      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-white text-xs font-medium ${channel.color}`}
-    >
-      <img
-        src={channel.logo}
-        alt={channel.name}
-        className="h-4 w-4 object-contain"
-        onError={(e) => {
-          e.currentTarget.style.display = "none"
-        }}
-      />
-      <span>{channel.name}</span>
-      <span className="opacity-80">· {channel.dims}</span>
-    </span>
+  const nextStep = () => {
+    if (currentStep === 1 && canProceedToStep2()) {
+      setCurrentStep(2)
+    } else if (currentStep === 2 && canProceedToStep3()) {
+      setCurrentStep(3)
+    } else if (currentStep === 3 && canProceedToStep4()) {
+      setCurrentStep(4)
+    }
+  }
+
+  const prevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
+  const handleCreateCampaign = async () => {
+    if (!canCreateCampaign()) {
+      alert('Bitte füllen Sie alle erforderlichen Felder aus.')
+      return
+    }
+
+    try {
+      const userId = currentUser?.id || 'demo'
+      
+      // Prepare campaign data with uploaded media
+      const campaignDataWithMedia = {
+        ...campaignData,
+        content: {
+          ...campaignData.content,
+          images: campaignData.content.images,
+          videos: uploadedVideos
+        },
+        status: 'draft' // Start as draft for admin review
+      }
+
+      const savedCampaign = await saveCampaign(campaignDataWithMedia, userId)
+      alert('Kampagne erfolgreich erstellt und zur Prüfung eingereicht!')
+      console.log('Campaign saved with ID:', savedCampaign.id)
+      onClose()
+    } catch (error) {
+      console.error('Fehler beim Erstellen der Kampagne:', error)
+      alert('Fehler beim Erstellen der Kampagne. Bitte versuchen Sie es erneut.')
+    }
+  }
+
+  const goals = [
+    {
+      id: 'awareness',
+      title: 'Markenbekanntheit',
+      description: 'Erhöhen Sie die Sichtbarkeit Ihrer Marke',
+      icon: <Eye className="w-6 h-6" />,
+      color: 'bg-blue-500'
+    },
+    {
+      id: 'traffic',
+      title: 'Website-Traffic',
+      description: 'Mehr Besucher auf Ihre Website leiten',
+      icon: <Globe className="w-6 h-6" />,
+      color: 'bg-green-500'
+    },
+    {
+      id: 'leads',
+      title: 'Lead-Generierung',
+      description: 'Potentielle Kunden gewinnen',
+      icon: <Target className="w-6 h-6" />,
+      color: 'bg-purple-500'
+    },
+    {
+      id: 'sales',
+      title: 'Verkäufe steigern',
+      description: 'Direkte Verkäufe fördern',
+      icon: <ShoppingCart className="w-6 h-6" />,
+      color: 'bg-orange-500'
+    },
+    {
+      id: 'app',
+      title: 'App-Downloads',
+      description: 'Mobile App Installationen erhöhen',
+      icon: <Smartphone className="w-6 h-6" />,
+      color: 'bg-pink-500'
+    }
+  ]
+
+  const channels = [
+    {
+      id: 'facebook',
+      name: 'Facebook',
+      icon: <img src={FacebookLogo} alt="Facebook" className="w-5 h-5 object-contain" />,
+      format: '1080x1080',
+      dimensions: '1080x1080px',
+      color: 'bg-blue-600'
+    },
+    {
+      id: 'instagram',
+      name: 'Instagram',
+      icon: <img src={InstagramLogo} alt="Instagram" className="w-5 h-5 object-contain" />,
+      format: '1080x1080',
+      dimensions: '1080x1080px',
+      color: 'bg-pink-600'
+    },
+    {
+      id: 'google',
+      name: 'Google Ads',
+      icon: <img src={GoogleLogo} alt="Google Ads" className="w-5 h-5 object-contain" />,
+      format: '1080x1080',
+      dimensions: '1080x1080px',
+      color: 'bg-red-600'
+    },
+    {
+      id: 'tiktok',
+      name: 'TikTok',
+      icon: <img src={TikTokLogo} alt="TikTok" className="w-5 h-5 object-contain" />,
+      format: '1080x1920',
+      dimensions: '1080x1920px',
+      color: 'bg-black'
+    },
+    {
+      id: 'snapchat',
+      name: 'Snapchat',
+      icon: <img src={SnapchatLogo} alt="Snapchat" className="w-5 h-5 object-contain" />,
+      format: '1080x1920',
+      dimensions: '1080x1920px',
+      color: 'bg-yellow-400'
+    },
+    {
+      id: 'reddit',
+      name: 'Reddit',
+      icon: <img src={RedditLogo} alt="Reddit" className="w-5 h-5 object-contain" />,
+      format: '1200x630',
+      dimensions: '1200x630px',
+      color: 'bg-orange-600'
+    },
+    {
+      id: 'linkedin',
+      name: 'LinkedIn',
+      icon: <img src={LinkedinLogo} alt="LinkedIn" className="w-5 h-5 object-contain" />,
+      format: '1080x1080',
+      dimensions: '1080x1080px',
+      color: 'bg-blue-700'
+    },
+    {
+      id: 'spotify',
+      name: 'Spotify',
+      icon: <img src={SpotifyLogo} alt="Spotify" className="w-5 h-5 object-contain" />,
+      format: '1080x1080',
+      dimensions: '1080x1080px',
+      color: 'bg-green-600'
+    }
+  ]
+
+  const getSelectedChannels = () => {
+    return channels.filter(channel => campaignData.channels.includes(channel.id))
+  }
+
+  const getRequiredFormats = () => {
+    const selectedChannels = getSelectedChannels()
+    const formats = new Set()
+    selectedChannels.forEach(channel => {
+      formats.add(channel.format)
+    })
+    return Array.from(formats)
+  }
+
+  // Mobile Mockup Component
+  const MobileMockup = ({ channel, children }) => (
+    <div className="relative mx-auto" style={{ width: '280px', height: '560px' }}>
+      {/* Phone Frame */}
+      <div className="absolute inset-0 bg-gray-900 rounded-[2.5rem] p-2 shadow-2xl">
+        <div className="w-full h-full bg-black rounded-[2rem] overflow-hidden relative">
+          {/* Status Bar */}
+          <div className="absolute top-0 left-0 right-0 h-8 bg-black z-10 flex items-center justify-between px-6 text-white text-xs">
+            <span>9:41</span>
+            <div className="flex items-center space-x-1">
+              <div className="w-4 h-2 border border-white rounded-sm">
+                <div className="w-3 h-1 bg-white rounded-sm m-0.5"></div>
+              </div>
+            </div>
+          </div>
+          {/* App Content */}
+          <div className="pt-8 h-full overflow-hidden">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 
-  return (
-    <div className="max-w-6xl mx-auto px-4 py-8">
-      {/* Header / Breadcrumb */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Kampagnen-Wizard</h1>
-            <p className="text-sm text-gray-500">Ein Editor für alle Kanäle</p>
+  // Facebook Mockup
+  const FacebookMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* Facebook Header */}
+      <div className="bg-blue-600 p-3 flex items-center space-x-2">
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <span className="text-blue-600 font-bold text-sm">f</span>
+        </div>
+        <span className="text-white font-semibold">Facebook</span>
+      </div>
+      
+      {/* Post */}
+      <div className="p-3 border-b border-gray-200">
+        <div className="flex items-center space-x-2 mb-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">IU</span>
           </div>
+          <div>
+            <p className="font-semibold text-sm">Ihr Unternehmen</p>
+            <p className="text-xs text-gray-500 flex items-center">
+              <span className="w-2 h-2 bg-blue-500 rounded-full mr-1"></span>
+              Gesponsert · 2 Min
+            </p>
+          </div>
+        </div>
+        
+        {content.headline && (
+          <p className="font-medium mb-2 text-sm whitespace-pre-line">{content.headline}</p>
+        )}
+        
+        {content.description && (
+          <p className="text-sm text-gray-700 mb-3 whitespace-pre-line">{content.description}</p>
+        )}
+        
+        {image && (
+          <img src={image} alt="Ad" className="w-full rounded-lg mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+        )}
+        
+        {content.callToAction && (
+          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium w-full">
+            {content.callToAction}
+          </button>
+        )}
+        
+        {/* Engagement */}
+        <div className="flex items-center justify-between mt-3 pt-3 border-t text-gray-500">
+          <div className="flex items-center space-x-4 text-xs">
+            <span className="flex items-center space-x-1">
+              <Heart className="w-3 h-3 text-red-500" />
+              <span>42</span>
+            </span>
+            <span>8 Kommentare</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 
-          <div className="flex items-center gap-2">
-            {steps.map((s) => (
-              <div
-                key={s.id}
-                className={`h-2 w-10 rounded-full ${step >= s.id ? "bg-emerald-500" : "bg-gray-200"}`}
-                title={`${s.id}. ${s.title}`}
-              />
+  // Instagram Mockup
+  const InstagramMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* Instagram Header */}
+      <div className="bg-white p-3 flex items-center justify-between border-b border-gray-200">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 rounded-full flex items-center justify-center">
+            <Camera className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-semibold">Instagram</span>
+        </div>
+        <Heart className="w-6 h-6" />
+      </div>
+      
+      {/* Post */}
+      <div>
+        <div className="flex items-center space-x-2 p-3">
+          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">IU</span>
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-sm">ihr_unternehmen</p>
+            <p className="text-xs text-gray-500">Gesponsert</p>
+          </div>
+          <MoreHorizontal className="w-5 h-5" />
+        </div>
+        
+        {image && (
+          <img src={image} alt="Ad" className="w-full" style={{ height: '280px', objectFit: 'cover' }} />
+        )}
+        
+        <div className="p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-4">
+              <Heart className="w-6 h-6" />
+              <MessageCircle className="w-6 h-6" />
+              <Share className="w-6 h-6" />
+            </div>
+          </div>
+          
+          <p className="text-sm mb-1"><span className="font-semibold">42 Gefällt mir-Angaben</span></p>
+          
+          {content.headline && (
+            <p className="text-sm">
+              <span className="font-semibold">ihr_unternehmen</span> {content.headline}
+            </p>
+          )}
+          
+          {content.description && (
+            <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">{content.description}</p>
+          )}
+          
+          {content.callToAction && (
+            <button className="bg-blue-500 text-white px-4 py-1 rounded text-sm font-medium mt-2">
+              {content.callToAction}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  // TikTok Mockup
+  const TikTokMockup = ({ content, image }) => (
+    <div className="bg-black h-full relative text-white">
+      {/* TikTok Header */}
+      <div className="absolute top-0 left-0 right-0 z-10 p-3 flex items-center justify-center">
+        <span className="font-bold text-lg">TikTok</span>
+      </div>
+      
+      {/* Video Content */}
+      <div className="relative h-full flex items-center justify-center">
+        {image ? (
+          <img src={image} alt="Ad" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+            <Play className="w-16 h-16 text-white opacity-50" />
+          </div>
+        )}
+        
+        {/* Overlay Content */}
+        <div className="absolute bottom-20 left-4 right-16">
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">IU</span>
+            </div>
+            <span className="font-semibold">@ihr_unternehmen</span>
+            <span className="bg-red-500 px-2 py-1 text-xs rounded">Folgen</span>
+          </div>
+          
+          {content.headline && (
+            <p className="font-medium mb-1 text-sm whitespace-pre-line">{content.headline}</p>
+          )}
+          
+          {content.description && (
+            <p className="text-sm opacity-90 whitespace-pre-line">{content.description}</p>
+          )}
+          
+          {content.callToAction && (
+            <button className="bg-white text-black px-3 py-1 rounded-full text-sm font-medium mt-2">
+              {content.callToAction}
+            </button>
+          )}
+        </div>
+        
+        {/* Side Actions */}
+        <div className="absolute bottom-20 right-4 flex flex-col space-y-4">
+          <div className="text-center">
+            <Heart className="w-8 h-8 mx-auto mb-1" />
+            <span className="text-xs">42</span>
+          </div>
+          <div className="text-center">
+            <MessageCircle className="w-8 h-8 mx-auto mb-1" />
+            <span className="text-xs">8</span>
+          </div>
+          <div className="text-center">
+            <Share className="w-8 h-8 mx-auto mb-1" />
+            <span className="text-xs">Share</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Google Ads Mockup
+  const GoogleAdsMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* Google Header */}
+      <div className="bg-white p-3 flex items-center space-x-2 border-b border-gray-200">
+        <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+          <span className="text-blue-600 font-bold text-lg">G</span>
+        </div>
+        <span className="font-semibold">Google</span>
+      </div>
+      
+      {/* Search Result */}
+      <div className="p-4">
+        <div className="mb-2">
+          <span className="text-xs text-green-600 font-medium">Anzeige</span>
+        </div>
+        
+        {content.headline && (
+          <h3 className="text-blue-600 text-lg font-medium mb-1 underline">{content.headline}</h3>
+        )}
+        
+        <p className="text-green-700 text-sm mb-2">www.ihr-unternehmen.de</p>
+        
+        {content.description && (
+          <p className="text-gray-700 text-sm leading-relaxed mb-3 whitespace-pre-line">{content.description}</p>
+        )}
+        
+        {image && (
+          <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+        )}
+        
+        {content.callToAction && (
+          <button className="bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium">
+            {content.callToAction}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+
+  // LinkedIn Mockup
+  const LinkedInMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* LinkedIn Header */}
+      <div className="bg-blue-700 p-3 flex items-center space-x-2">
+        <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+          <span className="text-blue-700 font-bold text-sm">in</span>
+        </div>
+        <span className="text-white font-semibold">LinkedIn</span>
+      </div>
+      
+      {/* Post */}
+      <div className="p-3 border-b border-gray-200">
+        <div className="flex items-center space-x-2 mb-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">IU</span>
+          </div>
+          <div>
+            <p className="font-semibold text-sm">Ihr Unternehmen</p>
+            <p className="text-xs text-gray-500">Gesponsert · 2 Min</p>
+          </div>
+        </div>
+        
+        {content.headline && (
+          <p className="font-medium mb-2 text-sm whitespace-pre-line">{content.headline}</p>
+        )}
+        
+        {content.description && (
+          <p className="text-sm text-gray-700 mb-3 whitespace-pre-line">{content.description}</p>
+        )}
+        
+        {image && (
+          <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+        )}
+        
+        {content.callToAction && (
+          <button className="bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium w-full">
+            {content.callToAction}
+          </button>
+        )}
+        
+        {/* Engagement */}
+        <div className="flex items-center justify-between mt-3 pt-3 border-t text-gray-500">
+          <div className="flex items-center space-x-4 text-xs">
+            <span>42 Gefällt mir</span>
+            <span>8 Kommentare</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Spotify Mockup
+  const SpotifyMockup = ({ content, image }) => (
+    <div className="bg-black h-full text-white">
+      {/* Spotify Header */}
+      <div className="bg-green-500 p-3 flex items-center space-x-2">
+        <div className="w-8 h-8 bg-black rounded-full flex items-center justify-center">
+          <Music className="w-4 h-4 text-green-500" />
+        </div>
+        <span className="text-white font-semibold">Spotify</span>
+      </div>
+      
+      {/* Ad Content */}
+      <div className="p-4">
+        <div className="mb-3">
+          <span className="text-xs text-green-500 font-medium">WERBUNG</span>
+        </div>
+        
+        {image && (
+          <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+        )}
+        
+        {content.headline && (
+          <h3 className="text-white text-lg font-medium mb-2 whitespace-pre-line">{content.headline}</h3>
+        )}
+        
+        {content.description && (
+          <p className="text-gray-300 text-sm mb-4 whitespace-pre-line">{content.description}</p>
+        )}
+        
+        {content.callToAction && (
+          <button className="bg-green-500 text-black px-4 py-2 rounded-full text-sm font-medium w-full">
+            {content.callToAction}
+          </button>
+        )}
+      </div>
+    </div>
+  )
+
+  // Reddit Mockup
+  const RedditMockup = ({ content, image }) => (
+    <div className="bg-white h-full">
+      {/* Reddit Header */}
+      <div className="bg-orange-600 p-3 flex items-center space-x-2">
+        <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+          <span className="text-orange-600 font-bold text-sm">r/</span>
+        </div>
+        <span className="text-white font-semibold">Reddit</span>
+      </div>
+      
+      {/* Post */}
+      <div className="p-3">
+        <div className="flex items-center space-x-2 mb-2">
+          <span className="text-xs text-blue-500 font-medium">Promoted</span>
+          <span className="text-xs text-gray-500">• r/business • 2h</span>
+        </div>
+        
+        {content.headline && (
+          <h3 className="font-medium mb-2 text-base whitespace-pre-line">{content.headline}</h3>
+        )}
+        
+        {content.description && (
+          <p className="text-sm text-gray-700 mb-3 whitespace-pre-line">{content.description}</p>
+        )}
+        
+        {image && (
+          <img src={image} alt="Ad" className="w-full rounded mb-3" style={{ maxHeight: '200px', objectFit: 'cover' }} />
+        )}
+        
+        {content.callToAction && (
+          <button className="bg-orange-600 text-white px-4 py-2 rounded text-sm font-medium">
+            {content.callToAction}
+          </button>
+        )}
+        
+        {/* Engagement */}
+        <div className="flex items-center space-x-4 mt-3 pt-3 border-t text-gray-500">
+          <div className="flex items-center space-x-1 text-xs">
+            <ArrowRight className="w-3 h-3" />
+            <span>42</span>
+          </div>
+          <span className="text-xs">8 Kommentare</span>
+          <span className="text-xs">Teilen</span>
+        </div>
+      </div>
+    </div>
+  )
+
+  // Snapchat Mockup
+  const SnapchatMockup = ({ content, image }) => (
+    <div className="bg-yellow-400 h-full relative">
+      {/* Snapchat Header */}
+      <div className="absolute top-0 left-0 right-0 z-10 p-3 flex items-center justify-center">
+        <span className="font-bold text-lg text-white">Snapchat</span>
+      </div>
+      
+      {/* Snap Content */}
+      <div className="relative h-full flex items-center justify-center">
+        {image ? (
+          <img src={image} alt="Ad" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-yellow-500 flex items-center justify-center">
+            <Camera className="w-16 h-16 text-white opacity-50" />
+          </div>
+        )}
+        
+        {/* Overlay Content */}
+        <div className="absolute bottom-20 left-4 right-4 text-center">
+          {content.headline && (
+            <p className="font-bold mb-2 text-white text-lg drop-shadow-lg whitespace-pre-line">{content.headline}</p>
+          )}
+          
+          {content.description && (
+            <p className="text-white text-sm drop-shadow-lg mb-4 whitespace-pre-line">{content.description}</p>
+          )}
+          
+          {content.callToAction && (
+            <button className="bg-white text-black px-6 py-2 rounded-full text-sm font-medium">
+              {content.callToAction}
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderMockup = (channel) => {
+    const content = campaignData.content
+    const image = campaignData.content.images[channel.format]
+    
+    switch (channel.id) {
+      case 'facebook':
+        return <FacebookMockup content={content} image={image} />
+      case 'instagram':
+        return <InstagramMockup content={content} image={image} />
+      case 'tiktok':
+        return <TikTokMockup content={content} image={image} />
+      case 'google':
+        return <GoogleAdsMockup content={content} image={image} />
+      case 'linkedin':
+        return <LinkedInMockup content={content} image={image} />
+      case 'spotify':
+        return <SpotifyMockup content={content} image={image} />
+      case 'reddit':
+        return <RedditMockup content={content} image={image} />
+      case 'snapchat':
+        return <SnapchatMockup content={content} image={image} />
+      default:
+        return <div className="bg-gray-100 h-full flex items-center justify-center">
+          <p className="text-gray-500">Vorschau nicht verfügbar</p>
+        </div>
+    }
+  }
+
+  const renderStep1 = () => (
+    <div className="space-y-8">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Ziel & Kanäle</h2>
+        <p className="text-gray-600">Legen Sie Ihr Kampagnenziel fest und wählen Sie die passenden Kanäle</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column: Campaign Goals */}
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2 mb-4">
+            <Target className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Kampagnenziel wählen</h3>
+          </div>
+          
+          <div className="grid gap-3">
+            {goals.map((goal) => (
+              <Card
+                key={goal.id}
+                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                  campaignData.goal === goal.id
+                    ? 'ring-2 ring-purple-500 bg-purple-50'
+                    : 'hover:bg-gray-50'
+                }`}
+                onClick={() => handleGoalSelect(goal.id)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-3">
+                    <div className={`p-2 rounded-lg ${goal.color} text-white`}>
+                      {goal.icon}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-gray-900">{goal.title}</h4>
+                      <p className="text-sm text-gray-600">{goal.description}</p>
+                    </div>
+                    {campaignData.goal === goal.id && (
+                      <CheckCircle className="w-5 h-5 text-purple-600" />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-          {steps.map((s) => (
-            <Card
-              key={s.id}
-              className={`border ${step === s.id ? "border-emerald-500" : "border-gray-200"} transition`}
-            >
-              <CardHeader className="py-3">
-                <CardTitle className="text-base flex items-center gap-2">
-                  <span className={`h-6 w-6 rounded-full flex items-center justify-center text-white text-xs
-                    ${step === s.id ? "bg-emerald-500" : "bg-gray-400"}`}>
-                    {s.id}
-                  </span>
-                  {s.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="text-sm text-gray-500 -mt-2 pb-4">{s.description}</CardContent>
-            </Card>
-          ))}
+        {/* Right Column: Channel Selection */}
+        <div className="space-y-4">
+          <div className="flex items-center space-x-2 mb-4">
+            <Globe className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Kanäle auswählen</h3>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-3">
+            {channels.map((channel) => (
+              <Card
+                key={channel.id}
+                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                  campaignData.channels.includes(channel.id)
+                    ? 'ring-2 ring-purple-500 bg-purple-50'
+                    : 'hover:bg-gray-50'
+                }`}
+                onClick={() => handleChannelToggle(channel.id)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex flex-col items-center text-center space-y-2">
+                    <div className={`p-3 rounded-lg ${channel.color} text-white`}>
+                      {channel.icon}
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-gray-900 text-sm">{channel.name}</h4>
+                      <p className="text-xs text-gray-500">{channel.dimensions}</p>
+                    </div>
+                    {campaignData.channels.includes(channel.id) && (
+                      <CheckCircle className="w-4 h-4 text-purple-600" />
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          {campaignData.channels.length > 0 && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>Ausgewählt:</strong> {campaignData.channels.length} Kanal{campaignData.channels.length !== 1 ? 'e' : ''}
+              </p>
+            </div>
+          )}
         </div>
       </div>
+    </div>
+  )
 
-      {/* Step Content */}
-      <div className="space-y-8">
-        {step === 1 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-emerald-600" />
-                Ziel & Kanäle
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              {/* Goal selection */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Kampagnenziel</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  {GOALS.map((g) => (
-                    <button
-                      key={g.id}
-                      onClick={() => setData((p) => ({ ...p, goal: g.id }))}
-                      className={`text-left border rounded-xl p-4 hover:shadow-sm transition
-                        ${data.goal === g.id ? "border-emerald-500 ring-2 ring-emerald-200" : "border-gray-200"}`}
+  const renderStep2 = () => (
+    <div className="space-y-8">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Inhalte & Medien</h2>
+        <p className="text-gray-600">Erstellen Sie ansprechende Inhalte für Ihre Kampagne</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column: Content Creation */}
+        <div className="space-y-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <MessageCircle className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Inhalte erstellen</h3>
+          </div>
+          
+          <p className="text-sm text-gray-600">Erstellen Sie ansprechende Inhalte für Ihre Kampagne</p>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="headline" className="text-sm font-medium text-gray-700 mb-2 block">
+                Überschrift *
+              </Label>
+              <Input
+                id="headline"
+                placeholder="Ihre aussagekräftige Überschrift..."
+                value={campaignData.content.headline}
+                onChange={(e) => handleContentChange('headline', e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="description" className="text-sm font-medium text-gray-700 mb-2 block">
+                Beschreibung *
+              </Label>
+              <Textarea
+                id="description"
+                placeholder="Beschreiben Sie Ihr Angebot detailliert..."
+                value={campaignData.content.description}
+                onChange={(e) => handleContentChange('description', e.target.value)}
+                rows={4}
+                className="w-full"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="cta" className="text-sm font-medium text-gray-700 mb-2 block">
+                Call-to-Action
+              </Label>
+              <Input
+                id="cta"
+                placeholder="z.B. Jetzt kaufen, Mehr erfahren..."
+                value={campaignData.content.callToAction}
+                onChange={(e) => handleContentChange('callToAction', e.target.value)}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Media Upload */}
+        <div className="space-y-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <Upload className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Medien hochladen</h3>
+          </div>
+          
+          <p className="text-sm text-gray-600">Laden Sie Bilder und Videos für Ihre Kampagne hoch</p>
+
+          {/* Image Upload for each required format */}
+          {getRequiredFormats().map((format) => (
+            <div key={format} className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                {format} Format
+              </Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+                {campaignData.content.images[format] ? (
+                  <div className="space-y-2">
+                    <img
+                      src={campaignData.content.images[format]}
+                      alt={`Preview ${format}`}
+                      className="mx-auto max-h-32 rounded"
+                    />
+                    <p className="text-sm text-green-600">✓ Bild hochgeladen</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const input = document.createElement('input')
+                        input.type = 'file'
+                        input.accept = 'image/*'
+                        input.onchange = (e) => handleImageUpload(e, format)
+                        input.click()
+                      }}
                     >
-                      <div className="flex items-center gap-2 mb-1">
-                        <g.icon className="h-4 w-4 text-gray-700" />
-                        <span className="font-medium">{g.title}</span>
-                      </div>
-                      <p className="text-xs text-gray-500">{g.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Channel selection with real logos */}
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">Kanäle auswählen</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {ALL_CHANNELS.map((c) => {
-                    const active = data.channels.includes(c.id)
-                    return (
-                      <button
-                        key={c.id}
-                        onClick={() => toggleChannel(c.id)}
-                        className={`flex items-center gap-3 border rounded-xl p-3 hover:shadow-sm transition
-                          ${active ? "border-emerald-500 ring-2 ring-emerald-200" : "border-gray-200"}`}
-                        title={c.name}
-                      >
-                        <span className={`h-8 w-8 flex items-center justify-center rounded-lg ${c.color}`}>
-                          <img src={c.logo} alt={c.name} className="h-5 w-5 object-contain" />
-                        </span>
-                        <div className="text-left">
-                          <div className="text-sm font-medium">{c.name}</div>
-                          <div className="text-xs text-gray-500">{c.dims}</div>
-                        </div>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 2 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="h-5 w-5 text-purple-600" />
-                Inhalte & Medien
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left: Content */}
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Anzeigentexte</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <Label className="text-xs">Überschrift</Label>
-                      <Input
-                        value={data.content.headline}
-                        onChange={(e) => updateContent("headline", e.target.value)}
-                        placeholder="z.B. Jetzt bewerben – werden Sie Teil unseres Teams!"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-xs">Beschreibung</Label>
-                      <Textarea
-                        rows={4}
-                        value={data.content.description}
-                        onChange={(e) => updateContent("description", e.target.value)}
-                        placeholder="Kurzbeschreibung der Stelle / Ihres Angebots"
-                      />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs">Call-to-Action</Label>
-                        <Input
-                          value={data.content.cta}
-                          onChange={(e) => updateContent("cta", e.target.value)}
-                          placeholder="Jetzt bewerben"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Ziel-URL</Label>
-                        <Input
-                          value={data.content.url}
-                          onChange={(e) => updateContent("url", e.target.value)}
-                          placeholder="https://..."
-                        />
-                      </div>
-                    </div>
+                      Bild ändern
+                    </Button>
                   </div>
-                </div>
-
-                <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Targeting</h3>
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs">Region(en)</Label>
-                        <Input
-                          value={data.targeting.locations}
-                          onChange={(e) => updateTargeting("locations", e.target.value)}
-                          placeholder="z.B. Köln, Düsseldorf, Ruhrgebiet"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Interessen / Branchen</Label>
-                        <Input
-                          value={data.targeting.interests}
-                          onChange={(e) => updateTargeting("interests", e.target.value)}
-                          placeholder="z.B. Pflege, IT, Handwerk"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <Label className="text-xs">Altersspanne</Label>
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs w-10 text-right">{data.targeting.age[0]}</span>
-                        <Slider
-                          defaultValue={data.targeting.age}
-                          min={16}
-                          max={70}
-                          step={1}
-                          onValueChange={(v) => updateTargeting("age", v)}
-                        />
-                        <span className="text-xs w-10">{data.targeting.age[1]}</span>
-                      </div>
-                    </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Upload className="w-8 h-8 text-gray-400 mx-auto" />
+                    <p className="text-sm text-gray-600">
+                      Klicken Sie hier oder ziehen Sie Bilder hierher
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      Für {getSelectedChannels().filter(c => c.format === format).map(c => c.name).join(', ')}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const input = document.createElement('input')
+                        input.type = 'file'
+                        input.accept = 'image/*'
+                        input.onchange = (e) => handleImageUpload(e, format)
+                        input.click()
+                      }}
+                    >
+                      Bild auswählen
+                    </Button>
                   </div>
-                </div>
+                )}
               </div>
+            </div>
+          ))}
 
-              {/* Right: Media upload */}
-              <div className="space-y-6">
-                <div className="flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4 text-purple-600" />
-                  <h3 className="text-sm font-semibold text-gray-700">Medien hochladen</h3>
-                </div>
-                <p className="text-xs text-gray-500">Laden Sie Bilder/Videos für die jeweiligen Formate hoch.</p>
-
-                <div className="space-y-4">
-                  {REQUIRED_FORMATS.map((fmt) => (
-                    <div key={fmt} className="border rounded-xl p-4">
-                      <div className="flex items-center justify-between gap-2">
-                        <div>
-                          <Label className="text-xs">Format</Label>
-                          <div className="text-sm font-medium">{fmt}</div>
-                        </div>
-                        <Badge variant="secondary">empfohlen</Badge>
-                      </div>
-
-                      <div className="mt-3 flex items-center gap-3">
-                        <Input
-                          type="file"
-                          accept="image/*,video/*"
-                          onChange={(e) => onUpload(fmt, e.target.files?.[0] || null)}
-                        />
-                        {data.media[fmt] && (
-                          <span className="text-xs text-emerald-600">
-                            {data.media[fmt]?.name || "Datei gewählt"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+          {/* Video Upload */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+              <Play className="w-4 h-4" />
+              <span>Video hochladen (optional)</span>
+            </Label>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+              <div className="space-y-2">
+                <Play className="w-8 h-8 text-gray-400 mx-auto" />
+                <p className="text-sm text-gray-600">Video hochladen</p>
+                <p className="text-xs text-gray-500">Unterstützte Formate: MP4, MOV, AVI</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const input = document.createElement('input')
+                    input.type = 'file'
+                    input.accept = 'video/*'
+                    input.onchange = handleVideoUpload
+                    input.click()
+                  }}
+                >
+                  Video auswählen
+                </Button>
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 
-        {step === 3 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5 text-blue-600" />
-                Vorschau
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Pagination status */}
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-600">
-                  {selectedChannels.length > 0
-                    ? `Seite ${previewPage + 1} von ${totalPages} · ${selectedChannels.length} Kanal(e)`
-                    : "Bitte wählen Sie im Schritt 1 mindestens einen Kanal aus."}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPreviewPage((p) => Math.max(0, p - 1))}
-                    disabled={previewPage === 0}
-                  >
-                    <ArrowLeft className="h-4 w-4 mr-1" /> Zurück
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPreviewPage((p) => Math.min(totalPages - 1, p + 1))}
-                    disabled={previewPage >= totalPages - 1}
-                  >
-                    Weiter <ArrowRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </div>
+  
+const renderStep3 = () => {
+    const selectedChannels = getSelectedChannels()
+    const channelsPerPage = 2
+    const totalPages = Math.max(1, Math.ceil(selectedChannels.length / channelsPerPage))
+    const pageIndex = Math.min(currentPreviewIndex, totalPages - 1)
+    const start = pageIndex * channelsPerPage
+    const pageChannels = selectedChannels.slice(start, start + channelsPerPage)
+
+    return (
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Vorschau</h2>
+          <p className="text-gray-600">So sehen Ihre Anzeigen auf den mobilen Geräten aus</p>
+        </div>
+
+        <div className="space-y-6">
+          <div className="text-center">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Kampagnen-Vorschau in Handy-Mockups</h3>
+            <p className="text-gray-600 mb-6">So sehen Ihre Anzeigen auf den mobilen Geräten aus</p>
+            
+            {selectedChannels.length > 0 && (
+              <div className="flex items-center justify-center space-x-4 mb-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPreviewIndex(prev => Math.max(0, prev - 1))}
+                  disabled={pageIndex === 0}
+                >
+                  <ArrowLeft className="w-4 h-4 mr-1" /> Zurück
+                </Button>
+                <span className="text-sm text-gray-600">
+                  Seite {pageIndex + 1} von {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPreviewIndex(prev => Math.min(totalPages - 1, prev + 1))}
+                  disabled={pageIndex >= totalPages - 1}
+                >
+                  Weiter <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
               </div>
+            )}
 
-              {/* Two-column preview grid */}
+            {selectedChannels.length === 0 ? (
+              <p className="text-gray-500">Bitte wählen Sie im Schritt 1 mindestens einen Kanal aus.</p>
+            ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {pageChannels.map((c) => (
-                  <div key={c.id} className="text-center">
-                    <div className="mb-4">{brandPill(c)}</div>
-                    <PhoneMockup>
-                      <div className="h-full w-full flex flex-col">
-                        <div className="h-40 bg-neutral-100 flex items-center justify-center text-xs text-neutral-500">
-                          {data.media["Story 9:16 (1080×1920)"]?.name || "Story/Video Platzhalter"}
-                        </div>
-                        <div className="p-3 space-y-1">
-                          <div className="text-sm font-semibold line-clamp-2">{data.content.headline || "Ihre Überschrift"}</div>
-                          <div className="text-xs text-gray-600 line-clamp-3">
-                            {data.content.description || "Ihre Beschreibung erscheint hier. Kurz, prägnant und zielgruppengerecht."}
-                          </div>
-                          <div className="pt-2">
-                            <Button className="w-full">{data.content.cta || "Jetzt bewerben"}</Button>
-                          </div>
-                        </div>
-                      </div>
-                    </PhoneMockup>
+                {pageChannels.map((channel) => (
+                  <div key={channel.id} className="text-center">
+                    <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${channel.color} text-white`}>
+                      {channel.icon}
+                      <span>{channel.name}</span>
+                      <span className="text-xs opacity-75">{channel.dimensions}</span>
+                    </div>
+                    
+                    <MobileMockup channel={channel}>
+                      {renderMockup(channel)}
+                    </MobileMockup>
                   </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {step === 4 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <ShoppingCart className="h-5 w-5 text-emerald-600" />
-                Budget & Freigabe
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Left column: Form inputs (kept similar styling) */}
-                <div className="lg:col-span-2 space-y-6">
-                  <div className="border rounded-xl p-4">
-                    <h3 className="text-sm font-semibold text-gray-700 mb-3">Budget</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                      <div>
-                        <Label className="text-xs">Gesamtbudget (€)</Label>
-                        <Input
-                          type="number"
-                          min={100}
-                          value={data.budget.total}
-                          onChange={(e) => updateBudget("total", Number(e.target.value || 0))}
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Startdatum</Label>
-                        <Input
-                          type="date"
-                          value={data.budget.startDate}
-                          onChange={(e) => updateBudget("startDate", e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-xs">Enddatum</Label>
-                        <Input
-                          type="date"
-                          value={data.budget.endDate}
-                          onChange={(e) => updateBudget("endDate", e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="border rounded-xl p-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-gray-700">Finale Prüfung</h3>
-                      <div className="flex items-center gap-2 text-xs text-gray-500">
-                        <Info className="h-4 w-4" /> Inhalte werden vor Livegang manuell geprüft.
-                      </div>
-                    </div>
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="text-sm">Budget bestätigt</span>
-                      <Switch
-                        checked={data.budgetConfirmed}
-                        onCheckedChange={(v) => setData((p) => ({ ...p, budgetConfirmed: !!v }))}
-                      />
-                    </div>
-                    <div className="mt-2 flex items-center justify-between">
-                      <span className="text-sm">Freigabe zur Schaltung</span>
-                      <Switch
-                        checked={data.finalApproval}
-                        onCheckedChange={(v) => setData((p) => ({ ...p, finalApproval: !!v }))}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right column: CLEAN SUMMARY (überarbeitet) */}
-                <div className="space-y-4">
-                  <Card className="border-emerald-200">
-                    <CardHeader className="py-3">
-                      <CardTitle className="text-base">Zusammenfassung</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <div className="text-xs text-gray-500 mb-1">Ziel</div>
-                        <div className="text-sm font-medium">
-                          {GOALS.find((g) => g.id === data.goal)?.title || "Nicht ausgewählt"}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="text-xs text-gray-500 mb-1">Kanäle</div>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedChannels.length ? (
-                            selectedChannels.map((c) => (
-                              <span key={c.id} className="inline-flex items-center gap-2 border rounded-full px-2.5 py-1">
-                                <img src={c.logo} alt={c.name} className="h-4 w-4 object-contain" />
-                                <span className="text-xs">{c.name}</span>
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-sm">–</span>
-                          )}
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="text-xs text-gray-500 mb-1">Texte</div>
-                        <div className="space-y-1 text-sm">
-                          <div><span className="text-gray-500">Überschrift:</span> {data.content.headline || "–"}</div>
-                          <div className="line-clamp-3">
-                            <span className="text-gray-500">Beschreibung:</span> {data.content.description || "–"}
-                          </div>
-                          <div><span className="text-gray-500">CTA:</span> {data.content.cta || "–"}</div>
-                          <div className="truncate"><span className="text-gray-500">URL:</span> {data.content.url || "–"}</div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="text-xs text-gray-500 mb-1">Zeitraum & Budget</div>
-                        <div className="text-sm space-y-1">
-                          <div>Budget: <b>{Number(data.budget.total || 0).toLocaleString("de-DE")} €</b></div>
-                          <div>Start: {data.budget.startDate || "–"}</div>
-                          <div>Ende: {data.budget.endDate || "–"}</div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  <Button
-                    disabled={!data.finalApproval || !data.budgetConfirmed || selectedChannels.length === 0}
-                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Kampagne starten
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+            )}
+          </div>
+        </div>
       </div>
+    )
+  }
+))}
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="daily" id="daily" />
+                  <Label htmlFor="daily" className="text-sm">
+                    <span className="font-medium">Tagesbudget</span>
+                    <span className="text-gray-500 block text-xs">Festes Budget pro Tag</span>
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="total" id="total" />
+                  <Label htmlFor="total" className="text-sm">
+                    <span className="font-medium">Gesamtbudget</span>
+                    <span className="text-gray-500 block text-xs">Einmaliges Gesamtbudget</span>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
 
-      {/* Footer nav */}
-      <div className="mt-8 flex items-center justify-between">
-        <Button variant="outline" onClick={prev} disabled={!canPrev}>
-          <ArrowLeft className="h-4 w-4 mr-2" /> Zurück
-        </Button>
-        <Button onClick={next} disabled={!canNext}>
-          Weiter <ArrowRight className="h-4 w-4 ml-2" />
-        </Button>
+            <div>
+              <Label htmlFor="amount" className="text-sm font-medium text-gray-700 mb-2 block">
+                {campaignData.budget.type === 'daily' ? 'Tagesbudget (€)' : 'Gesamtbudget (€)'} *
+              </Label>
+              <Input
+                id="amount"
+                type="number"
+                placeholder="z.B. 50"
+                value={campaignData.budget.amount}
+                onChange={(e) => setCampaignData(prev => ({
+                  ...prev,
+                  budget: { ...prev.budget, amount: e.target.value }
+                }))}
+                className="w-full"
+              />
+            </div>
+
+            {campaignData.budget.type === 'daily' && (
+              <div>
+                <Label htmlFor="duration" className="text-sm font-medium text-gray-700 mb-2 block">
+                  Laufzeit (Tage)
+                </Label>
+                <Input
+                  id="duration"
+                  type="number"
+                  placeholder="z.B. 7"
+                  value={campaignData.budget.duration}
+                  onChange={(e) => setCampaignData(prev => ({
+                    ...prev,
+                    budget: { ...prev.budget, duration: e.target.value }
+                  }))}
+                  className="w-full"
+                />
+              </div>
+            )}
+
+            <div>
+              <Label htmlFor="startDate" className="text-sm font-medium text-gray-700 mb-2 block">
+                Startdatum
+              </Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={campaignData.budget.startDate}
+                onChange={(e) => setCampaignData(prev => ({
+                  ...prev,
+                  budget: { ...prev.budget, startDate: e.target.value }
+                }))}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Campaign Summary */}
+        <div className="space-y-6">
+          <div className="flex items-center space-x-2 mb-4">
+            <CheckCircle className="w-5 h-5 text-purple-600" />
+            <h3 className="text-lg font-semibold text-gray-900">Kampagnen-Zusammenfassung</h3>
+          </div>
+          
+          <p className="text-sm text-gray-600">Überprüfen Sie Ihre Einstellungen</p>
+
+          
+          <div className="space-y-4">
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Ziel</Label>
+              <p className="text-purple-600 font-medium">
+                {goals.find(g => g.id === campaignData.goal)?.title || 'Nicht ausgewählt'}
+              </p>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Kanäle ({campaignData.channels.length})</Label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {getSelectedChannels().length ? getSelectedChannels().map(ch => (
+                  <span key={ch.id} className="inline-flex items-center space-x-2 border rounded-full px-2.5 py-1">
+                    {ch.icon}
+                    <span className="text-xs">{ch.name}</span>
+                  </span>
+                )) : <span className="text-sm">–</span>}
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Texte</Label>
+              <div className="text-sm space-y-1">
+                <div><span className="text-gray-500">Überschrift:</span> {campaignData.content.headline || '–'}</div>
+                <div className="line-clamp-3"><span className="text-gray-500">Beschreibung:</span> {campaignData.content.description || '–'}</div>
+                <div><span className="text-gray-500">CTA:</span> {campaignData.content.callToAction || '–'}</div>
+              </div>
+            </div>
+
+            <div>
+              <Label className="text-sm font-medium text-gray-700">Zeitraum & Budget</Label>
+              <div className="text-sm space-y-1">
+                <div>Budget: <b>{campaignData.budget.amount || 0}€</b> {campaignData.budget.type === 'daily' ? '(täglich)' : '(gesamt)'}</div>
+                {campaignData.budget.type === 'daily' && campaignData.budget.duration && (
+                  <div>Laufzeit: {campaignData.budget.duration} Tage · geschätzt: <b>{(Number(campaignData.budget.amount || 0) * Number(campaignData.budget.duration || 0))}€</b></div>
+                )}
+                {campaignData.budget.startDate && <div>Start: {campaignData.budget.startDate}</div>}
+                {campaignData.budget.endDate && <div>Ende: {campaignData.budget.endDate}</div>}
+              </div>
+            </div>
+          </div>
+        bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-start space-x-2">
+              <div className="w-5 h-5 text-yellow-600 mt-0.5">⚠️</div>
+              <div>
+                <h4 className="font-medium text-yellow-800 mb-1">Wichtiger Hinweis zum Mediabudget</h4>
+                <p className="text-sm text-yellow-700">
+                  Das von Ihnen festgelegte Budget wird als Mediabudget für Ihre Kampagne verwendet und entsprechend abgerechnet. Dieses Budget wird direkt an die Werbeplattformen weitergeleitet.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                id="budgetConfirm"
+                checked={campaignData.budgetConfirmed}
+                onCheckedChange={(checked) => setCampaignData(prev => ({
+                  ...prev,
+                  budgetConfirmed: checked
+                }))}
+              />
+              <Label htmlFor="budgetConfirm" className="text-sm text-gray-700">
+                Ich bestätige, dass ich verstehe, dass das festgelegte Budget von {campaignData.budget.amount || '0'}€ pro Tag als Mediabudget für meine Kampagne verwendet und entsprechend berechnet wird.
+              </Label>
+            </div>
+
+            <div className="flex items-start space-x-2">
+              <Checkbox
+                id="finalApproval"
+                checked={campaignData.finalApproval}
+                onCheckedChange={(checked) => setCampaignData(prev => ({
+                  ...prev,
+                  finalApproval: checked
+                }))}
+              />
+              <Label htmlFor="finalApproval" className="text-sm text-gray-700">
+                Ich gebe meine finale Freigabe für diese Kampagne und möchte sie jetzt starten. Alle Angaben sind korrekt und ich bin mit der Umsetzung einverstanden.
+              </Label>
+            </div>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="flex items-start space-x-2">
+              <div className="w-5 h-5 text-blue-600 mt-0.5">ℹ️</div>
+              <div>
+                <h4 className="font-medium text-blue-800 mb-1">Hinweis zur Kampagnenprüfung</h4>
+                <p className="text-sm text-blue-700">
+                  Die Kampagnenprüfung nach Werberichtlinien kann bis zu <strong>24 Stunden</strong> dauern. Sind alle vorgegebenen Richtlinien eingehalten, startet die Kampagne innerhalb von <strong>12 Stunden</strong>.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold">Kampagne erstellen</h1>
+              <p className="text-purple-100 mt-1">
+                Schritt {currentStep} von {steps.length}: {steps.find(s => s.id === currentStep)?.title}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-white hover:bg-white/20"
+            >
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="mt-4">
+            <div className="flex items-center justify-between text-sm mb-2">
+              <span>Start</span>
+              <span>{Math.round((currentStep / steps.length) * 100)}% abgeschlossen</span>
+              <span>Fertig</span>
+            </div>
+            <div className="w-full bg-purple-400 rounded-full h-2">
+              <div 
+                className="bg-white h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(currentStep / steps.length) * 100}%` }}
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 200px)' }}>
+          {currentStep === 1 && renderStep1()}
+          {currentStep === 2 && renderStep2()}
+          {currentStep === 3 && renderStep3()}
+          {currentStep === 4 && renderStep4()}
+        </div>
+
+        {/* Footer */}
+        <div className="border-t bg-gray-50 p-4 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Schritt {currentStep} von {steps.length}
+          </div>
+          
+          <div className="flex space-x-3">
+            {currentStep > 1 && (
+              <Button
+                variant="outline"
+                onClick={prevStep}
+                className="flex items-center space-x-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Zurück</span>
+              </Button>
+            )}
+            
+            {currentStep < steps.length ? (
+              <Button
+                onClick={nextStep}
+                disabled={
+                  (currentStep === 1 && !canProceedToStep2()) ||
+                  (currentStep === 2 && !canProceedToStep3()) ||
+                  (currentStep === 3 && !canProceedToStep4())
+                }
+                className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              >
+                <span>Weiter</span>
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleCreateCampaign}
+                disabled={!canCreateCampaign() || !campaignData.budgetConfirmed || !campaignData.finalApproval}
+                className="flex items-center space-x-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>Kampagne starten</span>
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
 }
+
+export default CampaignWizard
