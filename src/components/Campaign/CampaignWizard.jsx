@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { 
   Target, 
   Globe, 
@@ -28,7 +28,6 @@ import {
   ChevronRight,
   Phone
 } from 'lucide-react'
-import { saveCampaign } from '../../utils/campaignStorage'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -39,7 +38,7 @@ import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Checkbox } from '../ui/checkbox'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 
-const CampaignWizard = ({ onClose, currentUser }) => {
+const CampaignWizard = ({ onClose }) => {
   const [currentStep, setCurrentStep] = useState(1)
   const [uploadedImages, setUploadedImages] = useState([])
   const [uploadedVideos, setUploadedVideos] = useState([])
@@ -155,14 +154,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
   }
 
   const canCreateCampaign = () => {
-    return (
-      campaignData.goal &&
-      campaignData.channels.length > 0 &&
-      campaignData.content.headline &&
-      campaignData.content.description &&
-      campaignData.budget.amount &&
-      campaignData.budget.startDate
-    )
+    return campaignData.budget.amount && campaignData.budgetConfirmed && campaignData.finalApproval
   }
 
   const nextStep = () => {
@@ -783,7 +775,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
   const renderStep1 = () => (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
       {/* Left Column: Campaign Goals */}
-      <div className="space-y-6">
+      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -792,39 +784,37 @@ const CampaignWizard = ({ onClose, currentUser }) => {
             </CardTitle>
             <CardDescription>Was möchten Sie mit Ihrer Kampagne erreichen?</CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
-              {goals.map((goal) => (
-                <div
-                  key={goal.id}
-                  onClick={() => handleGoalSelect(goal.id)}
-                  className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                    campaignData.goal === goal.id
-                      ? 'border-purple-500 bg-purple-50 shadow-md'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <div className="flex items-start space-x-3">
-                    <div className={`p-2 rounded-lg text-white ${goal.color} flex-shrink-0`}>
-                      {goal.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm">{goal.title}</h3>
-                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{goal.description}</p>
-                    </div>
-                    {campaignData.goal === goal.id && (
-                      <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                    )}
+          <CardContent className="space-y-3">
+            {goals.map((goal) => (
+              <div
+                key={goal.id}
+                onClick={() => handleGoalSelect(goal.id)}
+                className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                  campaignData.goal === goal.id
+                    ? 'border-purple-500 bg-purple-50 shadow-md'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <div className={`p-2 rounded-lg text-white ${goal.color}`}>
+                    {goal.icon}
                   </div>
+                  <div>
+                    <h3 className="font-semibold">{goal.title}</h3>
+                    <p className="text-sm text-gray-600">{goal.description}</p>
+                  </div>
+                  {campaignData.goal === goal.id && (
+                    <CheckCircle className="w-5 h-5 text-purple-600 ml-auto" />
+                  )}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
       </div>
 
       {/* Right Column: Channel Selection */}
-      <div className="space-y-6">
+      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -834,7 +824,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
             <CardDescription>Wählen Sie die Plattformen für Ihre Kampagne</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               {channels.map((channel) => (
                 <div
                   key={channel.id}
@@ -845,36 +835,18 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                       : 'border-gray-200 hover:border-gray-300'
                   }`}
                 >
-                  <div className="flex flex-col items-center text-center space-y-2">
-                    {/* Logo Placeholder - Replace with actual logos */}
-                    <div className="w-12 h-12 bg-gray-100 border-2 border-gray-200 rounded-lg flex items-center justify-center relative">
-                      {/* Placeholder for actual logo */}
-                      <img 
-                        src={`/logos/${channel.id}.png`}
-                        alt={`${channel.name} Logo`}
-                        className="w-8 h-8 object-contain"
-                        onError={(e) => {
-                          // Fallback to colored icon if logo not found
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
-                      />
-                      {/* Fallback colored icon */}
-                      <div className={`w-8 h-8 rounded text-white ${channel.color} items-center justify-center hidden`}>
-                        {channel.icon}
-                      </div>
-                      {/* Selection indicator */}
-                      {campaignData.channels.includes(channel.id) && (
-                        <div className="absolute -top-1 -right-1">
-                          <CheckCircle className="w-5 h-5 text-purple-600 bg-white rounded-full" />
-                        </div>
-                      )}
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className={`p-1 rounded text-white ${channel.color}`}>
+                      {channel.icon}
                     </div>
-                    
-                    {/* Channel name */}
-                    <div className="flex flex-col items-center">
-                      <span className="font-medium text-sm">{channel.name}</span>
-                    </div>
+                    <span className="font-medium text-sm">{channel.name}</span>
+                    {campaignData.channels.includes(channel.id) && (
+                      <CheckCircle className="w-4 h-4 text-purple-600 ml-auto" />
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {channel.format}px Format<br />
+                    {channel.dimensions}
                   </div>
                 </div>
               ))}
@@ -1158,7 +1130,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
 
   // Step 4: Budget & Final Approval
   const renderStep4 = () => (
-    <div className="max-w-7xl mx-auto space-y-6 max-h-[70vh] overflow-y-auto">
+    <div className="max-w-4xl mx-auto space-y-6 max-h-[70vh] overflow-y-auto">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           Budget & Finale Freigabe
@@ -1166,9 +1138,8 @@ const CampaignWizard = ({ onClose, currentUser }) => {
         <p className="text-gray-600">Legen Sie Ihr Budget fest und geben Sie Ihre Kampagne frei</p>
       </div>
 
-      {/* 3-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Budget & Laufzeit */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Budget Settings */}
         <Card className="border-purple-200">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -1264,7 +1235,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
           </CardContent>
         </Card>
 
-        {/* Middle Column: Kampagnen-Zusammenfassung */}
+        {/* Campaign Summary */}
         <Card className="border-purple-200">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -1319,76 +1290,57 @@ const CampaignWizard = ({ onClose, currentUser }) => {
             )}
           </CardContent>
         </Card>
-
-        {/* Right Column: Wichtiger Hinweis zum Mediabudget und Bestätigungen */}
-        <Card className="border-yellow-200 bg-yellow-50">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <div className="w-5 h-5 bg-yellow-500 rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">!</span>
-              </div>
-              <span>Wichtiger Hinweis zum Mediabudget</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4">
-              <p className="text-sm text-yellow-700">
-                Das von Ihnen festgelegte Budget wird als Mediabudget für Ihre Kampagne verwendet und 
-                entsprechend abgerechnet. Dieses Budget wird direkt an die Werbeplattformen weitergeleitet.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <Checkbox
-                  id="budget-confirmation"
-                  checked={campaignData.budgetConfirmed}
-                  onCheckedChange={(checked) => setCampaignData(prev => ({
-                    ...prev,
-                    budgetConfirmed: checked
-                  }))}
-                  className="mt-1"
-                />
-                <Label htmlFor="budget-confirmation" className="text-sm leading-relaxed">
-                  Ich bestätige, dass ich verstehe, dass das festgelegte Budget von €{campaignData.budget.amount || '0'} 
-                  {campaignData.budget.type === 'daily' ? ' pro Tag' : ' insgesamt'} als Mediabudget für meine Kampagne 
-                  verwendet und entsprechend berechnet wird.
-                </Label>
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <Checkbox
-                  id="final-approval"
-                  checked={campaignData.finalApproval}
-                  onCheckedChange={(checked) => setCampaignData(prev => ({
-                    ...prev,
-                    finalApproval: checked
-                  }))}
-                  className="mt-1"
-                />
-                <Label htmlFor="final-approval" className="text-sm leading-relaxed font-semibold text-purple-800">
-                  Ich gebe meine finale Freigabe für diese Kampagne und möchte sie jetzt starten. Alle Angaben sind korrekt und ich bin mit der Umsetzung einverstanden.
-                </Label>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
-      {/* Additional Notice about Campaign Review */}
-      <Card className="border-blue-200 bg-blue-50 mt-6">
+      {/* Budget Confirmation */}
+      <Card className="border-yellow-200 bg-yellow-50">
         <CardContent className="p-6">
-          <div className="flex items-start space-x-3">
-            <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-              <span className="text-white text-sm font-bold">i</span>
+          <div className="bg-yellow-100 border border-yellow-300 rounded-lg p-4 mb-4">
+            <div className="flex items-start space-x-3">
+              <div className="w-6 h-6 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span className="text-white text-sm font-bold">!</span>
+              </div>
+              <div>
+                <h4 className="font-semibold text-yellow-800 mb-2">Wichtiger Hinweis zum Mediabudget</h4>
+                <p className="text-sm text-yellow-700">
+                  Das von Ihnen festgelegte Budget wird als Mediabudget für Ihre Kampagne verwendet und 
+                  entsprechend abgerechnet. Dieses Budget wird direkt an die Werbeplattformen weitergeleitet.
+                </p>
+              </div>
             </div>
-            <div>
-              <h4 className="font-semibold text-blue-800 mb-2">Hinweis zur Kampagnenprüfung</h4>
-              <p className="text-sm text-blue-700 leading-relaxed">
-                Die Kampagnenprüfung nach Werberichtlinien kann bis zu <strong>24 Stunden</strong> dauern. 
-                Sind alle vorgegebenen Richtlinien eingehalten, startet die Kampagne innerhalb von <strong>12 Stunden</strong>. 
-                Sie erhalten eine E-Mail-Benachrichtigung, sobald Ihre Kampagne live geschaltet wurde.
-              </p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="budget-confirmation"
+                checked={campaignData.budgetConfirmed}
+                onCheckedChange={(checked) => setCampaignData(prev => ({
+                  ...prev,
+                  budgetConfirmed: checked
+                }))}
+                className="mt-1"
+              />
+              <Label htmlFor="budget-confirmation" className="text-sm leading-relaxed">
+                Ich bestätige, dass ich verstehe, dass das festgelegte Budget von €{campaignData.budget.amount || '0'} 
+                {campaignData.budget.type === 'daily' ? ' pro Tag' : ' insgesamt'} als Mediabudget für meine Kampagne 
+                verwendet und entsprechend berechnet wird.
+              </Label>
+            </div>
+
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="final-approval"
+                checked={campaignData.finalApproval}
+                onCheckedChange={(checked) => setCampaignData(prev => ({
+                  ...prev,
+                  finalApproval: checked
+                }))}
+                className="mt-1"
+              />
+              <Label htmlFor="final-approval" className="text-sm leading-relaxed font-semibold text-purple-800">
+                Ich gebe meine finale Freigabe für diese Kampagne und möchte sie jetzt starten. Alle Angaben sind korrekt und ich bin mit der Umsetzung einverstanden.
+              </Label>
             </div>
           </div>
         </CardContent>
@@ -1397,7 +1349,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
   )
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-[10px] shadow-xl w-full max-w-7xl max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b bg-gradient-to-r from-purple-600 to-pink-600 rounded-t-[10px]">
@@ -1467,19 +1419,8 @@ const CampaignWizard = ({ onClose, currentUser }) => {
           ) : (
             <Button
               onClick={() => {
-                try {
-                  // Save campaign to storage
-                  const savedCampaign = saveCampaign(campaignData, currentUser?.id || 'demo_user')
-                  console.log('Campaign saved successfully:', savedCampaign)
-                  
-                  // Show success message (you can add a toast notification here)
-                  alert(`Kampagne "${campaignData.content.headline || 'Neue Kampagne'}" wurde erfolgreich erstellt!`)
-                  
-                  onClose()
-                } catch (error) {
-                  console.error('Error saving campaign:', error)
-                  alert('Fehler beim Speichern der Kampagne. Bitte versuchen Sie es erneut.')
-                }
+                console.log('Campaign created:', campaignData)
+                onClose()
               }}
               disabled={!canCreateCampaign()}
               className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white flex items-center space-x-2 shadow-md"
