@@ -1426,15 +1426,18 @@ function App() {
       
       {/* Campaign Wizard */}
       {showCampaignWizard && (
-        <CampaignWizard onClose={() => {
-          setShowCampaignWizard(false)
-          // Return to the view where wizard was opened from
-          if (wizardOpenedFrom === 'campaignDashboard') {
-            setShowCampaignDashboard(true)
-          }
-          // Reset the tracking state
-          setWizardOpenedFrom(null)
-        }} />
+        <CampaignWizard 
+          currentUser={currentUser}
+          onClose={() => {
+            setShowCampaignWizard(false)
+            // Return to the view where wizard was opened from
+            if (wizardOpenedFrom === 'campaignDashboard') {
+              setShowCampaignDashboard(true)
+            }
+            // Reset the tracking state
+            setWizardOpenedFrom(null)
+          }} 
+        />
       )}
       
       {/* Main Content Views */}
