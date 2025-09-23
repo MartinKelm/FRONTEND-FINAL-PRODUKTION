@@ -253,7 +253,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'facebook',
       name: 'Facebook',
-      icon: <img src="/logos/facebook.png" alt="Facebook" className="w-8 h-8 object-contain" />,
+      icon: <img src="/logos/facebook.png" alt="Facebook" className="w-12 h-12 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-gray-100'
@@ -261,7 +261,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'instagram',
       name: 'Instagram',
-      icon: <img src="/logos/instagram.png" alt="Instagram" className="w-8 h-8 object-contain" />,
+      icon: <img src="/logos/instagram.png" alt="Instagram" className="w-12 h-12 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-gray-100'
@@ -269,7 +269,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'google',
       name: 'Google Ads',
-      icon: <img src="/logos/google.png" alt="Google Ads" className="w-8 h-8 object-contain" />,
+      icon: <img src="/logos/google.png" alt="Google Ads" className="w-12 h-12 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-gray-100'
@@ -277,7 +277,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'tiktok',
       name: 'TikTok',
-      icon: <img src="/logos/tiktok.png" alt="TikTok" className="w-8 h-8 object-contain" />,
+      icon: <img src="/logos/tiktok.png" alt="TikTok" className="w-12 h-12 object-contain" />,
       format: '1080x1920',
       dimensions: '1080x1920px',
       color: 'bg-gray-100'
@@ -285,7 +285,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'snapchat',
       name: 'Snapchat',
-      icon: <img src="/logos/snapchat.png" alt="Snapchat" className="w-8 h-8 object-contain" />,
+      icon: <img src="/logos/snapchat.png" alt="Snapchat" className="w-12 h-12 object-contain" />,
       format: '1080x1920',
       dimensions: '1080x1920px',
       color: 'bg-gray-100'
@@ -293,7 +293,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'reddit',
       name: 'Reddit',
-      icon: <img src="/logos/reddit.png" alt="Reddit" className="w-8 h-8 object-contain" />,
+      icon: <img src="/logos/reddit.png" alt="Reddit" className="w-12 h-12 object-contain" />,
       format: '1200x630',
       dimensions: '1200x630px',
       color: 'bg-gray-100'
@@ -301,7 +301,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'linkedin',
       name: 'LinkedIn',
-      icon: <img src="/logos/linkedin.png" alt="LinkedIn" className="w-8 h-8 object-contain" />,
+      icon: <img src="/logos/linkedin.png" alt="LinkedIn" className="w-12 h-12 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-gray-100'
@@ -309,7 +309,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     {
       id: 'spotify',
       name: 'Spotify',
-      icon: <img src="/logos/spotify.png" alt="Spotify" className="w-8 h-8 object-contain" />,
+      icon: <img src="/logos/spotify.png" alt="Spotify" className="w-12 h-12 object-contain" />,
       format: '1080x1080',
       dimensions: '1080x1080px',
       color: 'bg-gray-100'
@@ -850,7 +850,6 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-gray-900 text-sm">{channel.name}</h4>
-                      <p className="text-xs text-gray-500 truncate">{channel.dimensions}</p>
                     </div>
                     {campaignData.channels.includes(channel.id) && (
                       <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
