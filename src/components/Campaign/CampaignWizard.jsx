@@ -783,7 +783,7 @@ const CampaignWizard = ({ onClose, currentUser }) => {
   const renderStep1 = () => (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
       {/* Left Column: Campaign Goals */}
-      <div className="space-y-6 max-h-[70vh] overflow-y-auto">
+      <div className="space-y-6">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -792,31 +792,33 @@ const CampaignWizard = ({ onClose, currentUser }) => {
             </CardTitle>
             <CardDescription>Was möchten Sie mit Ihrer Kampagne erreichen?</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
-            {goals.map((goal) => (
-              <div
-                key={goal.id}
-                onClick={() => handleGoalSelect(goal.id)}
-                className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
-                  campaignData.goal === goal.id
-                    ? 'border-purple-500 bg-purple-50 shadow-md'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-lg text-white ${goal.color}`}>
-                    {goal.icon}
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
+              {goals.map((goal) => (
+                <div
+                  key={goal.id}
+                  onClick={() => handleGoalSelect(goal.id)}
+                  className={`p-3 border rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                    campaignData.goal === goal.id
+                      ? 'border-purple-500 bg-purple-50 shadow-md'
+                      : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className={`p-2 rounded-lg text-white ${goal.color} flex-shrink-0`}>
+                      {goal.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold text-sm">{goal.title}</h3>
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{goal.description}</p>
+                    </div>
+                    {campaignData.goal === goal.id && (
+                      <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    )}
                   </div>
-                  <div>
-                    <h3 className="font-semibold">{goal.title}</h3>
-                    <p className="text-sm text-gray-600">{goal.description}</p>
-                  </div>
-                  {campaignData.goal === goal.id && (
-                    <CheckCircle className="w-5 h-5 text-purple-600 ml-auto" />
-                  )}
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>
