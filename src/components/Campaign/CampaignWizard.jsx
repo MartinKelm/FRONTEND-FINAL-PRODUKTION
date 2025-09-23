@@ -877,16 +877,15 @@ const CampaignWizard = ({ onClose, currentUser }) => {
         <p className="text-gray-600">Erstellen Sie ansprechende Inhalte für Ihre Kampagne</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column: Content Creation */}
-        <div className="space-y-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <MessageCircle className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Inhalte erstellen</h3>
-          </div>
-          
-          <p className="text-sm text-gray-600">Erstellen Sie ansprechende Inhalte für Ihre Kampagne</p>
-
+      {/* Content Creation - Horizontal 2 Columns */}
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <MessageCircle className="w-5 h-5 text-purple-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Inhalte erstellen</h3>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column: Headline and Description */}
           <div className="space-y-4">
             <div>
               <Label htmlFor="headline" className="text-sm font-medium text-gray-700 mb-2 block">
@@ -910,11 +909,14 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                 placeholder="Beschreiben Sie Ihr Angebot detailliert..."
                 value={campaignData.content.description}
                 onChange={(e) => handleContentChange('description', e.target.value)}
-                rows={4}
+                rows={6}
                 className="w-full"
               />
             </div>
+          </div>
 
+          {/* Right Column: Call-to-Action */}
+          <div className="space-y-4">
             <div>
               <Label htmlFor="cta" className="text-sm font-medium text-gray-700 mb-2 block">
                 Call-to-Action
@@ -927,36 +929,57 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                 className="w-full"
               />
             </div>
+            
+            {/* Preview of selected channels */}
+            {campaignData.channels.length > 0 && (
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <h4 className="text-sm font-medium text-blue-800 mb-2">Ausgewählte Kanäle:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {getSelectedChannels().map(channel => (
+                    <Badge key={channel.id} variant="secondary" className="flex items-center space-x-1">
+                      <div className="w-4 h-4">{channel.icon}</div>
+                      <span className="text-xs">{channel.name}</span>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Right Column: Media Upload */}
-        <div className="space-y-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <Upload className="w-5 h-5 text-purple-600" />
-            <h3 className="text-lg font-semibold text-gray-900">Medien hochladen</h3>
-          </div>
-          
-          <p className="text-sm text-gray-600">Laden Sie Bilder und Videos für Ihre Kampagne hoch</p>
+      {/* Media Upload - Horizontal Row */}
+      <div className="space-y-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <Upload className="w-5 h-5 text-purple-600" />
+          <h3 className="text-lg font-semibold text-gray-900">Medien hochladen</h3>
+        </div>
+        
+        <p className="text-sm text-gray-600 mb-4">Laden Sie Bilder und Videos für Ihre ausgewählten Kanäle hoch</p>
 
+        {/* Horizontal Media Upload Row */}
+        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${getRequiredFormats().length + 1}, 1fr)` }}>
           {/* Image Upload for each required format */}
           {getRequiredFormats().map((format) => (
             <div key={format} className="space-y-2">
-              <Label className="text-sm font-medium text-gray-700">
-                {format} Format
+              <Label className="text-sm font-medium text-gray-700 text-center block">
+                {format === '1080x1080' && 'Quadrat'}
+                {format === '1080x1920' && 'Hochformat'}
+                {format === '1200x630' && 'Querformat'}
               </Label>
-              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors min-h-[200px] flex flex-col justify-center">
                 {campaignData.content.images[format] ? (
                   <div className="space-y-2">
                     <img
                       src={campaignData.content.images[format]}
                       alt={`Preview ${format}`}
-                      className="mx-auto max-h-32 rounded"
+                      className="mx-auto max-h-20 rounded object-cover"
                     />
-                    <p className="text-sm text-green-600">✓ Bild hochgeladen</p>
+                    <p className="text-xs text-green-600">✓ Hochgeladen</p>
                     <Button
                       variant="outline"
                       size="sm"
+                      className="text-xs px-2 py-1"
                       onClick={() => {
                         const input = document.createElement('input')
                         input.type = 'file'
@@ -965,21 +988,18 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                         input.click()
                       }}
                     >
-                      Bild ändern
+                      Ändern
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Upload className="w-8 h-8 text-gray-400 mx-auto" />
-                    <p className="text-sm text-gray-600">
-                      Klicken Sie hier oder ziehen Sie Bilder hierher
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      Für {getSelectedChannels().filter(c => c.format === format).map(c => c.name).join(', ')}
-                    </p>
+                    <Upload className="w-6 h-6 text-gray-400 mx-auto" />
+                    <p className="text-xs text-gray-600">Bild hochladen</p>
+                    <p className="text-xs text-gray-500">{format}px</p>
                     <Button
                       variant="outline"
                       size="sm"
+                      className="text-xs px-2 py-1"
                       onClick={() => {
                         const input = document.createElement('input')
                         input.type = 'file'
@@ -988,39 +1008,72 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                         input.click()
                       }}
                     >
-                      Bild auswählen
+                      Auswählen
                     </Button>
                   </div>
                 )}
+              </div>
+              <div className="text-xs text-gray-500 text-center">
+                Für: {getSelectedChannels().filter(c => c.format === format).map(c => c.name).join(', ')}
               </div>
             </div>
           ))}
 
           {/* Video Upload */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700 flex items-center space-x-2">
+            <Label className="text-sm font-medium text-gray-700 text-center block flex items-center justify-center space-x-1">
               <Play className="w-4 h-4" />
-              <span>Video hochladen (optional)</span>
+              <span>Video</span>
             </Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-purple-400 transition-colors">
-              <div className="space-y-2">
-                <Play className="w-8 h-8 text-gray-400 mx-auto" />
-                <p className="text-sm text-gray-600">Video hochladen</p>
-                <p className="text-xs text-gray-500">Unterstützte Formate: MP4, MOV, AVI</p>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    const input = document.createElement('input')
-                    input.type = 'file'
-                    input.accept = 'video/*'
-                    input.onchange = handleVideoUpload
-                    input.click()
-                  }}
-                >
-                  Video auswählen
-                </Button>
-              </div>
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-purple-400 transition-colors min-h-[200px] flex flex-col justify-center">
+              {uploadedVideos.length > 0 ? (
+                <div className="space-y-2">
+                  <Play className="w-6 h-6 text-green-600 mx-auto" />
+                  <p className="text-xs text-green-600">✓ {uploadedVideos.length} Video(s)</p>
+                  <div className="max-h-16 overflow-y-auto">
+                    {uploadedVideos.map((video, index) => (
+                      <p key={index} className="text-xs text-gray-600 truncate">{video.name}</p>
+                    ))}
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs px-2 py-1"
+                    onClick={() => {
+                      const input = document.createElement('input')
+                      input.type = 'file'
+                      input.accept = 'video/*'
+                      input.onchange = handleVideoUpload
+                      input.click()
+                    }}
+                  >
+                    Hinzufügen
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Play className="w-6 h-6 text-gray-400 mx-auto" />
+                  <p className="text-xs text-gray-600">Video hochladen</p>
+                  <p className="text-xs text-gray-500">MP4, MOV, AVI</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-xs px-2 py-1"
+                    onClick={() => {
+                      const input = document.createElement('input')
+                      input.type = 'file'
+                      input.accept = 'video/*'
+                      input.onchange = handleVideoUpload
+                      input.click()
+                    }}
+                  >
+                    Auswählen
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div className="text-xs text-gray-500 text-center">
+              Optional für alle Kanäle
             </div>
           </div>
         </div>
