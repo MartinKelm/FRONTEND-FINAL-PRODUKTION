@@ -1106,20 +1106,22 @@ const CampaignWizard = ({ onClose, currentUser }) => {
             {selectedChannels.length > 2 && (
               <div className="flex items-center justify-center space-x-4 mb-6">
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
+                  className="bg-purple-100 text-purple-700 hover:bg-purple-200 border-purple-200"
                   onClick={() => setCurrentPreviewIndex(Math.max(0, currentPreviewIndex - 2))}
                   disabled={currentPreviewIndex === 0}
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" />
                   Vorherige
                 </Button>
-                <span className="text-sm text-gray-600">
+                <span className="text-sm font-medium text-gray-700">
                   Seite {currentPage} von {totalPages}
                 </span>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   size="sm"
+                  className="bg-purple-100 text-purple-700 hover:bg-purple-200 border-purple-200"
                   onClick={() => setCurrentPreviewIndex(Math.min(selectedChannels.length - 1, currentPreviewIndex + 2))}
                   disabled={currentPreviewIndex >= selectedChannels.length - 2}
                 >
@@ -1134,9 +1136,11 @@ const CampaignWizard = ({ onClose, currentUser }) => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-items-center">
               {/* First Mockup */}
               <div className="text-center w-full">
-                <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${selectedChannels[firstIndex]?.color} text-white`}>
-                  {selectedChannels[firstIndex]?.icon}
-                  <span>{selectedChannels[firstIndex]?.name}</span>
+                <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 bg-white border-2 border-gray-200 text-gray-900 shadow-sm">
+                  <div className="w-5 h-5 flex items-center justify-center">
+                    {selectedChannels[firstIndex]?.icon}
+                  </div>
+                  <span className="font-medium">{selectedChannels[firstIndex]?.name}</span>
                 </div>
                 
                 <div className="flex justify-center">
@@ -1149,9 +1153,11 @@ const CampaignWizard = ({ onClose, currentUser }) => {
               {/* Second Mockup (if available) */}
               {secondIndex !== null && (
                 <div className="text-center w-full">
-                  <div className={`inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 ${selectedChannels[secondIndex]?.color} text-white`}>
-                    {selectedChannels[secondIndex]?.icon}
-                    <span>{selectedChannels[secondIndex]?.name}</span>
+                  <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full text-sm font-medium mb-4 bg-white border-2 border-gray-200 text-gray-900 shadow-sm">
+                    <div className="w-5 h-5 flex items-center justify-center">
+                      {selectedChannels[secondIndex]?.icon}
+                    </div>
+                    <span className="font-medium">{selectedChannels[secondIndex]?.name}</span>
                   </div>
                   
                   <div className="flex justify-center">
