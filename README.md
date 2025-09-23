@@ -43,3 +43,5 @@ Das Frontend kann auf Vercel, Netlify oder anderen Static-Hosting-Plattformen de
 - Responsive Design
 - Mehrsprachige Unterstützung (Deutsch/Englisch)
 - Moderne UI mit Tailwind CSS
+
+
