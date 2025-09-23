@@ -40,7 +40,7 @@ import {
   getCampaignById, 
   updateCampaignMetrics, 
   updateCampaignStatus 
-} from '../../utils/campaignStorage'
+} from '../../utils/campaignStorage.js'
 
 const CampaignDetailView = ({ campaignId, userId, onBack, onEdit }) => {
   const [campaign, setCampaign] = useState(null)

@@ -32,7 +32,7 @@ import {
   getCampaignStats, 
   updateCampaignStatus, 
   deleteCampaign 
-} from '../../utils/campaignStorage'
+} from '../../utils/campaignStorage.js'
 
 const CampaignDashboard = ({ userId, onCreateCampaign, onViewCampaign }) => {
   const [campaigns, setCampaigns] = useState([])
