@@ -717,17 +717,21 @@ function App() {
     )
   }
 
-  // Campaign Management Views
+  // Campaign Management Views - Enhanced with full-width layout
   if (showCampaignDashboard) {
     return (
       <div>
         <Navigation />
-        <CampaignDashboard 
-          userId={currentUser?.id}
-          onCreateCampaign={handleCreateCampaign}
-          onViewCampaign={handleViewCampaign}
-          onClose={handleCloseCampaignDashboard}
-        />
+        <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto">
+            <CampaignDashboard 
+              userId={currentUser?.id}
+              onCreateCampaign={handleCreateCampaign}
+              onViewCampaign={handleViewCampaign}
+              onClose={handleCloseCampaignDashboard}
+            />
+          </div>
+        </section>
         <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
       </div>
     )
@@ -737,15 +741,19 @@ function App() {
     return (
       <div>
         <Navigation />
-        <CampaignDetailView 
-          campaignId={selectedCampaignId}
-          userId={currentUser?.id}
-          onClose={handleCloseCampaignDetail}
-          onEdit={() => {
-            // Handle edit campaign
-            setShowCampaignWizard(true)
-          }}
-        />
+        <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
+          <div className="max-w-7xl mx-auto">
+            <CampaignDetailView 
+              campaignId={selectedCampaignId}
+              userId={currentUser?.id}
+              onClose={handleCloseCampaignDetail}
+              onEdit={() => {
+                // Handle edit campaign
+                setShowCampaignWizard(true)
+              }}
+            />
+          </div>
+        </section>
         <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
       </div>
     )
@@ -1088,7 +1096,7 @@ function App() {
     </section>
   )
 
-  // Dashboard Section (for authenticated users) - WITH CAMPAIGN MANAGEMENT TILE
+  // Dashboard Section (for authenticated users) - WITH HOVER EFFECTS ON ALL CARDS
   const DashboardSection = () => {
     const dashboardData = getDashboardData(currentUser)
     const campaignTileData = getCampaignTileData(currentUser)
@@ -1134,8 +1142,9 @@ function App() {
             )}
           </div>
 
+          {/* Enhanced Dashboard Cards with Hover Effects */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-blue-100">
                   Aktive Kampagnen
@@ -1149,7 +1158,7 @@ function App() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-green-100">
                   Gesamtreichweite
@@ -1163,7 +1172,7 @@ function App() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+            <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-purple-100">
                   Klickrate
@@ -1177,7 +1186,7 @@ function App() {
               </CardContent>
             </Card>
 
-            <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+            <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
               <CardHeader className="pb-2">
                 <CardTitle className="text-sm font-medium text-orange-100">
                   Budget verwendet
@@ -1193,7 +1202,7 @@ function App() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Campaign Management Tile - NEW */}
+            {/* Campaign Management Tile - Enhanced with Hover Effects */}
             <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group cursor-pointer"
                   onClick={handleOpenCampaignDashboard}>
               <CardHeader className="pb-4">
@@ -1234,8 +1243,8 @@ function App() {
               </CardContent>
             </Card>
 
-            {/* Existing Campaign Card - Updated */}
-            <Card>
+            {/* Existing Campaign Card - Enhanced with Hover Effects */}
+            <Card className="hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
               <CardHeader>
                 <CardTitle>
                   {dashboardData.campaigns.length > 0 ? 'Aktuelle Kampagnen' : 'Ihre Kampagnen'}
@@ -1290,8 +1299,8 @@ function App() {
               </CardContent>
             </Card>
 
-            {/* Performance Overview Card */}
-            <Card>
+            {/* Performance Overview Card - Enhanced with Hover Effects */}
+            <Card className="hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
               <CardHeader>
                 <CardTitle>Performance Übersicht</CardTitle>
                 <CardDescription>
