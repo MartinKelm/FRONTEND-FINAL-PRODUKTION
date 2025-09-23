@@ -155,22 +155,22 @@ const CampaignWizard = ({ onClose, currentUser }) => {
     }
 
     try {
-      const campaign = {
-        id: Date.now().toString(),
-        userId: currentUser?.id || 'demo',
+      const userId = currentUser?.id || 'demo'
+      
+      // Prepare campaign data with uploaded media
+      const campaignDataWithMedia = {
         ...campaignData,
-        status: 'active',
-        createdAt: new Date().toISOString(),
-        metrics: {
-          impressions: 0,
-          clicks: 0,
-          conversions: 0,
-          spent: 0
-        }
+        content: {
+          ...campaignData.content,
+          images: uploadedImages,
+          videos: uploadedVideos
+        },
+        status: 'draft' // Start as draft for admin review
       }
 
-      await saveCampaign(campaign)
-      alert('Kampagne erfolgreich erstellt!')
+      const savedCampaign = await saveCampaign(campaignDataWithMedia, userId)
+      alert('Kampagne erfolgreich erstellt und zur Prüfung eingereicht!')
+      console.log('Campaign saved with ID:', savedCampaign.id)
       onClose()
     } catch (error) {
       console.error('Fehler beim Erstellen der Kampagne:', error)
