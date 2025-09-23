@@ -936,10 +936,10 @@ const CampaignWizard = ({ onClose, currentUser }) => {
                 <h4 className="text-sm font-medium text-blue-800 mb-2">Ausgewählte Kanäle:</h4>
                 <div className="flex flex-wrap gap-2">
                   {getSelectedChannels().map(channel => (
-                    <Badge key={channel.id} variant="secondary" className="flex items-center space-x-1">
-                      <div className="w-4 h-4">{channel.icon}</div>
-                      <span className="text-xs">{channel.name}</span>
-                    </Badge>
+                    <div key={channel.id} className="flex items-center space-x-1 bg-white px-2 py-1 rounded text-xs border border-gray-200">
+                      <div className="w-4 h-4 flex-shrink-0">{channel.icon}</div>
+                      <span className="text-gray-700">{channel.name}</span>
+                    </div>
                   ))}
                 </div>
               </div>
