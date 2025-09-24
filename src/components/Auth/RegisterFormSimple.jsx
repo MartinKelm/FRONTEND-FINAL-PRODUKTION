@@ -7,7 +7,7 @@ import { Checkbox } from '../ui/checkbox'
 import { Eye, EyeOff, User, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react'
 import FullLogo from '../../assets/Logo-socialmediakampagnen-voll.png'
 
-const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
+const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -104,7 +104,7 @@ const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
         password: formData.password,
         role: 'user',
         id: Math.random().toString(36).substr(2, 9),
-        registrationStep: 'company_profile', // Track registration progress
+        registrationStep: 'completed', // Registration is now complete
         createdAt: new Date().toISOString()
       }
 
@@ -114,8 +114,8 @@ const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
       // Simulate API call
       setTimeout(() => {
         setIsLoading(false)
-        // Instead of completing registration, show company profile modal
-        onShowCompanyProfile(userData)
+        // Complete registration and show success message
+        onRegister(userData)
       }, 1500)
       
     } catch (error) {
@@ -383,7 +383,7 @@ const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
                     <span>Wird erstellt...</span>
                   </div>
                 ) : (
-                  'Weiter zur Firmenangaben'
+                  'Account erstellen'
                 )}
               </Button>
             </form>
@@ -402,7 +402,7 @@ const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
 
             <div className="mt-4 text-center">
               <p className="text-xs text-gray-500">
-                Nach der Registrierung können Sie Ihr Firmenprofil vervollständigen und einen Plan auswählen.
+                Nach der Registrierung erhalten Sie eine Bestätigung und können sich anmelden.
               </p>
             </div>
           </CardContent>
