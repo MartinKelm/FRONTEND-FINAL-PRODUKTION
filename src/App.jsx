@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import CompanyProfileModal from './components/Auth/CompanyProfileModal'
 import { Button } from './components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card'
 import { Badge } from './components/ui/badge'
@@ -79,6 +80,10 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [authView, setAuthView] = useState(null) // null = Homepage, 'login', 'register', 'register-simple'
+  
+  // Registration states
+  const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false)
+  const [registrationUserData, setRegistrationUserData] = useState(null)
 
   // Load session from localStorage on app start
   useEffect(() => {
@@ -132,10 +137,60 @@ function App() {
   }
 
   const handleRegister = (userData) => {
-    // Show success message
-    showMessage('success', 'Registrierung erfolgreich! Bitte melden Sie sich jetzt an.')
+    // Check if user needs to complete company profile
+    if (userData.registrationStep === 'company_profile') {
+      // Show company profile modal
+      setRegistrationUserData(userData)
+      setShowCompanyProfileModal(true)
+    } else {
+      // Registration complete - show success message and go to login
+      showMessage('success', 'Registrierung erfolgreich! Bitte melden Sie sich jetzt an.')
+      setAuthView('login')
+    }
+  }
+
+  const handleCompanyProfileComplete = (companyData) => {
+    // Update user data with company information
+    const updatedUserData = {
+      ...registrationUserData,
+      ...companyData,
+      registrationStep: 'completed'
+    }
     
-    // Redirect to login form
+    // Update localStorage
+    const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+    const userIndex = existingUsers.findIndex(u => u.email === updatedUserData.email)
+    if (userIndex !== -1) {
+      existingUsers[userIndex] = updatedUserData
+      localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
+    }
+    
+    // Close modal and show success
+    setShowCompanyProfileModal(false)
+    setRegistrationUserData(null)
+    showMessage('success', 'Registrierung erfolgreich abgeschlossen! Sie können sich jetzt anmelden.')
+    setAuthView('login')
+  }
+
+  const handleCompanyProfileSkip = () => {
+    // Mark registration as completed but without company data
+    const updatedUserData = {
+      ...registrationUserData,
+      registrationStep: 'completed'
+    }
+    
+    // Update localStorage
+    const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+    const userIndex = existingUsers.findIndex(u => u.email === updatedUserData.email)
+    if (userIndex !== -1) {
+      existingUsers[userIndex] = updatedUserData
+      localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
+    }
+    
+    // Close modal and show success
+    setShowCompanyProfileModal(false)
+    setRegistrationUserData(null)
+    showMessage('success', 'Registrierung erfolgreich! Sie können sich jetzt anmelden.')
     setAuthView('login')
   }
 
@@ -1456,6 +1511,14 @@ function App() {
           <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
+
+      {/* Company Profile Modal */}
+      <CompanyProfileModal
+        userData={registrationUserData}
+        isOpen={showCompanyProfileModal}
+        onComplete={handleCompanyProfileComplete}
+        onSkip={handleCompanyProfileSkip}
+      />
     </div>
   )
 }
