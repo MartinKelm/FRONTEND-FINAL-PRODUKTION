@@ -5,7 +5,6 @@ import { Label } from '../ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Eye, EyeOff, Mail, Lock, User, AlertCircle, Info } from 'lucide-react'
 import FullLogo from '../../assets/Logo-socialmediakampagnen-voll.png'
-import { validateCredentials, initializeDefaultUsers } from '../../utils/userStorage'
 
 const LoginForm = ({ onLogin, onSwitchToRegister }) => {
   const [formData, setFormData] = useState({
@@ -20,6 +19,82 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
   useEffect(() => {
     initializeDefaultUsers()
   }, [])
+
+  const initializeDefaultUsers = () => {
+    try {
+      const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+      
+      // Check if admin user exists
+      const adminExists = existingUsers.find(u => u.email === 'admin@socialmediakampagnen.com')
+      const demoExists = existingUsers.find(u => u.email === 'demo@socialmediakampagnen.com')
+      
+      let usersToAdd = []
+      
+      // Add admin user if not exists
+      if (!adminExists) {
+        usersToAdd.push({
+          id: 'admin-001',
+          email: 'admin@socialmediakampagnen.com',
+          password: 'admin123',
+          firstName: 'Admin',
+          lastName: 'User',
+          name: 'Admin User',
+          role: 'SUPER_ADMIN',
+          registrationStep: 'completed',
+          createdAt: new Date().toISOString(),
+          isDefaultUser: true
+        })
+      }
+      
+      // Add demo user if not exists
+      if (!demoExists) {
+        usersToAdd.push({
+          id: 'demo-001',
+          email: 'demo@socialmediakampagnen.com',
+          password: 'demo123',
+          firstName: 'Demo',
+          lastName: 'User',
+          name: 'Demo User',
+          role: 'user',
+          registrationStep: 'completed',
+          createdAt: new Date().toISOString(),
+          isDefaultUser: true,
+          isDemoAccount: true
+        })
+      }
+      
+      if (usersToAdd.length > 0) {
+        const updatedUsers = [...existingUsers, ...usersToAdd]
+        localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
+      }
+    } catch (error) {
+      console.error('Error initializing default users:', error)
+    }
+  }
+
+  // Get registered users from localStorage
+  const getRegisteredUsers = () => {
+    try {
+      const users = localStorage.getItem('registeredUsers')
+      return users ? JSON.parse(users) : []
+    } catch (error) {
+      console.error('Error reading registered users:', error)
+      return []
+    }
+  }
+
+  // Validate login credentials
+  const validateLogin = (email, password) => {
+    const registeredUsers = getRegisteredUsers()
+    
+    // Find user with matching email and password
+    const user = registeredUsers.find(u => 
+      u.email.toLowerCase() === email.toLowerCase() && 
+      u.password === password
+    )
+    
+    return user || null
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -43,18 +118,25 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
 
     // Simulate API call delay
     setTimeout(() => {
-      const user = validateCredentials(formData.email, formData.password)
+      const user = validateLogin(formData.email, formData.password)
       
       if (user) {
         // Successful login - create session with unique session ID for multi-device support
         const sessionId = Math.random().toString(36).substr(2, 9) + Date.now().toString(36)
         
-        // Return user data without password
-        const { password, ...userDataWithoutPassword } = user
-        
         onLogin({
-          ...userDataWithoutPassword,
-          sessionId: sessionId
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          role: user.role || 'user',
+          company: user.company,
+          plan: user.plan,
+          registrationStep: user.registrationStep || 'completed',
+          sessionId: sessionId,
+          isDefaultUser: user.isDefaultUser || false,
+          isDemoAccount: user.isDemoAccount || false
         })
       } else {
         // Failed login
@@ -100,6 +182,8 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
           </CardHeader>
           
           <CardContent>
+
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -200,6 +284,8 @@ const LoginForm = ({ onLogin, onSwitchToRegister }) => {
                 Hinweis: Sie können sich nur mit einem zuvor registrierten Konto anmelden.
               </p>
             </div>
+
+
           </CardContent>
         </Card>
       </div>
