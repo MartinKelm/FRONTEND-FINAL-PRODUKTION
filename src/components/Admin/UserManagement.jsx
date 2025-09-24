@@ -34,7 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
-import { toast } from '../ui/use-toast'
+// Toast-Import entfernt, da er Probleme verursacht
 
 const UserManagement = () => {
   const [users, setUsers] = useState([])
@@ -58,11 +58,8 @@ const UserManagement = () => {
       setUsers(storedUsers)
     } catch (error) {
       console.error('Error loading users:', error)
-      toast({
-        title: "Fehler beim Laden der Benutzer",
-        description: "Die Benutzerdaten konnten nicht geladen werden.",
-        variant: "destructive"
-      })
+      // Toast-Aufruf entfernt
+      alert("Fehler beim Laden der Benutzer")
     } finally {
       setIsLoading(false)
     }
@@ -105,17 +102,12 @@ const UserManagement = () => {
       localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
       setUsers(updatedUsers)
       setIsDeleteDialogOpen(false)
-      toast({
-        title: "Benutzer gelöscht",
-        description: `${selectedUser.name} wurde erfolgreich gelöscht.`,
-      })
+      // Toast-Aufruf entfernt
+      alert(`${selectedUser.name} wurde erfolgreich gelöscht.`)
     } catch (error) {
       console.error('Error deleting user:', error)
-      toast({
-        title: "Fehler beim Löschen",
-        description: "Der Benutzer konnte nicht gelöscht werden.",
-        variant: "destructive"
-      })
+      // Toast-Aufruf entfernt
+      alert("Der Benutzer konnte nicht gelöscht werden.")
     }
   }
 
@@ -134,17 +126,12 @@ const UserManagement = () => {
       localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
       setUsers(updatedUsers)
       
-      toast({
-        title: makeAdmin ? "Admin-Rechte erteilt" : "Admin-Rechte entzogen",
-        description: `Die Benutzerrolle wurde erfolgreich aktualisiert.`,
-      })
+      // Toast-Aufruf entfernt
+      alert(makeAdmin ? "Admin-Rechte erteilt" : "Admin-Rechte entzogen")
     } catch (error) {
       console.error('Error updating user role:', error)
-      toast({
-        title: "Fehler bei der Rollenänderung",
-        description: "Die Benutzerrolle konnte nicht aktualisiert werden.",
-        variant: "destructive"
-      })
+      // Toast-Aufruf entfernt
+      alert("Die Benutzerrolle konnte nicht aktualisiert werden.")
     }
   }
 
@@ -160,17 +147,12 @@ const UserManagement = () => {
       linkElement.setAttribute('download', exportFileDefaultName)
       linkElement.click()
       
-      toast({
-        title: "Export erfolgreich",
-        description: "Die Benutzerdaten wurden erfolgreich exportiert.",
-      })
+      // Toast-Aufruf entfernt
+      alert("Die Benutzerdaten wurden erfolgreich exportiert.")
     } catch (error) {
       console.error('Error exporting users:', error)
-      toast({
-        title: "Export fehlgeschlagen",
-        description: "Die Benutzerdaten konnten nicht exportiert werden.",
-        variant: "destructive"
-      })
+      // Toast-Aufruf entfernt
+      alert("Die Benutzerdaten konnten nicht exportiert werden.")
     }
   }
 
