@@ -104,17 +104,17 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
         password: formData.password,
         role: 'user',
         id: Math.random().toString(36).substr(2, 9),
-        registrationStep: 'completed', // Registration is now complete
+        registrationStep: 'company_profile', // Next step: company profile
         createdAt: new Date().toISOString()
       }
 
-      // Save user to localStorage
+      // Save user to localStorage (partial registration)
       saveUserToStorage(userData)
 
       // Simulate API call
       setTimeout(() => {
         setIsLoading(false)
-        // Complete registration and show success message
+        // Go to company profile step
         onRegister(userData)
       }, 1500)
       
@@ -383,7 +383,7 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
                     <span>Wird erstellt...</span>
                   </div>
                 ) : (
-                  'Account erstellen'
+                  'Weiter zu Unternehmensangaben'
                 )}
               </Button>
             </form>
@@ -402,7 +402,7 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
 
             <div className="mt-4 text-center">
               <p className="text-xs text-gray-500">
-                Nach der Registrierung erhalten Sie eine Bestätigung und können sich anmelden.
+                Im nächsten Schritt vervollständigen Sie Ihr Firmenprofil.
               </p>
             </div>
           </CardContent>
