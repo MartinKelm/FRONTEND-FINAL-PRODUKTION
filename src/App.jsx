@@ -474,18 +474,24 @@ function App() {
                 >
                   FAQ
                 </button>
+              </>
+            )}
+          </div>
+
+          <div className="hidden md:flex items-center space-x-4">
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <>
                 <Button 
                   onClick={() => setAuthView('login')}
-                  variant="outline"
-                  size="sm"
-                  className="text-sm"
+                  className="bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 text-sm px-6 py-2 touch-manipulation font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   Login
                 </Button>
                 <Button 
                   onClick={() => setAuthView('register-simple')}
-                  size="sm"
-                  className="text-sm"
+                  className="brand-gradient text-white hover:opacity-90 text-sm px-4 py-2 touch-manipulation"
                 >
                   Registrieren
                 </Button>
@@ -786,10 +792,7 @@ function App() {
   if (showCampaignWizard) {
     return (
       <div>
-        <CampaignWizard 
-          onClose={() => setShowCampaignWizard(false)} 
-          currentUser={currentUser}
-        />
+        <CampaignWizard onClose={() => setShowCampaignWizard(false)} />
       </div>
     )
   }
@@ -874,65 +877,18 @@ function App() {
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between mb-4">
                 <Badge className="bg-white/20 text-white border-white/30 text-xs font-medium">
-                  ZEITERSPARNIS
+                  EFFIZIENZ
                 </Badge>
                 <Clock className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
               </div>
-              <CardTitle className="text-xl font-bold text-white mb-2">
-                Alle Kanäle in einem Tool
+              <CardTitle className="text-xl sm:text-2xl font-bold text-purple-100">
+                90% Zeitersparnis
               </CardTitle>
-              <CardDescription className="text-white/80 text-sm">
-                Erstellen Sie Kampagnen für alle wichtigen Plattformen in einem einzigen, intuitiven Editor
-              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-white/80" />
-                  <span>Einheitliches Interface für alle Plattformen</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-white/80" />
-                  <span>Keine Einarbeitung in verschiedene Ads-Manager</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-white/80" />
-                  <span>Bis zu 80% Zeitersparnis bei der Kampagnenerstellung</span>
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-orange-500 to-amber-500 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between mb-4">
-                <Badge className="bg-white/20 text-white border-white/30 text-xs font-medium">
-                  EINFACH
-                </Badge>
-                <Zap className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
-              </div>
-              <CardTitle className="text-xl font-bold text-white mb-2">
-                Intuitiver Kampagnen-Wizard
-              </CardTitle>
-              <CardDescription className="text-white/80 text-sm">
-                Erstellen Sie professionelle Kampagnen in wenigen Minuten – ohne Vorkenntnisse
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-white/80" />
-                  <span>Schritt-für-Schritt Anleitung</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-white/80" />
-                  <span>Vorlagen für verschiedene Branchen</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-white/80" />
-                  <span>Automatische Formatanpassung für alle Plattformen</span>
-                </li>
-              </ul>
+              <p className="text-white/90 text-sm sm:text-base leading-relaxed">
+                Einmal erstellen, überall ausspielen. Schluss mit fünf Ads-Managern, zig Formaten und Copy-Paste.
+              </p>
             </CardContent>
           </Card>
 
@@ -940,51 +896,83 @@ function App() {
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between mb-4">
                 <Badge className="bg-white/20 text-white border-white/30 text-xs font-medium">
-                  EFFEKTIV
+                  EINFACH
+                </Badge>
+                <Zap className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
+              </div>
+              <CardTitle className="text-xl sm:text-2xl font-bold text-blue-100">
+                Keine Kenntnisse nötig
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-white/90 text-sm sm:text-base leading-relaxed">
+                Intuitiv wie ein Formular – jeder im Team kann Kampagnen live schalten. Optional mit KI-Texten & Vorlagen.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between mb-4">
+                <Badge className="bg-white/20 text-white border-white/30 text-xs font-medium">
+                  INNOVATION
                 </Badge>
                 <BarChart3 className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
               </div>
-              <CardTitle className="text-xl font-bold text-white mb-2">
-                Datenbasierte Optimierung
+              <CardTitle className="text-xl sm:text-2xl font-bold text-orange-100">
+                Live-Vorschau & Kontrolle
               </CardTitle>
-              <CardDescription className="text-white/80 text-sm">
-                Maximieren Sie Ihre Ergebnisse durch intelligente Analyse und Optimierung
-              </CardDescription>
             </CardHeader>
             <CardContent>
-              <ul className="space-y-2 text-sm">
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-white/80" />
-                  <span>Zentrale Performance-Übersicht</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-white/80" />
-                  <span>Automatische Optimierungsvorschläge</span>
-                </li>
-                <li className="flex items-center space-x-2">
-                  <CheckCircle className="w-4 h-4 text-white/80" />
-                  <span>A/B-Testing für maximale Conversion</span>
-                </li>
-              </ul>
+              <p className="text-white/90 text-sm sm:text-base leading-relaxed">
+                Sofort sehen, wie deine Anzeigen auf Meta, Google, TikTok & Co. wirken – inklusive zentraler Abrechnung.
+              </p>
             </CardContent>
           </Card>
         </div>
 
-        <div className="text-center">
-          <Button 
-            onClick={() => setAuthView('register-simple')}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-lg text-lg font-medium shadow-lg hover:shadow-xl transition-all"
-          >
-            Jetzt kostenlos testen
-          </Button>
+        <div className="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-3xl p-8 sm:p-12 text-center text-white">
+          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
+            Unterstützte Plattformen
+          </h3>
+          <p className="text-lg sm:text-xl mb-8 sm:mb-10 text-white/90">
+            Erstelle Anzeigen für alle relevanten Kanäle – zentral gesteuert in einem Editor.
+          </p>
+          
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+            <Badge className="bg-blue-600 text-white border-blue-700 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
+              <Facebook className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              Facebook
+            </Badge>
+            <Badge className="bg-pink-500 text-white border-pink-600 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
+              <Instagram className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              Instagram
+            </Badge>
+            <Badge className="bg-red-500 text-white border-red-600 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
+              <Youtube className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+              YouTube
+            </Badge>
+            <Badge className="bg-green-600 text-white border-green-700 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
+              🔍 Google
+            </Badge>
+            <Badge className="bg-black text-white border-gray-800 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
+              🎵 TikTok
+            </Badge>
+            <Badge className="bg-yellow-400 text-black border-yellow-500 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
+              👻 Snapchat
+            </Badge>
+            <Badge className="bg-orange-600 text-white border-orange-700 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
+              🤖 Reddit
+            </Badge>
+          </div>
         </div>
       </div>
     </section>
   )
 
-  // Pricing Section - ORIGINAL DESIGN PRESERVED (Wording aktualisiert)
+  // Pricing Section (Wording aktualisiert)
   const PricingSection = () => (
-    <section className="pricing-section relative overflow-hidden px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
+    <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12 sm:mb-16">
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
@@ -1001,12 +989,12 @@ function App() {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
             Einfache, <span className="text-yellow-300">transparente</span> Preise
           </h2>
-          <p className="text-lg sm:text-xl text-white/90 max-w-3xl mx-auto mb-4">
+          <p className="text-lg sm:text-xl text-white/90 max-w-3xl mx-auto">
             Keine versteckten Kosten, keine Überraschungen. Wählen Sie den Plan, der zu Ihrem Unternehmen passt.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
           <Card className="bg-white/10 backdrop-blur-sm border border-white/20 text-white relative overflow-hidden">
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-blue-400"></div>
             <CardHeader className="text-center pb-4">
@@ -1322,78 +1310,99 @@ function App() {
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-8">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                      <Megaphone className="w-8 h-8 text-gray-400" />
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 mb-4">
+                      <Target className="w-12 h-12 mx-auto" />
                     </div>
-                    <p className="text-gray-500 text-center mb-4">
-                      Erstellen Sie Ihre erste Kampagne, um Ihre Zielgruppe zu erreichen
+                    <p className="text-gray-500 mb-4">
+                      Erstellen Sie Ihre erste Kampagne und erreichen Sie Ihre Zielgruppe.
                     </p>
-                    <Button 
-                      onClick={handleCreateCampaign}
-                      className="bg-purple-600 hover:bg-purple-700 text-white"
-                    >
-                      Kampagne erstellen
-                    </Button>
                   </div>
                 )}
+                <Button 
+                  onClick={handleCreateCampaign}
+                  className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                >
+                  {dashboardData.campaigns.length > 0 ? 'Neue Kampagne erstellen' : 'Erste Kampagne erstellen'}
+                </Button>
               </CardContent>
             </Card>
 
-            {/* Quick Actions Card - Enhanced with Hover Effects */}
+            {/* Performance Overview Card - Enhanced with Hover Effects */}
             <Card className="hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
               <CardHeader>
-                <CardTitle>Schnellzugriff</CardTitle>
+                <CardTitle>Performance Übersicht</CardTitle>
                 <CardDescription>
-                  Häufig verwendete Aktionen und Tools
+                  {dashboardData.activeCampaigns > 0 
+                    ? 'Ihre wichtigsten Metriken' 
+                    : 'Metriken werden nach ersten Kampagnen angezeigt'
+                  }
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <Button 
-                    onClick={handleCreateCampaign}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white flex items-center justify-between"
-                  >
-                    <div className="flex items-center">
-                      <Plus className="w-4 h-4 mr-2" />
-                      <span>Neue Kampagne erstellen</span>
+                {dashboardData.activeCampaigns > 0 ? (
+                  <div className="space-y-6">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Impressions</span>
+                        <span>89%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: '89%' }}></div>
+                      </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <Button 
-                      variant="outline"
-                      className="flex flex-col items-center justify-center py-4 h-auto"
-                      onClick={() => setCurrentView('account')}
-                    >
-                      <User className="w-5 h-5 mb-2" />
-                      <span className="text-xs">Profil</span>
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="flex flex-col items-center justify-center py-4 h-auto"
-                      onClick={() => setShowPackageSelectionModal(true)}
-                    >
-                      <Euro className="w-5 h-5 mb-2" />
-                      <span className="text-xs">Plan ändern</span>
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="flex flex-col items-center justify-center py-4 h-auto"
-                    >
-                      <BarChart3 className="w-5 h-5 mb-2" />
-                      <span className="text-xs">Analytics</span>
-                    </Button>
-                    <Button 
-                      variant="outline"
-                      className="flex flex-col items-center justify-center py-4 h-auto"
-                    >
-                      <Settings className="w-5 h-5 mb-2" />
-                      <span className="text-xs">Einstellungen</span>
-                    </Button>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Klicks</span>
+                        <span>76%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '76%' }}></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>Conversions</span>
+                        <span>62%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-purple-500 h-2 rounded-full" style={{ width: '62%' }}></div>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="text-gray-400 mb-4">
+                      <BarChart3 className="w-12 h-12 mx-auto" />
+                    </div>
+                    <p className="text-gray-500 mb-4">
+                      Performance-Daten werden angezeigt, sobald Sie Kampagnen erstellt haben.
+                    </p>
+                    <div className="space-y-4">
+                      <div className="flex justify-between text-sm">
+                        <span>Impressions</span>
+                        <span>0%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Klicks</span>
+                        <span>0%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Conversions</span>
+                        <span>0%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -1402,12 +1411,56 @@ function App() {
     )
   }
 
-  // Main return - Conditional rendering based on currentView
+  // Main render logic
   return (
     <div>
       <Navigation />
       
-      {/* Public Pages */}
+      {/* Message Display */}
+      {message.text && (
+        <div className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-50 p-4 rounded-lg shadow-lg max-w-md w-full mx-4 ${
+          message.type === 'success' 
+            ? 'bg-green-500 text-white'
+            : message.type === 'error'
+            ? 'bg-red-500 text-white'
+            : 'bg-blue-500 text-white'
+        }`}>
+          <p className="text-center font-medium">{message.text}</p>
+        </div>
+      )}
+      
+      {/* Multi-step Registration Modals - Always available */}
+      <CompanyProfileModal 
+        userData={registrationUserData}
+        onComplete={handleCompanyProfileComplete}
+        onSkip={handleCompanyProfileSkip}
+        isOpen={showCompanyProfileModal}
+      />
+      
+      <PackageSelectionModal 
+        userData={registrationUserData}
+        onComplete={handlePackageSelectionComplete}
+        onSkip={handlePackageSelectionSkip}
+        isOpen={showPackageSelectionModal}
+      />
+      
+      {/* Campaign Wizard */}
+      {showCampaignWizard && (
+        <CampaignWizard 
+          currentUser={currentUser}
+          onClose={() => {
+            setShowCampaignWizard(false)
+            // Return to the view where wizard was opened from
+            if (wizardOpenedFrom === 'campaignDashboard') {
+              setShowCampaignDashboard(true)
+            }
+            // Reset the tracking state
+            setWizardOpenedFrom(null)
+          }} 
+        />
+      )}
+      
+      {/* Main Content Views */}
       {currentView === 'home' && !authView && (
         <>
           <HeroSection />
