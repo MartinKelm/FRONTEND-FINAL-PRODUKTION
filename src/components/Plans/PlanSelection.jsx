@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
-import { Button } from '../ui/button'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
-import { Badge } from '../ui/badge'
-import { Check, CreditCard, Shield, Clock, Users, BarChart, Zap, MessageCircle, Phone } from 'lucide-react'
+import { Button } from '../../components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card'
+import { CheckCircle, Euro } from 'lucide-react'
 
 const PlanSelection = ({ user, onPlanSelected, onClose }) => {
   const [selectedPlan, setSelectedPlan] = useState(null)
@@ -13,9 +12,7 @@ const PlanSelection = ({ user, onPlanSelected, onClose }) => {
       id: 'starter',
       name: 'Starter',
       price: 99,
-      color: 'from-green-500 to-emerald-500',
-      badgeColor: 'bg-green-100 text-green-800',
-      buttonColor: 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600',
+      color: 'green',
       features: [
         'Bis zu 5 Kampagnen',
         '3 Plattformen',
@@ -27,9 +24,7 @@ const PlanSelection = ({ user, onPlanSelected, onClose }) => {
       id: 'professional',
       name: 'Professional',
       price: 199,
-      color: 'from-purple-500 to-indigo-500',
-      badgeColor: 'bg-purple-100 text-purple-800',
-      buttonColor: 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600',
+      color: 'purple',
       popular: true,
       features: [
         'Unbegrenzte Kampagnen',
@@ -43,9 +38,7 @@ const PlanSelection = ({ user, onPlanSelected, onClose }) => {
       id: 'enterprise',
       name: 'Enterprise',
       price: 499,
-      color: 'from-orange-500 to-amber-500',
-      badgeColor: 'bg-orange-100 text-orange-800',
-      buttonColor: 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600',
+      color: 'orange',
       features: [
         'Alles aus Professional',
         'Multi-User Management',
@@ -57,169 +50,160 @@ const PlanSelection = ({ user, onPlanSelected, onClose }) => {
   ]
 
   const handleSelectPlan = (plan) => {
-    try {
-      setSelectedPlan(plan.id)
-      setIsLoading(true)
+    setSelectedPlan(plan)
+  }
 
-      // Update user with selected plan
-      const updatedUser = {
-        ...user,
-        plan: plan.id,
-        planName: plan.name,
-        planPrice: plan.price,
-        planSelectedAt: new Date().toISOString(),
-        planExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 12 months from now
-        needsPlanSelection: false,
-        registrationStep: 'completed'
-      }
-
-      // Save to localStorage
-      const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
-      const userIndex = existingUsers.findIndex(u => u.id === user.id)
-      
-      if (userIndex !== -1) {
-        existingUsers[userIndex] = {
-          ...existingUsers[userIndex],
-          ...updatedUser
-        }
-        localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
-      }
-
-      // Wait a bit to show the loading state
-      setTimeout(() => {
-        setIsLoading(false)
-        if (onPlanSelected) {
-          onPlanSelected(updatedUser)
-        }
-      }, 1000)
-    } catch (error) {
-      console.error('Error selecting plan:', error)
-      setIsLoading(false)
-      alert('Es gab ein Problem bei der Auswahl des Plans. Bitte versuchen Sie es erneut.')
+  const handleConfirmPlan = () => {
+    if (!selectedPlan) return
+    
+    setIsLoading(true)
+    
+    // Update user with selected plan
+    const updatedUser = {
+      ...user,
+      plan: {
+        id: selectedPlan.id,
+        name: selectedPlan.name,
+        price: selectedPlan.price,
+        startDate: new Date().toISOString(),
+        endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 12 months
+      },
+      needsPlanSelection: false
     }
+    
+    // Simulate API call
+    setTimeout(() => {
+      // Save to localStorage
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser))
+      
+      // Call the callback
+      onPlanSelected(updatedUser)
+      setIsLoading(false)
+    }, 1000)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 flex items-center justify-center p-4 py-16">
-      <div className="w-full max-w-6xl">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Wählen Sie Ihren Plan
-          </h1>
-          <p className="text-lg text-purple-100 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 to-indigo-900 flex flex-col">
+      {/* Header */}
+      <header className="py-6 px-4 sm:px-6 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Paketauswahl</h1>
+          <p className="text-white/70">Wählen Sie das passende Paket für Ihre Anforderungen</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <span className="text-white/70 text-sm">Angemeldet als {user?.name}</span>
+        </div>
+      </header>
+      
+      {/* Main content */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+        <div className="max-w-5xl w-full mx-auto text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Einfache, <span className="text-yellow-300">transparente</span> Preise</h2>
+          <p className="text-white/80 text-lg max-w-3xl mx-auto">
             Keine versteckten Kosten, keine Überraschungen. Wählen Sie den Plan, der zu Ihrem Unternehmen passt.
           </p>
           
-          <div className="flex flex-wrap justify-center gap-3 mt-6">
-            <Badge className="bg-yellow-400 text-yellow-900 px-4 py-1 text-sm font-medium">
-              TRANSPARENT
-            </Badge>
-            <Badge className="bg-green-400 text-green-900 px-4 py-1 text-sm font-medium">
-              FAIR
-            </Badge>
-            <Badge className="bg-blue-400 text-blue-900 px-4 py-1 text-sm font-medium">
-              FLEXIBEL
-            </Badge>
+          <div className="flex justify-center gap-3 mt-6">
+            <span className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-medium">TRANSPARENT</span>
+            <span className="bg-green-400 text-green-900 px-3 py-1 rounded-full text-sm font-medium">FAIR</span>
+            <span className="bg-blue-400 text-blue-900 px-3 py-1 rounded-full text-sm font-medium">FLEXIBEL</span>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-5xl">
           {plans.map((plan) => (
             <Card 
-              key={plan.id} 
-              className={`relative overflow-hidden border-0 shadow-xl ${
-                plan.popular ? 'ring-2 ring-purple-400 transform md:-translate-y-2' : ''
+              key={plan.id}
+              className={`relative overflow-hidden border-2 transition-all ${
+                selectedPlan?.id === plan.id 
+                  ? `border-${plan.color}-500 shadow-lg shadow-${plan.color}-500/20` 
+                  : 'border-gray-200'
               }`}
             >
               {plan.popular && (
-                <div className="absolute top-0 right-0 bg-purple-500 text-white px-3 py-1 text-xs font-bold uppercase tracking-wider transform translate-x-2 -translate-y-0 rotate-45 origin-bottom-left">
-                  Beliebt
+                <div className="absolute top-0 right-0 bg-purple-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                  BELIEBT
                 </div>
               )}
-              <CardHeader className={`bg-gradient-to-r ${plan.color} text-white`}>
-                <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                <div className="mt-2">
-                  <span className="text-4xl font-bold">€{plan.price}</span>
-                  <span className="text-sm ml-1 opacity-90">pro Monat</span>
-                </div>
-                <CardDescription className="text-white text-opacity-90 mt-2">
-                  Jährliche Abrechnung • 12 Monate Laufzeit
-                </CardDescription>
+              <CardHeader className={`pb-2 ${plan.color === 'green' ? 'bg-green-50' : plan.color === 'purple' ? 'bg-purple-50' : 'bg-orange-50'}`}>
+                <CardTitle className={`text-xl font-bold ${
+                  plan.color === 'green' ? 'text-green-600' : 
+                  plan.color === 'purple' ? 'text-purple-600' : 'text-orange-600'
+                }`}>
+                  {plan.name}
+                </CardTitle>
               </CardHeader>
-              <CardContent className="pt-6">
-                <ul className="space-y-3">
+              <CardContent className="pt-4">
+                <div className="flex items-baseline mb-4">
+                  <span className="text-3xl font-bold">€{plan.price}</span>
+                  <span className="text-gray-500 ml-1">/Monat</span>
+                </div>
+                <p className="text-sm text-gray-500 mb-6">pro Monat bei 12 Monaten Laufzeit</p>
+                
+                <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, index) => (
                     <li key={index} className="flex items-start">
-                      <div className={`mr-2 mt-1 rounded-full p-1 ${plan.badgeColor}`}>
-                        <Check className="w-3 h-3" />
-                      </div>
-                      <span>{feature}</span>
+                      <CheckCircle className={`w-5 h-5 mr-2 flex-shrink-0 ${
+                        plan.color === 'green' ? 'text-green-500' : 
+                        plan.color === 'purple' ? 'text-purple-500' : 'text-orange-500'
+                      }`} />
+                      <span className="text-gray-700">{feature}</span>
                     </li>
                   ))}
                 </ul>
-              </CardContent>
-              <CardFooter>
+                
                 <Button
-                  className={`w-full py-6 ${plan.buttonColor} text-white font-semibold`}
                   onClick={() => handleSelectPlan(plan)}
-                  disabled={isLoading && selectedPlan === plan.id}
+                  className={`w-full ${
+                    plan.color === 'green' 
+                      ? 'bg-green-600 hover:bg-green-700' : 
+                    plan.color === 'purple' 
+                      ? 'bg-purple-600 hover:bg-purple-700' : 
+                      'bg-orange-600 hover:bg-orange-700'
+                  } text-white`}
+                  variant="default"
                 >
-                  {isLoading && selectedPlan === plan.id ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Wird ausgewählt...</span>
-                    </div>
-                  ) : (
-                    `${plan.name} wählen`
-                  )}
+                  {selectedPlan?.id === plan.id ? 'Ausgewählt' : `${plan.name} wählen`}
                 </Button>
-              </CardFooter>
+              </CardContent>
             </Card>
           ))}
         </div>
-
+        
         <div className="mt-12 text-center">
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 max-w-3xl mx-auto">
-            <h3 className="text-xl font-semibold text-white mb-4">Alle Pläne beinhalten:</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-left">
-              <div className="flex items-center space-x-2 text-purple-100">
-                <Clock className="w-5 h-5 text-purple-300" />
-                <span>12 Monate Laufzeit</span>
-              </div>
-              <div className="flex items-center space-x-2 text-purple-100">
-                <Shield className="w-5 h-5 text-purple-300" />
-                <span>DSGVO-konform</span>
-              </div>
-              <div className="flex items-center space-x-2 text-purple-100">
-                <CreditCard className="w-5 h-5 text-purple-300" />
-                <span>Keine Einrichtungsgebühr</span>
-              </div>
-              <div className="flex items-center space-x-2 text-purple-100">
-                <MessageCircle className="w-5 h-5 text-purple-300" />
-                <span>Support inklusive</span>
-              </div>
-              <div className="flex items-center space-x-2 text-purple-100">
-                <Zap className="w-5 h-5 text-purple-300" />
-                <span>Sofortige Aktivierung</span>
-              </div>
-              <div className="flex items-center space-x-2 text-purple-100">
-                <BarChart className="w-5 h-5 text-purple-300" />
-                <span>Kampagnen-Reporting</span>
-              </div>
+          <p className="text-white/70 mb-6">Alle Pläne sind Jahresmitgliedschaften mit sofortiger Aktivierung</p>
+          
+          <div className="flex flex-wrap justify-center gap-6 mb-8">
+            <div className="flex items-center text-white/80">
+              <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs mr-2">✓</span>
+              <span>Keine Einrichtungsgebühr</span>
+            </div>
+            <div className="flex items-center text-white/80">
+              <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs mr-2">✓</span>
+              <span>Einheitliche Abrechnung</span>
+            </div>
+            <div className="flex items-center text-white/80">
+              <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-xs mr-2">✓</span>
+              <span>DSGVO-konform</span>
             </div>
           </div>
           
-          <p className="text-purple-200 mt-8">
-            Alle Preise zzgl. MwSt. • Jährliche Abrechnung • Automatische Verlängerung
-          </p>
-          
-          <Button 
-            variant="ghost" 
-            className="mt-4 text-white hover:bg-white/10"
-            onClick={onClose}
-          >
-            Später auswählen
-          </Button>
+          <div className="flex justify-center space-x-4">
+            <Button 
+              onClick={onClose}
+              variant="outline" 
+              className="border-white/30 text-white hover:bg-white/10"
+            >
+              Später entscheiden
+            </Button>
+            <Button 
+              onClick={handleConfirmPlan}
+              disabled={!selectedPlan || isLoading}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 min-w-[200px]"
+            >
+              {isLoading ? 'Wird verarbeitet...' : selectedPlan ? `${selectedPlan.name} Plan aktivieren` : 'Plan auswählen'}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
