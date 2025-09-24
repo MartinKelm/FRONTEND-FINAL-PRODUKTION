@@ -71,6 +71,17 @@ import { getCampaigns, getCampaignStats } from './utils/campaignStorage'
 import { initializeDefaultUsers } from './utils/userStorage'
 
 function App() {
+  // Notfall-Fix: Zurücksetzen des Status, falls er Probleme verursacht
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('reset') === 'true') {
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('isAuthenticated');
+      localStorage.removeItem('currentView');
+      window.location.href = window.location.pathname;
+    }
+  }, []);
+
   const [currentView, setCurrentView] = useState('home')
   const [showCampaignWizard, setShowCampaignWizard] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -91,34 +102,38 @@ function App() {
 
   // Load session from localStorage on app start
   useEffect(() => {
-    // Initialize default users
-    initializeDefaultUsers()
-    
-    const savedUser = localStorage.getItem('currentUser')
-    const savedView = localStorage.getItem('currentView')
-    const savedAuth = localStorage.getItem('isAuthenticated')
-    
-    if (savedUser && savedAuth === 'true') {
-      try {
-        const userData = JSON.parse(savedUser)
-        setCurrentUser(userData)
-        setIsAuthenticated(true)
-        
-        // NEW: Check if user needs to select a plan
-        if (userData.needsPlanSelection) {
-          setShowPlanSelection(true)
-        } else {
-          setCurrentView(savedView || 'dashboard')
+    try {
+      // Initialize default users
+      initializeDefaultUsers()
+      
+      const savedUser = localStorage.getItem('currentUser')
+      const savedView = localStorage.getItem('currentView')
+      const savedAuth = localStorage.getItem('isAuthenticated')
+      
+      if (savedUser && savedAuth === 'true') {
+        try {
+          const userData = JSON.parse(savedUser)
+          setCurrentUser(userData)
+          setIsAuthenticated(true)
+          
+          // NEW: Check if user needs to select a plan
+          if (userData.needsPlanSelection) {
+            setShowPlanSelection(true)
+          } else {
+            setCurrentView(savedView || 'dashboard')
+          }
+          
+          console.log('Session restored:', userData)
+        } catch (error) {
+          console.error('Error parsing saved user data:', error)
+          // Clear corrupted data
+          localStorage.removeItem('currentUser')
+          localStorage.removeItem('currentView')
+          localStorage.removeItem('isAuthenticated')
         }
-        
-        console.log('Session restored:', userData)
-      } catch (error) {
-        console.error('Error parsing saved user data:', error)
-        // Clear corrupted data
-        localStorage.removeItem('currentUser')
-        localStorage.removeItem('currentView')
-        localStorage.removeItem('isAuthenticated')
       }
+    } catch (error) {
+      console.error('Error in initialization:', error)
     }
   }, [])
   
@@ -136,148 +151,188 @@ function App() {
   }
 
   const handleLogin = (userData) => {
-    setCurrentUser(userData)
-    setIsAuthenticated(true)
-    setAuthView(null) // Close login form
-    
-    // Save to localStorage
-    localStorage.setItem('currentUser', JSON.stringify(userData))
-    localStorage.setItem('isAuthenticated', 'true')
-    
-    // NEW: Check if user needs to select a plan
-    if (userData.needsPlanSelection) {
-      setShowPlanSelection(true)
-    } else if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
-      setCurrentView('admin')
-      localStorage.setItem('currentView', 'admin')
-    } else {
-      setCurrentView('dashboard')
-      localStorage.setItem('currentView', 'dashboard')
+    try {
+      setCurrentUser(userData)
+      setIsAuthenticated(true)
+      setAuthView(null) // Close login form
+      
+      // Save to localStorage
+      localStorage.setItem('currentUser', JSON.stringify(userData))
+      localStorage.setItem('isAuthenticated', 'true')
+      
+      // NEW: Check if user needs to select a plan
+      if (userData.needsPlanSelection) {
+        setShowPlanSelection(true)
+      } else if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
+        setCurrentView('admin')
+        localStorage.setItem('currentView', 'admin')
+      } else {
+        setCurrentView('dashboard')
+        localStorage.setItem('currentView', 'dashboard')
+      }
+    } catch (error) {
+      console.error('Error in handleLogin:', error)
     }
   }
 
   // NEW: Handle plan selection completion
   const handlePlanSelected = (updatedUser) => {
-    setCurrentUser(updatedUser)
-    localStorage.setItem('currentUser', JSON.stringify(updatedUser))
-    setShowPlanSelection(false)
-    
-    if (updatedUser.role === 'ADMIN' || updatedUser.role === 'SUPER_ADMIN') {
-      setCurrentView('admin')
-      localStorage.setItem('currentView', 'admin')
-    } else {
-      setCurrentView('dashboard')
-      localStorage.setItem('currentView', 'dashboard')
+    try {
+      setCurrentUser(updatedUser)
+      localStorage.setItem('currentUser', JSON.stringify(updatedUser))
+      setShowPlanSelection(false)
+      
+      if (updatedUser.role === 'ADMIN' || updatedUser.role === 'SUPER_ADMIN') {
+        setCurrentView('admin')
+        localStorage.setItem('currentView', 'admin')
+      } else {
+        setCurrentView('dashboard')
+        localStorage.setItem('currentView', 'dashboard')
+      }
+    } catch (error) {
+      console.error('Error in handlePlanSelected:', error)
     }
   }
 
   // NEW: Handle closing plan selection
   const handleClosePlanSelection = () => {
-    setShowPlanSelection(false)
-    setCurrentView('dashboard')
-    localStorage.setItem('currentView', 'dashboard')
+    try {
+      setShowPlanSelection(false)
+      setCurrentView('dashboard')
+      localStorage.setItem('currentView', 'dashboard')
+    } catch (error) {
+      console.error('Error in handleClosePlanSelection:', error)
+    }
   }
 
   const handleRegister = (userData) => {
-    setCurrentUser(userData)
-    setIsAuthenticated(true)
-    setAuthView(null) // Close register form
-    
-    // NEW: Check if user needs to select a plan
-    if (userData.needsPlanSelection) {
-      setShowPlanSelection(true)
-    } else {
-      setCurrentView('dashboard')
+    try {
+      setCurrentUser(userData)
+      setIsAuthenticated(true)
+      setAuthView(null) // Close register form
+      
+      // NEW: Check if user needs to select a plan
+      if (userData.needsPlanSelection) {
+        setShowPlanSelection(true)
+      } else {
+        setCurrentView('dashboard')
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('currentUser', JSON.stringify(userData))
+      localStorage.setItem('isAuthenticated', 'true')
+    } catch (error) {
+      console.error('Error in handleRegister:', error)
     }
-    
-    // Save to localStorage
-    localStorage.setItem('currentUser', JSON.stringify(userData))
-    localStorage.setItem('isAuthenticated', 'true')
   }
 
   // Multi-step registration handlers
   const handleShowCompanyProfile = (userData) => {
-    setRegistrationUserData(userData)
-    setAuthView(null) // Close simple registration form
-    setShowCompanyProfileModal(true)
+    try {
+      setRegistrationUserData(userData)
+      setAuthView(null) // Close simple registration form
+      setShowCompanyProfileModal(true)
+    } catch (error) {
+      console.error('Error in handleShowCompanyProfile:', error)
+    }
   }
 
   const handleCompanyProfileComplete = (completeUserData) => {
-    setRegistrationUserData(completeUserData)
-    setShowCompanyProfileModal(false)
-    
-    // NEW: Skip package selection modal and go directly to PlanSelection component
-    setCurrentUser(completeUserData)
-    setIsAuthenticated(true)
-    setShowPlanSelection(true)
-    
-    // Save to localStorage
-    localStorage.setItem('currentUser', JSON.stringify(completeUserData))
-    localStorage.setItem('isAuthenticated', 'true')
+    try {
+      setRegistrationUserData(completeUserData)
+      setShowCompanyProfileModal(false)
+      
+      // NEW: Skip package selection modal and go directly to PlanSelection component
+      setCurrentUser(completeUserData)
+      setIsAuthenticated(true)
+      setShowPlanSelection(true)
+      
+      // Save to localStorage
+      localStorage.setItem('currentUser', JSON.stringify(completeUserData))
+      localStorage.setItem('isAuthenticated', 'true')
+    } catch (error) {
+      console.error('Error in handleCompanyProfileComplete:', error)
+    }
   }
 
   const handleCompanyProfileSkip = () => {
-    // NEW: Skip package selection modal and go directly to PlanSelection component
-    const userData = {
-      ...registrationUserData,
-      needsPlanSelection: true
+    try {
+      // NEW: Skip package selection modal and go directly to PlanSelection component
+      const userData = {
+        ...registrationUserData,
+        needsPlanSelection: true
+      }
+      
+      setCurrentUser(userData)
+      setIsAuthenticated(true)
+      setShowCompanyProfileModal(false)
+      setShowPlanSelection(true)
+      
+      // Save to localStorage
+      localStorage.setItem('currentUser', JSON.stringify(userData))
+      localStorage.setItem('isAuthenticated', 'true')
+    } catch (error) {
+      console.error('Error in handleCompanyProfileSkip:', error)
     }
-    
-    setCurrentUser(userData)
-    setIsAuthenticated(true)
-    setShowCompanyProfileModal(false)
-    setShowPlanSelection(true)
-    
-    // Save to localStorage
-    localStorage.setItem('currentUser', JSON.stringify(userData))
-    localStorage.setItem('isAuthenticated', 'true')
   }
 
   const handlePackageSelectionComplete = (finalUserData) => {
-    setCurrentUser(finalUserData)
-    setIsAuthenticated(true)
-    setShowPackageSelectionModal(false)
-    setRegistrationUserData(null)
-    setCurrentView('dashboard')
+    try {
+      setCurrentUser(finalUserData)
+      setIsAuthenticated(true)
+      setShowPackageSelectionModal(false)
+      setRegistrationUserData(null)
+      setCurrentView('dashboard')
+    } catch (error) {
+      console.error('Error in handlePackageSelectionComplete:', error)
+    }
   }
 
   const handlePackageSelectionSkip = () => {
-    // Complete registration without package selection
-    const userData = {
-      ...registrationUserData,
-      plan: null,
-      registrationStep: 'completed'
+    try {
+      // Complete registration without package selection
+      const userData = {
+        ...registrationUserData,
+        plan: null,
+        registrationStep: 'completed'
+      }
+      setCurrentUser(userData)
+      setIsAuthenticated(true)
+      setShowPackageSelectionModal(false)
+      setRegistrationUserData(null)
+      setCurrentView('dashboard')
+    } catch (error) {
+      console.error('Error in handlePackageSelectionSkip:', error)
     }
-    setCurrentUser(userData)
-    setIsAuthenticated(true)
-    setShowPackageSelectionModal(false)
-    setRegistrationUserData(null)
-    setCurrentView('dashboard')
   }
 
   const handleLogout = () => {
-    setCurrentUser(null)
-    setIsAuthenticated(false)
-    setAuthView(null) // Back to homepage
-    setCurrentView('home')
-    
-    // Clear localStorage
-    localStorage.removeItem('currentUser')
-    localStorage.removeItem('isAuthenticated')
-    localStorage.removeItem('currentView')
-    
-    // Reset registration states
-    setShowCompanyProfileModal(false)
-    setShowPackageSelectionModal(false)
-    setRegistrationUserData(null)
-    
-    // Reset campaign states
-    setShowCampaignDashboard(false)
-    setShowCampaignDetail(false)
-    setSelectedCampaignId(null)
-    
-    // Reset plan selection state
-    setShowPlanSelection(false)
+    try {
+      setCurrentUser(null)
+      setIsAuthenticated(false)
+      setAuthView(null) // Back to homepage
+      setCurrentView('home')
+      
+      // Clear localStorage
+      localStorage.removeItem('currentUser')
+      localStorage.removeItem('isAuthenticated')
+      localStorage.removeItem('currentView')
+      
+      // Reset registration states
+      setShowCompanyProfileModal(false)
+      setShowPackageSelectionModal(false)
+      setRegistrationUserData(null)
+      
+      // Reset campaign states
+      setShowCampaignDashboard(false)
+      setShowCampaignDetail(false)
+      setSelectedCampaignId(null)
+      
+      // Reset plan selection state
+      setShowPlanSelection(false)
+    } catch (error) {
+      console.error('Error in handleLogout:', error)
+    }
   }
 
   // Campaign management handlers
@@ -586,81 +641,205 @@ function App() {
           </div>
         </div>
 
-        {/* Rest of the Navigation component remains unchanged */}
+        {/* Mobile menu - keep as is */}
       </div>
     </nav>
   )
 
-  // NEW: Show plan selection if needed
-  if (isAuthenticated && showPlanSelection) {
-    return (
-      <PlanSelection 
-        user={currentUser} 
-        onPlanSelected={handlePlanSelected} 
-        onClose={handleClosePlanSelection} 
-      />
-    )
-  }
+  try {
+    // NEW: Show plan selection if needed
+    if (isAuthenticated && currentUser && showPlanSelection) {
+      return (
+        <div className="plan-selection-wrapper">
+          <PlanSelection 
+            user={currentUser} 
+            onPlanSelected={handlePlanSelected} 
+            onClose={handleClosePlanSelection} 
+          />
+        </div>
+      );
+    }
 
-  // Auth Views - now with Navigation and Footer
-  if (!isAuthenticated && (authView === 'login' || authView === 'register' || authView === 'register-simple')) {
+    // Auth Views - now with Navigation and Footer
+    if (!isAuthenticated && (authView === 'login' || authView === 'register' || authView === 'register-simple')) {
+      return (
+        <div>
+          <Navigation />
+          
+          {authView === 'login' && (
+            <>
+              <LoginForm 
+                onLogin={handleLogin}
+                onSwitchToRegister={() => setAuthView('register-simple')}
+              />
+              <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+            </>
+          )}
+          {authView === 'register' && (
+            <>
+              <RegisterForm 
+                onRegister={handleRegister}
+                onSwitchToLogin={() => setAuthView('login')}
+              />
+              <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+            </>
+          )}
+          {authView === 'register-simple' && (
+            <>
+              <RegisterFormSimple 
+                onShowCompanyProfile={handleShowCompanyProfile}
+                onSwitchToLogin={() => setAuthView('login')}
+              />
+              <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+            </>
+          )}
+          
+          {/* Multi-step Registration Modals */}
+          <CompanyProfileModal 
+            userData={registrationUserData}
+            onComplete={handleCompanyProfileComplete}
+            onSkip={handleCompanyProfileSkip}
+            isOpen={showCompanyProfileModal}
+          />
+          
+          <PackageSelectionModal 
+            userData={registrationUserData}
+            onComplete={handlePackageSelectionComplete}
+            onSkip={handlePackageSelectionSkip}
+            isOpen={showPackageSelectionModal}
+          />
+        </div>
+      )
+    }
+
+    // Admin Dashboard
+    if (isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && currentView === 'admin') {
+      return (
+        <div>
+          <Navigation />
+          <AdminDashboard user={currentUser} />
+        </div>
+      )
+    }
+
+    // Campaign Admin Dashboard
+    if (isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && currentView === 'campaign-admin') {
+      return (
+        <div>
+          <Navigation />
+          <CampaignAdminDashboard user={currentUser} />
+        </div>
+      )
+    }
+
+    // Campaign Management Views - Enhanced with full-width layout
+    if (showCampaignDashboard) {
+      return (
+        <div>
+          <Navigation />
+          <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
+            <div className="max-w-7xl mx-auto">
+              <CampaignDashboard 
+                userId={currentUser?.id}
+                onCreateCampaign={handleCreateCampaign}
+                onViewCampaign={handleViewCampaign}
+                onClose={handleCloseCampaignDashboard}
+              />
+            </div>
+          </section>
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+        </div>
+      )
+    }
+
+    if (showCampaignDetail && selectedCampaignId) {
+      return (
+        <div>
+          <Navigation />
+          <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
+            <div className="max-w-7xl mx-auto">
+              <CampaignDetailView 
+                campaignId={selectedCampaignId}
+                userId={currentUser?.id}
+                onClose={handleCloseCampaignDetail}
+                onEdit={() => {
+                  // Handle edit campaign
+                  setShowCampaignWizard(true)
+                }}
+              />
+            </div>
+          </section>
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+        </div>
+      )
+    }
+
+    // Campaign Wizard Modal
+    if (showCampaignWizard) {
+      return (
+        <div>
+          <CampaignWizard 
+            onClose={() => setShowCampaignWizard(false)} 
+            currentUser={currentUser}
+          />
+        </div>
+      )
+    }
+
+    // Account Management View
+    if (isAuthenticated && currentView === 'account') {
+      return (
+        <div>
+          <Navigation />
+          <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
+            <div className="max-w-7xl mx-auto">
+              <AccountManagement 
+                user={currentUser}
+                onUpdateUser={(updatedUser) => {
+                  setCurrentUser(updatedUser)
+                  localStorage.setItem('currentUser', JSON.stringify(updatedUser))
+                }}
+              />
+            </div>
+          </section>
+          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+        </div>
+      )
+    }
+
+    // Fallback render for the case that no other condition matches
     return (
       <div>
         <Navigation />
-        
-        {authView === 'login' && (
-          <>
-            <LoginForm 
-              onLogin={handleLogin}
-              onSwitchToRegister={() => setAuthView('register-simple')}
-            />
-            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-          </>
-        )}
-        {authView === 'register' && (
-          <>
-            <RegisterForm 
-              onRegister={handleRegister}
-              onSwitchToLogin={() => setAuthView('login')}
-            />
-            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-          </>
-        )}
-        {authView === 'register-simple' && (
-          <>
-            <RegisterFormSimple 
-              onShowCompanyProfile={handleShowCompanyProfile}
-              onSwitchToLogin={() => setAuthView('login')}
-            />
-            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-          </>
-        )}
-        
-        {/* Multi-step Registration Modals */}
-        <CompanyProfileModal 
-          userData={registrationUserData}
-          onComplete={handleCompanyProfileComplete}
-          onSkip={handleCompanyProfileSkip}
-          isOpen={showCompanyProfileModal}
-        />
-        
-        <PackageSelectionModal 
-          userData={registrationUserData}
-          onComplete={handlePackageSelectionComplete}
-          onSkip={handlePackageSelectionSkip}
-          isOpen={showPackageSelectionModal}
-        />
+        <div className="max-w-7xl mx-auto px-4 py-12">
+          <h1 className="text-2xl font-bold mb-4">Willkommen bei socialmediakampagnen.com</h1>
+          <p className="mb-4">Es scheint ein Problem mit der Anzeige zu geben.</p>
+          <Button 
+            onClick={() => window.location.href = '/?reset=true'} 
+            className="bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            Zurücksetzen und neu laden
+          </Button>
+        </div>
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
       </div>
-    )
+    );
+  } catch (error) {
+    console.error("Critical rendering error:", error);
+    return (
+      <div className="p-8">
+        <h1 className="text-xl font-bold">Es ist ein Fehler aufgetreten</h1>
+        <p>Bitte laden Sie die Seite neu oder kontaktieren Sie den Support.</p>
+        <p className="text-red-500 text-sm mt-2">Fehler: {error.message}</p>
+        <button 
+          onClick={() => window.location.href = '/?reset=true'} 
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+        >
+          Zurücksetzen und neu laden
+        </button>
+      </div>
+    );
   }
-
-  // Rest of the App component remains unchanged
-  
-  return (
-    <div>
-      {/* Rest of your application */}
-    </div>
-  )
 }
 
 export default App
