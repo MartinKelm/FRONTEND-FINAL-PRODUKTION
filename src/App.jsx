@@ -137,12 +137,15 @@ function App() {
   }
 
   const handleRegister = (userData) => {
+    console.log('handleRegister called with:', userData)
     // Check if user needs to complete company profile
     if (userData.registrationStep === 'company_profile') {
+      console.log('Showing company profile modal')
       // Show company profile modal
       setRegistrationUserData(userData)
       setShowCompanyProfileModal(true)
     } else {
+      console.log('Registration complete, going to login')
       // Registration complete - show success message and go to login
       showMessage('success', 'Registrierung erfolgreich! Bitte melden Sie sich jetzt an.')
       setAuthView('login')
