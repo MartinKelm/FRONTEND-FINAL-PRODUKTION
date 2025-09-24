@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Badge } from '../ui/badge'
 import { Checkbox } from '../ui/checkbox'
 import { Eye, EyeOff, Mail, Lock, User, Building, Phone } from 'lucide-react'
-import { saveUser } from '../../utils/userStorage-Fixed'
+import { saveUser } from '../../utils/userStorage'
 
 const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
