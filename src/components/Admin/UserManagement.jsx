@@ -11,7 +11,8 @@ import {
   UserCheck,
   UserX,
   Shield,
-  ShieldOff
+  ShieldOff,
+  RefreshCw
 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
@@ -35,6 +36,7 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu'
 // Toast-Import entfernt, da er Probleme verursacht
+import { getUsers } from '../../utils/userStorage'
 
 const UserManagement = () => {
   const [users, setUsers] = useState([])
@@ -45,24 +47,43 @@ const UserManagement = () => {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [refreshKey, setRefreshKey] = useState(0) // Used to force refresh
 
   // Load users from localStorage
   useEffect(() => {
     loadUsers()
-  }, [])
+    
+    // Set up an interval to check for new users every 5 seconds
+    const intervalId = setInterval(() => {
+      loadUsers(false) // Silent refresh (no loading indicator)
+    }, 5000)
+    
+    // Clean up interval on component unmount
+    return () => clearInterval(intervalId)
+  }, [refreshKey]) // Dependency on refreshKey to allow manual refresh
 
-  const loadUsers = () => {
-    setIsLoading(true)
+  const loadUsers = (showLoading = true) => {
+    if (showLoading) {
+      setIsLoading(true)
+    }
+    
     try {
-      const storedUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
-      setUsers(storedUsers)
+      // Use the utility function from userStorage.js
+      const allUsers = getUsers()
+      setUsers(allUsers)
     } catch (error) {
       console.error('Error loading users:', error)
-      // Toast-Aufruf entfernt
       alert("Fehler beim Laden der Benutzer")
     } finally {
-      setIsLoading(false)
+      if (showLoading) {
+        setIsLoading(false)
+      }
     }
+  }
+
+  // Manual refresh function
+  const handleRefresh = () => {
+    setRefreshKey(prevKey => prevKey + 1) // Change the key to force useEffect to run again
   }
 
   // Filter users based on search term and selected filter
@@ -102,11 +123,9 @@ const UserManagement = () => {
       localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
       setUsers(updatedUsers)
       setIsDeleteDialogOpen(false)
-      // Toast-Aufruf entfernt
       alert(`${selectedUser.name} wurde erfolgreich gelöscht.`)
     } catch (error) {
       console.error('Error deleting user:', error)
-      // Toast-Aufruf entfernt
       alert("Der Benutzer konnte nicht gelöscht werden.")
     }
   }
@@ -126,11 +145,9 @@ const UserManagement = () => {
       localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
       setUsers(updatedUsers)
       
-      // Toast-Aufruf entfernt
       alert(makeAdmin ? "Admin-Rechte erteilt" : "Admin-Rechte entzogen")
     } catch (error) {
       console.error('Error updating user role:', error)
-      // Toast-Aufruf entfernt
       alert("Die Benutzerrolle konnte nicht aktualisiert werden.")
     }
   }
@@ -147,11 +164,9 @@ const UserManagement = () => {
       linkElement.setAttribute('download', exportFileDefaultName)
       linkElement.click()
       
-      // Toast-Aufruf entfernt
       alert("Die Benutzerdaten wurden erfolgreich exportiert.")
     } catch (error) {
       console.error('Error exporting users:', error)
-      // Toast-Aufruf entfernt
       alert("Die Benutzerdaten konnten nicht exportiert werden.")
     }
   }
@@ -219,6 +234,10 @@ const UserManagement = () => {
             <Button variant="outline" size="sm" onClick={() => setSelectedFilter(selectedFilter === 'all' ? 'admin' : 'all')}>
               <Filter className="w-4 h-4 mr-2" />
               {selectedFilter === 'all' ? 'Alle' : selectedFilter === 'admin' ? 'Admins' : 'Filter'}
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleRefresh}>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Aktualisieren
             </Button>
             <Button variant="outline" size="sm" onClick={exportUsers}>
               <Download className="w-4 h-4 mr-2" />
