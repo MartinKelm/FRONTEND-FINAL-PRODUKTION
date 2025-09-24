@@ -201,7 +201,7 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
           </CardHeader>
           
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
               {errors.general && (
                 <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -344,15 +344,14 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
                 )}
               </div>
 
-              <div className="flex items-start space-x-2">
-                <Checkbox
+              <div className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
                   id="acceptTerms"
                   name="acceptTerms"
                   checked={formData.acceptTerms}
-                  onCheckedChange={(checked) => 
-                    setFormData({ ...formData, acceptTerms: checked })
-                  }
-                  className={`mt-1 ${
+                  onChange={handleChange}
+                  className={`mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ${
                     errors.acceptTerms ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
