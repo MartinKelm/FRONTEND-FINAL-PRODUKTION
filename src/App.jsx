@@ -50,8 +50,6 @@ import CampaignWizard from './components/Campaign/CampaignWizard'
 import LoginForm from './components/Auth/LoginForm'
 import RegisterForm from './components/Auth/RegisterForm'
 import RegisterFormSimple from './components/Auth/RegisterFormSimple'
-import CompanyProfileModal from './components/Auth/CompanyProfileModal'
-import PackageSelectionModal from './components/Auth/PackageSelectionModal'
 import AdminDashboard from './components/Admin/AdminDashboard'
 import CampaignAdminDashboard from './components/Admin/CampaignAdminDashboard'
 import AboutPage from './components/Pages/AboutPage'
@@ -105,10 +103,7 @@ function App() {
     }
   }, [])
   
-  // Multi-step registration states
-  const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false)
-  const [showPackageSelectionModal, setShowPackageSelectionModal] = useState(false)
-  const [registrationUserData, setRegistrationUserData] = useState(null)
+
   
   // Message state
   const [message, setMessage] = useState({ type: '', text: '' })
@@ -137,51 +132,14 @@ function App() {
   }
 
   const handleRegister = (userData) => {
-    setCurrentUser(userData)
-    setIsAuthenticated(true)
-    setAuthView(null) // Close register form
-    setCurrentView('dashboard')
+    // Show success message
+    showMessage('success', 'Registrierung erfolgreich! Bitte melden Sie sich jetzt an.')
+    
+    // Redirect to login form
+    setAuthView('login')
   }
 
-  // Multi-step registration handlers
-  const handleShowCompanyProfile = (userData) => {
-    setRegistrationUserData(userData)
-    setAuthView(null) // Close simple registration form
-    setShowCompanyProfileModal(true)
-  }
 
-  const handleCompanyProfileComplete = (completeUserData) => {
-    setRegistrationUserData(completeUserData)
-    setShowCompanyProfileModal(false)
-    setShowPackageSelectionModal(true)
-  }
-
-  const handleCompanyProfileSkip = () => {
-    setShowCompanyProfileModal(false)
-    setShowPackageSelectionModal(true)
-  }
-
-  const handlePackageSelectionComplete = (finalUserData) => {
-    setCurrentUser(finalUserData)
-    setIsAuthenticated(true)
-    setShowPackageSelectionModal(false)
-    setRegistrationUserData(null)
-    setCurrentView('dashboard')
-  }
-
-  const handlePackageSelectionSkip = () => {
-    // Complete registration without package selection
-    const userData = {
-      ...registrationUserData,
-      plan: null,
-      registrationStep: 'completed'
-    }
-    setCurrentUser(userData)
-    setIsAuthenticated(true)
-    setShowPackageSelectionModal(false)
-    setRegistrationUserData(null)
-    setCurrentView('dashboard')
-  }
 
   const handleLogout = () => {
     setCurrentUser(null)
@@ -194,10 +152,7 @@ function App() {
     localStorage.removeItem('isAuthenticated')
     localStorage.removeItem('currentView')
     
-    // Reset registration states
-    setShowCompanyProfileModal(false)
-    setShowPackageSelectionModal(false)
-    setRegistrationUserData(null)
+
     
     // Reset campaign states
     setShowCampaignDashboard(false)
@@ -217,28 +172,11 @@ function App() {
   }
 
   const handleCreateCampaign = () => {
-    // Demo users can access campaign wizard directly
-    if (currentUser?.isDemoAccount) {
-      // Track where wizard was opened from
-      setWizardOpenedFrom(showCampaignDashboard ? 'campaignDashboard' : 'mainDashboard')
-      // Close campaign dashboard when opening wizard
-      setShowCampaignDashboard(false)
-      setShowCampaignWizard(true)
-    } else {
-      // Check if user has a valid plan
-      if (!currentUser?.plan?.id || currentUser?.plan?.id === 'none') {
-        // No plan selected - redirect to package selection
-        setShowPackageSelectionModal(true)
-        showMessage('info', 'Bitte wählen Sie zuerst einen Plan aus, um Kampagnen zu erstellen.')
-      } else {
-        // Plan exists - allow campaign creation
-        // Track where wizard was opened from
-        setWizardOpenedFrom(showCampaignDashboard ? 'campaignDashboard' : 'mainDashboard')
-        // Close campaign dashboard when opening wizard
-        setShowCampaignDashboard(false)
-        setShowCampaignWizard(true)
-      }
-    }
+    // Track where wizard was opened from
+    setWizardOpenedFrom(showCampaignDashboard ? 'campaignDashboard' : 'mainDashboard')
+    // Close campaign dashboard when opening wizard
+    setShowCampaignDashboard(false)
+    setShowCampaignWizard(true)
   }
 
   const handleViewCampaign = (campaignId) => {
@@ -711,27 +649,14 @@ function App() {
         {authView === 'register-simple' && (
           <>
             <RegisterFormSimple 
-              onShowCompanyProfile={handleShowCompanyProfile}
+              onRegister={handleRegister}
               onSwitchToLogin={() => setAuthView('login')}
             />
             <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
           </>
         )}
         
-        {/* Multi-step Registration Modals */}
-        <CompanyProfileModal 
-          userData={registrationUserData}
-          onComplete={handleCompanyProfileComplete}
-          onSkip={handleCompanyProfileSkip}
-          isOpen={showCompanyProfileModal}
-        />
-        
-        <PackageSelectionModal 
-          userData={registrationUserData}
-          onComplete={handlePackageSelectionComplete}
-          onSkip={handlePackageSelectionSkip}
-          isOpen={showPackageSelectionModal}
-        />
+
       </div>
     )
   }
@@ -1150,22 +1075,8 @@ function App() {
               <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-yellow-800 text-sm">
                   <strong>Hinweis:</strong> Vervollständigen Sie Ihr Profil für bessere Kampagnenvorschläge.
-                  {!currentUser?.company && (
-                    <button 
-                      onClick={() => setShowCompanyProfileModal(true)}
-                      className="ml-2 text-yellow-600 hover:text-yellow-700 underline"
-                    >
-                      Firmenprofil vervollständigen
-                    </button>
-                  )}
-                  {!currentUser?.plan && (
-                    <button 
-                      onClick={() => setShowPackageSelectionModal(true)}
-                      className="ml-2 text-yellow-600 hover:text-yellow-700 underline"
-                    >
-                      Plan auswählen
-                    </button>
-                  )}
+
+
                 </p>
               </div>
             )}
@@ -1429,20 +1340,7 @@ function App() {
         </div>
       )}
       
-      {/* Multi-step Registration Modals - Always available */}
-      <CompanyProfileModal 
-        userData={registrationUserData}
-        onComplete={handleCompanyProfileComplete}
-        onSkip={handleCompanyProfileSkip}
-        isOpen={showCompanyProfileModal}
-      />
-      
-      <PackageSelectionModal 
-        userData={registrationUserData}
-        onComplete={handlePackageSelectionComplete}
-        onSkip={handlePackageSelectionSkip}
-        isOpen={showPackageSelectionModal}
-      />
+
       
       {/* Campaign Wizard */}
       {showCampaignWizard && (
