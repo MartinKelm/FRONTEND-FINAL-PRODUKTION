@@ -4,10 +4,9 @@ import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { Checkbox } from '../ui/checkbox'
-import { Eye, EyeOff, Mail, Lock, User, Building, Phone, MapPin } from 'lucide-react'
-import { saveUser } from '../../utils/userStorage'
+import { Eye, EyeOff, Mail, Lock, User, Building, Phone } from 'lucide-react'
+import { saveUser } from '../../utils/userStorage-Fixed'
 
 const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -18,7 +17,6 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
     confirmPassword: '',
     company: '',
     phone: '',
-    plan: '',
     acceptTerms: false,
     acceptMarketing: false
   })
@@ -38,7 +36,6 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
     if (formData.password.length < 6) newErrors.password = 'Passwort muss mindestens 6 Zeichen haben'
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwörter stimmen nicht überein'
     if (!formData.company.trim()) newErrors.company = 'Firmenname ist erforderlich'
-    if (!formData.plan) newErrors.plan = 'Bitte wählen Sie einen Plan'
     if (!formData.acceptTerms) newErrors.acceptTerms = 'AGB müssen akzeptiert werden'
 
     setErrors(newErrors)
@@ -62,11 +59,12 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
         password: formData.password,
         company: formData.company,
         phone: formData.phone || '',
-        plan: formData.plan,
+        plan: null, // Plan will be selected after first login
         role: 'user',
         acceptMarketing: formData.acceptMarketing,
-        registrationStep: 'completed',
-        createdAt: new Date().toISOString()
+        registrationStep: 'plan_selection', // Mark that user needs to select a plan
+        createdAt: new Date().toISOString(),
+        needsPlanSelection: true // Flag to indicate plan selection is needed
       }
       
       // Save user to localStorage
@@ -113,19 +111,6 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
       setErrors({
         ...errors,
         [name]: ''
-      })
-    }
-  }
-
-  const handleSelectChange = (value) => {
-    setFormData({
-      ...formData,
-      plan: value
-    })
-    if (errors.plan) {
-      setErrors({
-        ...errors,
-        plan: ''
       })
     }
   }
@@ -306,32 +291,6 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium text-gray-700">
-                  Plan auswählen *
-                </Label>
-                <Select onValueChange={handleSelectChange}>
-                  <SelectTrigger className={`h-12 ${errors.plan ? 'border-red-500' : 'border-gray-300'}`}>
-                    <SelectValue placeholder="Wählen Sie Ihren Plan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="standard">
-                      <div className="flex items-center space-x-2">
-                        <Badge className="bg-teal-100 text-teal-800">Standard</Badge>
-                        <span>49€/Monat - Perfekt für KMU</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="pro">
-                      <div className="flex items-center space-x-2">
-                        <Badge className="bg-purple-100 text-purple-800">Pro</Badge>
-                        <span>99€/Monat - Für größere Unternehmen</span>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.plan && <p className="text-xs text-red-500">{errors.plan}</p>}
-              </div>
-
               <div className="space-y-3">
                 <div className="flex items-start space-x-2">
                   <Checkbox
@@ -358,6 +317,11 @@ const RegisterForm = ({ onRegister, onSwitchToLogin }) => {
                     Ich möchte Updates und Marketing-Informationen erhalten (optional)
                   </Label>
                 </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm text-blue-700">
+                <p className="font-medium">Nach der Registrierung:</p>
+                <p>Sie können nach dem ersten Login Ihren gewünschten Plan auswählen.</p>
               </div>
 
               <Button
