@@ -62,9 +62,13 @@ import ImpressumPage from './components/Legal/ImpressumPage'
 import TermsPage from './components/Legal/TermsPage'
 import PrivacyPage from './components/Legal/PrivacyPage'
 import Footer from './components/Footer'
+// NEW: Import PlanSelection component
+import PlanSelection from './components/Plans/PlanSelection'
 
 // Import campaign utilities
 import { getCampaigns, getCampaignStats } from './utils/campaignStorage'
+// NEW: Import userStorage utilities
+import { initializeDefaultUsers } from './utils/userStorage'
 
 function App() {
   const [currentView, setCurrentView] = useState('home')
@@ -81,9 +85,14 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [authView, setAuthView] = useState(null) // null = Homepage, 'login', 'register', 'register-simple'
+  // NEW: Add state for plan selection
+  const [showPlanSelection, setShowPlanSelection] = useState(false)
 
   // Load session from localStorage on app start
   useEffect(() => {
+    // NEW: Initialize default users
+    initializeDefaultUsers()
+    
     const savedUser = localStorage.getItem('currentUser')
     const savedView = localStorage.getItem('currentView')
     const savedAuth = localStorage.getItem('isAuthenticated')
@@ -93,7 +102,14 @@ function App() {
         const userData = JSON.parse(savedUser)
         setCurrentUser(userData)
         setIsAuthenticated(true)
-        setCurrentView(savedView || 'dashboard')
+        
+        // NEW: Check if user needs to select a plan
+        if (userData.needsPlanSelection) {
+          setShowPlanSelection(true)
+        } else {
+          setCurrentView(savedView || 'dashboard')
+        }
+        
         console.log('Session restored:', userData)
       } catch (error) {
         console.error('Error parsing saved user data:', error)
@@ -118,6 +134,7 @@ function App() {
     setTimeout(() => setMessage({ type: '', text: '' }), 5000)
   }
 
+  // UPDATED: handleLogin function
   const handleLogin = (userData) => {
     setCurrentUser(userData)
     setIsAuthenticated(true)
@@ -127,7 +144,10 @@ function App() {
     localStorage.setItem('currentUser', JSON.stringify(userData))
     localStorage.setItem('isAuthenticated', 'true')
     
-    if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
+    // NEW: Check if user needs to select a plan
+    if (userData.needsPlanSelection) {
+      setShowPlanSelection(true)
+    } else if (userData.role === 'ADMIN' || userData.role === 'SUPER_ADMIN') {
       setCurrentView('admin')
       localStorage.setItem('currentView', 'admin')
     } else {
@@ -136,11 +156,42 @@ function App() {
     }
   }
 
+  // NEW: Handler for plan selection
+  const handlePlanSelected = (updatedUser) => {
+    setCurrentUser(updatedUser)
+    setShowPlanSelection(false)
+    
+    if (updatedUser.role === 'ADMIN' || updatedUser.role === 'SUPER_ADMIN') {
+      setCurrentView('admin')
+      localStorage.setItem('currentView', 'admin')
+    } else {
+      setCurrentView('dashboard')
+      localStorage.setItem('currentView', 'dashboard')
+    }
+  }
+
+  // NEW: Handler for closing plan selection
+  const handleClosePlanSelection = () => {
+    setShowPlanSelection(false)
+    setCurrentView('dashboard')
+    localStorage.setItem('currentView', 'dashboard')
+  }
+
   const handleRegister = (userData) => {
     setCurrentUser(userData)
     setIsAuthenticated(true)
     setAuthView(null) // Close register form
-    setCurrentView('dashboard')
+    
+    // Check if user needs to select a plan
+    if (userData.needsPlanSelection) {
+      setShowPlanSelection(true)
+    } else {
+      setCurrentView('dashboard')
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('currentUser', JSON.stringify(userData))
+    localStorage.setItem('isAuthenticated', 'true')
   }
 
   // Multi-step registration handlers
@@ -150,15 +201,40 @@ function App() {
     setShowCompanyProfileModal(true)
   }
 
+  // UPDATED: handleCompanyProfileComplete function
   const handleCompanyProfileComplete = (completeUserData) => {
-    setRegistrationUserData(completeUserData)
+    // NEW: Add needsPlanSelection flag
+    const userData = {
+      ...completeUserData,
+      needsPlanSelection: true
+    }
+    
+    setCurrentUser(userData)
+    setIsAuthenticated(true)
     setShowCompanyProfileModal(false)
-    setShowPackageSelectionModal(true)
+    setShowPlanSelection(true) // NEW: Show plan selection instead of package selection
+    
+    // Save to localStorage
+    localStorage.setItem('currentUser', JSON.stringify(userData))
+    localStorage.setItem('isAuthenticated', 'true')
   }
 
+  // UPDATED: handleCompanyProfileSkip function
   const handleCompanyProfileSkip = () => {
+    // NEW: Add needsPlanSelection flag
+    const userData = {
+      ...registrationUserData,
+      needsPlanSelection: true
+    }
+    
+    setCurrentUser(userData)
+    setIsAuthenticated(true)
     setShowCompanyProfileModal(false)
-    setShowPackageSelectionModal(true)
+    setShowPlanSelection(true) // NEW: Show plan selection instead of package selection
+    
+    // Save to localStorage
+    localStorage.setItem('currentUser', JSON.stringify(userData))
+    localStorage.setItem('isAuthenticated', 'true')
   }
 
   const handlePackageSelectionComplete = (finalUserData) => {
@@ -183,6 +259,7 @@ function App() {
     setCurrentView('dashboard')
   }
 
+  // UPDATED: handleLogout function
   const handleLogout = () => {
     setCurrentUser(null)
     setIsAuthenticated(false)
@@ -203,6 +280,9 @@ function App() {
     setShowCampaignDashboard(false)
     setShowCampaignDetail(false)
     setSelectedCampaignId(null)
+    
+    // NEW: Reset plan selection state
+    setShowPlanSelection(false)
   }
 
   // Campaign management handlers
@@ -216,6 +296,7 @@ function App() {
     setShowCampaignDashboard(false)
   }
 
+  // UPDATED: handleCreateCampaign function
   const handleCreateCampaign = () => {
     // Demo users can access campaign wizard directly
     if (currentUser?.isDemoAccount) {
@@ -227,8 +308,8 @@ function App() {
     } else {
       // Check if user has a valid plan
       if (!currentUser?.plan?.id || currentUser?.plan?.id === 'none') {
-        // No plan selected - redirect to package selection
-        setShowPackageSelectionModal(true)
+        // No plan selected - redirect to plan selection
+        setShowPlanSelection(true)
         showMessage('info', 'Bitte wählen Sie zuerst einen Plan aus, um Kampagnen zu erstellen.')
       } else {
         // Plan exists - allow campaign creation
@@ -478,20 +559,22 @@ function App() {
             )}
           </div>
 
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden lg:flex items-center space-x-4">
             {isAuthenticated ? (
               <UserMenu />
             ) : (
               <>
                 <Button 
                   onClick={() => setAuthView('login')}
-                  className="bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 text-sm px-6 py-2 touch-manipulation font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                  variant="outline"
+                  size="sm"
+                  className="text-sm"
                 >
                   Login
                 </Button>
                 <Button 
                   onClick={() => setAuthView('register-simple')}
-                  className="brand-gradient text-white hover:opacity-90 text-sm px-4 py-2 touch-manipulation"
+                  className="brand-gradient text-white hover:opacity-90 text-sm"
                 >
                   Registrieren
                 </Button>
@@ -509,11 +592,51 @@ function App() {
           </div>
         </div>
 
+        {/* Mobile menu */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 mt-1 pb-4 pt-4 bg-gray-900 shadow-xl z-50 px-4">
-            <div className="flex flex-col space-y-3">
-              {isAuthenticated ? (
-                <>
+          <div className="lg:hidden mt-4 pb-4 border-t border-gray-200 pt-4">
+            {isAuthenticated ? (
+              <>
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN')
+                        ? 'bg-gradient-to-br from-red-500 to-pink-500' 
+                        : currentUser?.isDemoAccount
+                        ? 'bg-gradient-to-br from-green-500 to-emerald-500'
+                        : 'bg-gradient-to-br from-blue-500 to-purple-500'
+                    }`}>
+                      {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') ? (
+                        <Shield className="w-4 h-4 text-white" />
+                      ) : (
+                        <User className="w-4 h-4 text-white" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-medium">
+                        {currentUser?.name}
+                        {currentUser?.isDemoAccount && <span className="text-green-500 ml-1">(Demo)</span>}
+                      </div>
+                      <div className="text-gray-500 text-xs">
+                        {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') 
+                          ? 'Administrator' 
+                          : currentUser?.isDemoAccount 
+                          ? 'Demo-Benutzer' 
+                          : 'Benutzer'}
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleLogout}
+                    size="sm"
+                    className="bg-red-500 hover:bg-red-600 text-white"
+                  >
+                    <LogOut className="w-4 h-4 mr-1" />
+                    Abmelden
+                  </Button>
+                </div>
+                
+                <div className="space-y-2">
                   {currentUser?.role !== 'admin' && (
                     <>
                       <button 
@@ -521,7 +644,11 @@ function App() {
                           setCurrentView('dashboard')
                           setIsMobileMenuOpen(false)
                         }}
-                        className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                        className={`block w-full text-left px-3 py-2 rounded-md ${
+                          currentView === 'dashboard' 
+                            ? 'bg-purple-100 text-purple-700' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                       >
                         Dashboard
                       </button>
@@ -530,7 +657,11 @@ function App() {
                           setCurrentView('features')
                           setIsMobileMenuOpen(false)
                         }}
-                        className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                        className={`block w-full text-left px-3 py-2 rounded-md ${
+                          currentView === 'features' 
+                            ? 'bg-purple-100 text-purple-700' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                       >
                         Features
                       </button>
@@ -539,23 +670,30 @@ function App() {
                           setCurrentView('pricing')
                           setIsMobileMenuOpen(false)
                         }}
-                        className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                        className={`block w-full text-left px-3 py-2 rounded-md ${
+                          currentView === 'pricing' 
+                            ? 'bg-purple-100 text-purple-700' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                       >
                         Preise
                       </button>
-                      <Button 
+                      <button 
                         onClick={() => {
                           setCurrentView('account')
                           setIsMobileMenuOpen(false)
                         }}
-                        variant="outline"
-                        size="sm"
-                        className="text-white border-white hover:bg-white hover:text-gray-900 w-full text-sm touch-manipulation"
+                        className={`block w-full text-left px-3 py-2 rounded-md ${
+                          currentView === 'account' 
+                            ? 'bg-purple-100 text-purple-700' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                       >
                         Mein Account
-                      </Button>
+                      </button>
                     </>
                   )}
+                  
                   {(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
                     <>
                       <button 
@@ -563,7 +701,11 @@ function App() {
                           setCurrentView('admin')
                           setIsMobileMenuOpen(false)
                         }}
-                        className="text-white hover:text-red-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                        className={`block w-full text-left px-3 py-2 rounded-md ${
+                          currentView === 'admin' 
+                            ? 'bg-red-100 text-red-700' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                       >
                         Admin Dashboard
                       </button>
@@ -572,117 +714,144 @@ function App() {
                           setCurrentView('campaign-admin')
                           setIsMobileMenuOpen(false)
                         }}
-                        className="text-white hover:text-red-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                        className={`block w-full text-left px-3 py-2 rounded-md ${
+                          currentView === 'campaign-admin' 
+                            ? 'bg-red-100 text-red-700' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                       >
                         Kampagnen-Verwaltung
                       </button>
                     </>
                   )}
-                  <div className="pt-2 border-t border-gray-600">
-                    <Button
-                      onClick={() => {
-                        handleLogout()
-                        setIsMobileMenuOpen(false)
-                      }}
-                      variant="outline"
-                      size="sm"
-                      className="text-red-400 border-red-400 hover:bg-red-400 hover:text-white w-full text-sm touch-manipulation"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Abmelden
-                    </Button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <button 
+                </div>
+              </>
+            ) : (
+              <div className="space-y-2">
+                <button 
+                  onClick={() => {
+                    setCurrentView('home')
+                    setAuthView(null)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-md ${
+                    currentView === 'home' && !authView
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Home
+                </button>
+                <button 
+                  onClick={() => {
+                    setCurrentView('features')
+                    setAuthView(null)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-md ${
+                    currentView === 'features' && !authView
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Features
+                </button>
+                <button 
+                  onClick={() => {
+                    setCurrentView('pricing')
+                    setAuthView(null)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-md ${
+                    currentView === 'pricing' && !authView
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Preise
+                </button>
+                <button 
+                  onClick={() => {
+                    setCurrentView('about')
+                    setAuthView(null)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-md ${
+                    currentView === 'about' && !authView
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Über uns
+                </button>
+                <button 
+                  onClick={() => {
+                    setCurrentView('contact')
+                    setAuthView(null)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-md ${
+                    currentView === 'contact' && !authView
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Kontakt
+                </button>
+                <button 
+                  onClick={() => {
+                    setCurrentView('faq')
+                    setAuthView(null)
+                    setIsMobileMenuOpen(false)
+                  }}
+                  className={`block w-full text-left px-3 py-2 rounded-md ${
+                    currentView === 'faq' && !authView
+                      ? 'bg-purple-100 text-purple-700' 
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  FAQ
+                </button>
+                
+                <div className="pt-4 mt-4 border-t border-gray-200 flex flex-col space-y-2">
+                  <Button 
                     onClick={() => {
-                      setCurrentView('home')
-                      setAuthView(null)
+                      setAuthView('login')
                       setIsMobileMenuOpen(false)
                     }}
-                    className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                    variant="outline"
+                    className="w-full justify-center"
                   >
-                    Home
-                  </button>
-                  <button 
+                    Login
+                  </Button>
+                  <Button 
                     onClick={() => {
-                      setCurrentView('features')
-                      setAuthView(null)
+                      setAuthView('register-simple')
                       setIsMobileMenuOpen(false)
                     }}
-                    className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
+                    className="brand-gradient text-white hover:opacity-90 w-full justify-center"
                   >
-                    Features
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setCurrentView('pricing')
-                      setAuthView(null)
-                      setIsMobileMenuOpen(false)
-                    }}
-                    className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
-                  >
-                    Preise
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setCurrentView('about')
-                      setAuthView(null)
-                      setIsMobileMenuOpen(false)
-                    }}
-                    className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
-                  >
-                    Über uns
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setCurrentView('contact')
-                      setAuthView(null)
-                      setIsMobileMenuOpen(false)
-                    }}
-                    className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
-                  >
-                    Kontakt
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setCurrentView('faq')
-                      setAuthView(null)
-                      setIsMobileMenuOpen(false)
-                    }}
-                    className="text-white hover:text-purple-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
-                  >
-                    FAQ
-                  </button>
-                  <div className="pt-2 border-t border-gray-600 space-y-2">
-                    <Button 
-                      onClick={() => {
-                        setAuthView('login')
-                        setIsMobileMenuOpen(false)
-                      }}
-                      className="bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:from-green-700 hover:to-emerald-700 w-full text-sm touch-manipulation font-semibold shadow-lg"
-                    >
-                      Login
-                    </Button>
-                    <Button 
-                      onClick={() => {
-                        setAuthView('register-simple')
-                        setIsMobileMenuOpen(false)
-                      }}
-                      className="brand-gradient text-white hover:opacity-90 w-full text-sm touch-manipulation"
-                    >
-                      Registrieren
-                    </Button>
-                  </div>
-                </>
-              )}
-            </div>
+                    Registrieren
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
     </nav>
   )
+
+  // NEW: Show plan selection if needed
+  if (isAuthenticated && showPlanSelection) {
+    return (
+      <PlanSelection 
+        user={currentUser} 
+        onPlanSelected={handlePlanSelected} 
+        onClose={handleClosePlanSelection} 
+      />
+    );
+  }
 
   // Auth Views - now with Navigation and Footer
   if (!isAuthenticated && (authView === 'login' || authView === 'register' || authView === 'register-simple')) {
@@ -736,831 +905,879 @@ function App() {
     )
   }
 
+  // Campaign Wizard
+  if (showCampaignWizard) {
+    return (
+      <CampaignWizard 
+        onClose={() => {
+          setShowCampaignWizard(false)
+          // Return to the view that opened the wizard
+          if (wizardOpenedFrom === 'campaignDashboard') {
+            setShowCampaignDashboard(true)
+          }
+          setWizardOpenedFrom(null)
+        }}
+        currentUser={currentUser}
+      />
+    )
+  }
+
+  // Campaign Detail View
+  if (showCampaignDetail && selectedCampaignId) {
+    return (
+      <CampaignDetailView 
+        campaignId={selectedCampaignId}
+        onBack={handleCloseCampaignDetail}
+        currentUser={currentUser}
+      />
+    )
+  }
+
+  // Campaign Dashboard
+  if (showCampaignDashboard) {
+    return (
+      <CampaignDashboard 
+        onBack={() => setShowCampaignDashboard(false)}
+        onCreateCampaign={handleCreateCampaign}
+        onViewCampaign={handleViewCampaign}
+        currentUser={currentUser}
+      />
+    )
+  }
+
   // Admin Dashboard
   if (isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && currentView === 'admin') {
     return (
       <div>
         <Navigation />
-        <AdminDashboard user={currentUser} />
-      </div>
-    )
-  }
-
-  // Campaign Management Views - Enhanced with full-width layout
-  if (showCampaignDashboard) {
-    return (
-      <div>
-        <Navigation />
-        <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto">
-            <CampaignDashboard 
-              userId={currentUser?.id}
-              onCreateCampaign={handleCreateCampaign}
-              onViewCampaign={handleViewCampaign}
-              onClose={handleCloseCampaignDashboard}
-            />
-          </div>
-        </section>
+        <AdminDashboard currentUser={currentUser} />
         <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
       </div>
     )
   }
 
-  if (showCampaignDetail && selectedCampaignId) {
+  // Campaign Admin Dashboard
+  if (isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && currentView === 'campaign-admin') {
     return (
       <div>
         <Navigation />
-        <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
-          <div className="max-w-7xl mx-auto">
-            <CampaignDetailView 
-              campaignId={selectedCampaignId}
-              userId={currentUser?.id}
-              onClose={handleCloseCampaignDetail}
-              onEdit={() => {
-                // Handle edit campaign
-                setShowCampaignWizard(true)
-              }}
-            />
-          </div>
-        </section>
+        <CampaignAdminDashboard currentUser={currentUser} />
         <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
       </div>
     )
   }
 
-  // Campaign Wizard Modal
-  if (showCampaignWizard) {
+  // Account Management
+  if (isAuthenticated && currentView === 'account') {
     return (
       <div>
-        <CampaignWizard 
-          onClose={() => setShowCampaignWizard(false)} 
-          currentUser={currentUser}
-        />
+        <Navigation />
+        <AccountManagement currentUser={currentUser} setCurrentUser={setCurrentUser} />
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
       </div>
     )
   }
 
-  // Hero Section - ORIGINAL DESIGN PRESERVED (Wording aktualisiert)
-  const HeroSection = () => (
-    <section className="hero-section relative overflow-hidden px-4 sm:px-6 py-12 sm:py-16 lg:py-20">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-8 sm:mb-12">
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6 sm:mb-8">
-            <Badge className="bg-yellow-400 text-yellow-900 border-yellow-500 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              🆕 NEU
-            </Badge>
-            <Badge className="bg-green-400 text-green-900 border-green-500 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              🔥 BELIEBT
-            </Badge>
-            <Badge className="bg-blue-400 text-blue-900 border-blue-500 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              🇩🇪 DEUTSCHLAND
-            </Badge>
-          </div>
-          
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 sm:mb-6 leading-tight">
-            <span className="text-yellow-300">Alle Werbeanzeigen</span> in einem Editor –{' '}
-            <span className="text-green-300">einfach</span>,{' '}
-            <span className="text-blue-300">schnell</span>,{' '}
-            <span className="text-pink-300">effektiv</span>
-          </h1>
-          
-          <p className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 sm:mb-10 max-w-4xl mx-auto leading-relaxed">
-            Eine Plattform für alle Kanäle. Erstelle Anzeigen für Meta, Google, TikTok, Spotify & mehr –
-            ohne Ads-Manager, ohne Agentur, ohne Umwege.
-          </p>
-          <p className="text-base sm:text-lg text-white/80 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed">
-            Ob Recruiting, E-Commerce oder lokale Werbung: Socialmediakampagnen.com bündelt alles,
-            was du brauchst, um in Minuten live zu sein und messbar neue Kunden & Bewerber zu erreichen.
-          </p>
-        </div>
-
-        <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-pink-500/20 to-orange-500/20 rounded-3xl blur-3xl"></div>
-          <div className="relative bg-white/10 backdrop-blur-sm rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border border-white/20">
-            <img 
-              src={heroDashboard} 
-              alt="socialmediakampagnen.com Dashboard Preview" 
-              className="w-full h-auto rounded-xl sm:rounded-2xl shadow-2xl"
-            />
-          </div>
-        </div>
+  // About Page
+  if (currentView === 'about') {
+    return (
+      <div>
+        <Navigation />
+        <AboutPage />
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
       </div>
-    </section>
-  )
+    )
+  }
 
-  // Features Section - ORIGINAL DESIGN PRESERVED (Wording aktualisiert)
-  const FeaturesSection = () => (
-    <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-br from-gray-50 to-blue-50">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 sm:mb-16">
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
-            <Badge className="bg-red-500 text-white border-red-600 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              ZEITERSPARNIS
-            </Badge>
-            <Badge className="bg-orange-500 text-white border-orange-600 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              EINFACH
-            </Badge>
-            <Badge className="bg-green-500 text-white border-green-600 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              EFFEKTIV
-            </Badge>
-            <Badge className="bg-blue-500 text-white border-blue-600 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              PROFESSIONELL
-            </Badge>
-          </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 sm:mb-6">
-            Warum <span className="text-purple-600">socialmediakampagnen.com</span>?
-          </h2>
-          <p className="text-lg sm:text-xl text-gray-600 max-w-3xl mx-auto">
-            Die zentrale Plattform für Unternehmen, Recruiter und Werbetreibende – alle Anzeigen in einem Editor erstellen, überall ausspielen und zentral auswerten.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-12 sm:mb-16">
-          <Card className="bg-gradient-to-br from-red-500 to-pink-500 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between mb-4">
-                <Badge className="bg-white/20 text-white border-white/30 text-xs font-medium">
-                  EFFIZIENZ
-                </Badge>
-                <Clock className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
-              </div>
-              <CardTitle className="text-xl sm:text-2xl font-bold text-purple-100">
-                90% Zeitersparnis
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                Einmal erstellen, überall ausspielen. Schluss mit fünf Ads-Managern, zig Formaten und Copy-Paste.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-green-500 to-emerald-500 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between mb-4">
-                <Badge className="bg-white/20 text-white border-white/30 text-xs font-medium">
-                  EINFACH
-                </Badge>
-                <Zap className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
-              </div>
-              <CardTitle className="text-xl sm:text-2xl font-bold text-blue-100">
-                Keine Kenntnisse nötig
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                Intuitiv wie ein Formular – jeder im Team kann Kampagnen live schalten. Optional mit KI-Texten & Vorlagen.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-to-br from-orange-500 to-red-500 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between mb-4">
-                <Badge className="bg-white/20 text-white border-white/30 text-xs font-medium">
-                  INNOVATION
-                </Badge>
-                <BarChart3 className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
-              </div>
-              <CardTitle className="text-xl sm:text-2xl font-bold text-orange-100">
-                Live-Vorschau & Kontrolle
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-white/90 text-sm sm:text-base leading-relaxed">
-                Sofort sehen, wie deine Anzeigen auf Meta, Google, TikTok & Co. wirken – inklusive zentraler Abrechnung.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-3xl p-8 sm:p-12 text-center text-white">
-          <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6">
-            Unterstützte Plattformen
-          </h3>
-          <p className="text-lg sm:text-xl mb-8 sm:mb-10 text-white/90">
-            Erstelle Anzeigen für alle relevanten Kanäle – zentral gesteuert in einem Editor.
-          </p>
-          
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
-            <Badge className="bg-blue-600 text-white border-blue-700 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
-              <Facebook className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Facebook
-            </Badge>
-            <Badge className="bg-pink-500 text-white border-pink-600 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
-              <Instagram className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              Instagram
-            </Badge>
-            <Badge className="bg-red-500 text-white border-red-600 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
-              <Youtube className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-              YouTube
-            </Badge>
-            <Badge className="bg-green-600 text-white border-green-700 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
-              🔍 Google
-            </Badge>
-            <Badge className="bg-black text-white border-gray-800 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
-              🎵 TikTok
-            </Badge>
-            <Badge className="bg-yellow-400 text-black border-yellow-500 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
-              👻 Snapchat
-            </Badge>
-            <Badge className="bg-orange-600 text-white border-orange-700 text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-3 font-medium">
-              🤖 Reddit
-            </Badge>
-          </div>
-        </div>
+  // Contact Page
+  if (currentView === 'contact') {
+    return (
+      <div>
+        <Navigation />
+        <ContactPage />
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
       </div>
-    </section>
-  )
+    )
+  }
 
-  // Pricing Section (Wording aktualisiert)
-  const PricingSection = () => (
-    <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12 sm:mb-16">
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-6">
-            <Badge className="bg-yellow-400 text-yellow-900 border-yellow-500 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              TRANSPARENT
-            </Badge>
-            <Badge className="bg-green-400 text-green-900 border-green-500 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              FAIR
-            </Badge>
-            <Badge className="bg-blue-400 text-blue-900 border-blue-500 text-xs sm:text-sm px-2 sm:px-3 py-1 font-medium">
-              FLEXIBEL
-            </Badge>
+  // FAQ Page
+  if (currentView === 'faq') {
+    return (
+      <div>
+        <Navigation />
+        <FAQPage />
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+      </div>
+    )
+  }
+
+  // Features Page
+  if (currentView === 'features') {
+    return (
+      <div>
+        <Navigation />
+        <FeaturesPage />
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+      </div>
+    )
+  }
+
+  // Pricing Page
+  if (currentView === 'pricing') {
+    return (
+      <div>
+        <Navigation />
+        <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">Transparente Preise für Ihr Business</h1>
+            <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+              Wählen Sie das passende Paket für Ihre Anforderungen. Alle Preise sind monatlich und werden jährlich abgerechnet.
+            </p>
           </div>
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 sm:mb-6">
-            Einfache, <span className="text-yellow-300">transparente</span> Preise
-          </h2>
-          <p className="text-lg sm:text-xl text-white/90 max-w-3xl mx-auto">
-            Keine versteckten Kosten, keine Überraschungen. Wählen Sie den Plan, der zu Ihrem Unternehmen passt.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12">
-          <Card className="bg-white/10 backdrop-blur-sm border border-white/20 text-white relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-400 to-blue-400"></div>
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl font-bold text-green-300 mb-2">Starter</CardTitle>
-              <div className="text-4xl font-bold mb-2">€49</div>
-              <p className="text-white/70 text-sm">pro Monat</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                  <span className="text-sm">Bis zu 5 Kampagnen</span>
+          
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+            {/* Starter Plan */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden border-t-4 border-green-500">
+              <div className="px-6 py-8">
+                <h3 className="text-2xl font-bold text-gray-900 text-center">Starter</h3>
+                <div className="mt-4 flex justify-center">
+                  <span className="text-5xl font-extrabold text-gray-900">€99</span>
+                  <span className="ml-2 text-xl font-medium text-gray-500 self-end">/Monat</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                  <span className="text-sm">3 Plattformen</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                  <span className="text-sm">Basis-Analytics</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-400" />
-                  <span className="text-sm">E-Mail Support</span>
+                <p className="mt-1 text-sm text-gray-500 text-center">Bei jährlicher Zahlung</p>
+              </div>
+              <div className="border-t border-gray-200 bg-gray-50 px-6 py-8">
+                <ul className="space-y-4">
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">Bis zu 5 Kampagnen</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">3 Plattformen</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">Basis-Analytics</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-green-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">E-Mail Support</p>
+                  </li>
+                </ul>
+                <div className="mt-8">
+                  <Button 
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        // Show plan selection
+                        setShowPlanSelection(true)
+                      } else {
+                        // Redirect to registration
+                        setAuthView('register-simple')
+                      }
+                    }}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Starter wählen
+                  </Button>
                 </div>
               </div>
-              <Button className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white mt-6">
-                Starter wählen
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/10 backdrop-blur-sm border border-white/20 text-white relative overflow-hidden transform scale-105">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-400 to-pink-400"></div>
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 px-4 py-1 text-xs font-medium">
-                BELIEBT
-              </Badge>
             </div>
-            <CardHeader className="text-center pb-4 pt-6">
-              <CardTitle className="text-2xl font-bold text-purple-300 mb-2">Professional</CardTitle>
-              <div className="text-4xl font-bold mb-2">€149</div>
-              <p className="text-white/70 text-sm">pro Monat</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-purple-400" />
-                  <span className="text-sm">Unbegrenzte Kampagnen</span>
+            
+            {/* Professional Plan */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden border-t-4 border-purple-500 transform scale-105 z-10">
+              <div className="absolute top-0 right-0 bg-purple-500 text-white text-xs font-semibold px-3 py-1 rounded-bl-lg">
+                BELIEBT
+              </div>
+              <div className="px-6 py-8">
+                <h3 className="text-2xl font-bold text-gray-900 text-center">Professional</h3>
+                <div className="mt-4 flex justify-center">
+                  <span className="text-5xl font-extrabold text-gray-900">€199</span>
+                  <span className="ml-2 text-xl font-medium text-gray-500 self-end">/Monat</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-purple-400" />
-                  <span className="text-sm">Alle Plattformen</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-purple-400" />
-                  <span className="text-sm">Erweiterte Analytics</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-purple-400" />
-                  <span className="text-sm">KI-Textgenerierung</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-purple-400" />
-                  <span className="text-sm">Priority Support</span>
+                <p className="mt-1 text-sm text-gray-500 text-center">Bei jährlicher Zahlung</p>
+              </div>
+              <div className="border-t border-gray-200 bg-gray-50 px-6 py-8">
+                <ul className="space-y-4">
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">Unbegrenzte Kampagnen</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">Alle Plattformen</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">Erweiterte Analytics</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">KI-Textgenerierung</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-purple-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">Priority Support</p>
+                  </li>
+                </ul>
+                <div className="mt-8">
+                  <Button 
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        // Show plan selection
+                        setShowPlanSelection(true)
+                      } else {
+                        // Redirect to registration
+                        setAuthView('register-simple')
+                      }
+                    }}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                  >
+                    Professional wählen
+                  </Button>
                 </div>
               </div>
-              <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white mt-6">
-                Professional wählen
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-white/10 backdrop-blur-sm border border-white/20 text-white relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-400 to-red-400"></div>
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl font-bold text-orange-300 mb-2">Enterprise</CardTitle>
-              <div className="text-4xl font-bold mb-2">€499</div>
-              <p className="text-white/70 text-sm">pro Monat</p>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-orange-400" />
-                  <span className="text-sm">Alles aus Professional</span>
+            </div>
+            
+            {/* Enterprise Plan */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden border-t-4 border-orange-500">
+              <div className="px-6 py-8">
+                <h3 className="text-2xl font-bold text-gray-900 text-center">Enterprise</h3>
+                <div className="mt-4 flex justify-center">
+                  <span className="text-5xl font-extrabold text-gray-900">€499</span>
+                  <span className="ml-2 text-xl font-medium text-gray-500 self-end">/Monat</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-orange-400" />
-                  <span className="text-sm">Multi-User Management</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-orange-400" />
-                  <span className="text-sm">API-Zugang</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-orange-400" />
-                  <span className="text-sm">Dedicated Account Manager</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-orange-400" />
-                  <span className="text-sm">24/7 Phone Support</span>
+                <p className="mt-1 text-sm text-gray-500 text-center">Bei jährlicher Zahlung</p>
+              </div>
+              <div className="border-t border-gray-200 bg-gray-50 px-6 py-8">
+                <ul className="space-y-4">
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-orange-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">Alles aus Professional</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-orange-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">Multi-User Management</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-orange-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">API-Zugang</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-orange-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">Dedicated Account Manager</p>
+                  </li>
+                  <li className="flex items-start">
+                    <div className="flex-shrink-0">
+                      <CheckCircle className="h-5 w-5 text-orange-500" />
+                    </div>
+                    <p className="ml-3 text-sm text-gray-700">24/7 Phone Support</p>
+                  </li>
+                </ul>
+                <div className="mt-8">
+                  <Button 
+                    onClick={() => {
+                      if (isAuthenticated) {
+                        // Show plan selection
+                        setShowPlanSelection(true)
+                      } else {
+                        // Redirect to registration
+                        setAuthView('register-simple')
+                      }
+                    }}
+                    className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    Enterprise wählen
+                  </Button>
                 </div>
               </div>
-              <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white mt-6">
-                Enterprise wählen
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="text-center mt-12 sm:mt-16">
-          <p className="text-white/80 text-sm sm:text-base mb-4">
-            Alle Pläne sind Jahresmitgliedschaften mit sofortiger Aktivierung
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
-            <Badge className="bg-white/10 text-white border-white/20 text-xs sm:text-sm px-3 py-2">
-              ✅ Keine Einrichtungsgebühr
-            </Badge>
-            <Badge className="bg-white/10 text-white border-white/20 text-xs sm:text-sm px-3 py-2">
-              ✅ Einheitliche Abrechnung
-            </Badge>
-            <Badge className="bg-white/10 text-white border-white/20 text-xs sm:text-sm px-3 py-2">
-              ✅ DSGVO-konform
-            </Badge>
+            </div>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <p className="text-gray-600">Alle Preise zzgl. MwSt. Jährliche Abrechnung.</p>
+            <p className="mt-2 text-gray-600">Benötigen Sie ein individuelles Angebot? <a href="#" className="text-purple-600 font-medium hover:text-purple-500">Kontaktieren Sie uns</a>.</p>
           </div>
         </div>
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
       </div>
-    </section>
-  )
+    )
+  }
 
-  // Dashboard Section (for authenticated users) - WITH HOVER EFFECTS ON ALL CARDS
-  const DashboardSection = () => {
+  // Legal Pages
+  if (currentView === 'impressum') {
+    return (
+      <div>
+        <Navigation />
+        <ImpressumPage />
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+      </div>
+    )
+  }
+
+  if (currentView === 'terms') {
+    return (
+      <div>
+        <Navigation />
+        <TermsPage />
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+      </div>
+    )
+  }
+
+  if (currentView === 'privacy') {
+    return (
+      <div>
+        <Navigation />
+        <PrivacyPage />
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+      </div>
+    )
+  }
+
+  // Dashboard for authenticated users
+  if (isAuthenticated && currentView === 'dashboard') {
     const dashboardData = getDashboardData(currentUser)
     const campaignTileData = getCampaignTileData(currentUser)
     
     return (
-      <section className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-8 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-              Willkommen zurück, {currentUser?.name}!
-              {currentUser?.isDemoAccount && (
-                <span className="text-green-600 text-lg ml-2">(Demo-Account)</span>
-              )}
-            </h1>
-            <p className="text-gray-600">
-              {currentUser?.isDemoAccount 
-                ? "Dies ist ein Demo-Account mit Beispieldaten. Registrieren Sie sich für Ihren eigenen Account."
-                : "Hier ist eine Übersicht Ihrer aktuellen Kampagnen und Performance"
-              }
-            </p>
-            {currentUser?.registrationStep !== 'completed' && !currentUser?.isDemoAccount && (
-              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <p className="text-yellow-800 text-sm">
-                  <strong>Hinweis:</strong> Vervollständigen Sie Ihr Profil für bessere Kampagnenvorschläge.
-                  {!currentUser?.company && (
-                    <button 
-                      onClick={() => setShowCompanyProfileModal(true)}
-                      className="ml-2 text-yellow-600 hover:text-yellow-700 underline"
-                    >
-                      Firmenprofil vervollständigen
-                    </button>
-                  )}
-                  {!currentUser?.plan && (
-                    <button 
-                      onClick={() => setShowPackageSelectionModal(true)}
-                      className="ml-2 text-yellow-600 hover:text-yellow-700 underline"
-                    >
-                      Plan auswählen
-                    </button>
-                  )}
+      <div>
+        <Navigation />
+        
+        {/* Dashboard Header */}
+        <header className="bg-gradient-to-r from-purple-700 to-indigo-800 text-white">
+          <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
+              <div>
+                <h1 className="text-2xl font-bold">Willkommen, {currentUser?.name || 'Benutzer'}!</h1>
+                <p className="mt-1 text-white/80">
+                  {currentUser?.isDemoAccount 
+                    ? 'Sie nutzen einen Demo-Account mit Beispieldaten.' 
+                    : 'Hier ist eine Übersicht Ihrer Kampagnen und Aktivitäten.'}
                 </p>
               </div>
-            )}
-          </div>
-
-          {/* Enhanced Dashboard Cards with Hover Effects */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-blue-100">
-                  Aktive Kampagnen
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardData.activeCampaigns}</div>
-                <p className="text-xs text-blue-200">
-                  {dashboardData.activeCampaigns > 0 ? '+2 diese Woche' : 'Erstellen Sie Ihre erste Kampagne'}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-green-100">
-                  Gesamtreichweite
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardData.totalReach}</div>
-                <p className="text-xs text-green-200">
-                  {dashboardData.totalReach !== '0' ? '+15% vs. letzter Monat' : 'Starten Sie Ihre erste Kampagne'}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-purple-100">
-                  Klickrate
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardData.clickRate}</div>
-                <p className="text-xs text-purple-200">
-                  {dashboardData.clickRate !== '0%' ? 'Über dem Durchschnitt' : 'Wird nach ersten Kampagnen angezeigt'}
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-orange-100">
-                  Budget verwendet
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{dashboardData.budgetUsed}</div>
-                <p className="text-xs text-orange-200">
-                  {dashboardData.budgetTotal !== '€0' ? `von ${dashboardData.budgetTotal}` : 'Kein Budget festgelegt'}
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Campaign Management Tile - Enhanced with Hover Effects */}
-            <Card className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white border-0 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group cursor-pointer"
-                  onClick={handleOpenCampaignDashboard}>
-              <CardHeader className="pb-4">
-                <div className="flex items-center justify-between mb-4">
-                  <Badge className="bg-white/20 text-white border-white/30 text-xs font-medium">
-                    KAMPAGNEN
-                  </Badge>
-                  <Megaphone className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
-                </div>
-                <CardTitle className="text-xl font-bold text-white mb-2">
-                  Kampagnen verwalten
-                </CardTitle>
-                <CardDescription className="text-white/80 text-sm">
-                  Erstellen, bearbeiten und überwachen Sie alle Ihre Werbekampagnen
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{campaignTileData.total || 0}</div>
-                      <div className="text-xs text-white/70">Gesamt</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-2xl font-bold text-green-300">{campaignTileData.active || 0}</div>
-                      <div className="text-xs text-white/70">Aktiv</div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between pt-4 border-t border-white/20">
-                    <div className="flex items-center space-x-2">
-                      <Plus className="w-4 h-4" />
-                      <span className="text-sm">Neue Kampagne</span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Existing Campaign Card - Enhanced with Hover Effects */}
-            <Card className="hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-              <CardHeader>
-                <CardTitle>
-                  {dashboardData.campaigns.length > 0 ? 'Aktuelle Kampagnen' : 'Ihre Kampagnen'}
-                </CardTitle>
-                <CardDescription>
-                  {dashboardData.campaigns.length > 0 
-                    ? 'Ihre laufenden Werbekampagnen' 
-                    : 'Sie haben noch keine Kampagnen erstellt'
-                  }
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {dashboardData.campaigns.length > 0 ? (
-                  <div className="space-y-4">
-                    {dashboardData.campaigns.map((campaign, index) => (
-                      <div key={index} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                        <div>
-                          <h4 className="font-medium text-gray-900">{campaign.name}</h4>
-                          <p className="text-sm text-gray-500">{campaign.platform}</p>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge className={
-                            campaign.status === 'Aktiv' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }>
-                            {campaign.status}
-                          </Badge>
-                          <Button variant="ghost" size="sm">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="text-gray-400 mb-4">
-                      <Target className="w-12 h-12 mx-auto" />
-                    </div>
-                    <p className="text-gray-500 mb-4">
-                      Erstellen Sie Ihre erste Kampagne und erreichen Sie Ihre Zielgruppe.
-                    </p>
-                  </div>
-                )}
+              <div className="mt-4 md:mt-0">
                 <Button 
                   onClick={handleCreateCampaign}
-                  className="w-full mt-4 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                  className="bg-white text-purple-700 hover:bg-white/90"
                 >
-                  {dashboardData.campaigns.length > 0 ? 'Neue Kampagne erstellen' : 'Erste Kampagne erstellen'}
+                  <Plus className="w-4 h-4 mr-2" />
+                  Neue Kampagne erstellen
                 </Button>
-              </CardContent>
-            </Card>
-
-            {/* Performance Overview Card - Enhanced with Hover Effects */}
-            <Card className="hover:shadow-2xl transition-all duration-300 transform hover:scale-105 group">
-              <CardHeader>
-                <CardTitle>Performance Übersicht</CardTitle>
-                <CardDescription>
-                  {dashboardData.activeCampaigns > 0 
-                    ? 'Ihre wichtigsten Metriken' 
-                    : 'Metriken werden nach ersten Kampagnen angezeigt'
-                  }
-                </CardDescription>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        {/* Dashboard Content */}
+        <main className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+          {/* Stats Overview */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500">Aktive Kampagnen</CardTitle>
               </CardHeader>
               <CardContent>
-                {dashboardData.activeCampaigns > 0 ? (
-                  <div className="space-y-6">
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Impressions</span>
-                        <span>89%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: '89%' }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Klicks</span>
-                        <span>76%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-green-500 h-2 rounded-full" style={{ width: '76%' }}></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>Conversions</span>
-                        <span>62%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-purple-500 h-2 rounded-full" style={{ width: '62%' }}></div>
-                      </div>
-                    </div>
+                <div className="flex items-center">
+                  <Zap className="w-8 h-8 text-purple-500 mr-3" />
+                  <div>
+                    <div className="text-2xl font-bold">{dashboardData.activeCampaigns}</div>
+                    <p className="text-xs text-gray-500">Laufende Kampagnen</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500">Gesamte Reichweite</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <Users className="w-8 h-8 text-blue-500 mr-3" />
+                  <div>
+                    <div className="text-2xl font-bold">{dashboardData.totalReach}</div>
+                    <p className="text-xs text-gray-500">Erreichte Personen</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500">Klickrate</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <MousePointer className="w-8 h-8 text-green-500 mr-3" />
+                  <div>
+                    <div className="text-2xl font-bold">{dashboardData.clickRate}</div>
+                    <p className="text-xs text-gray-500">Durchschnittliche CTR</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-gray-500">Budget</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <Euro className="w-8 h-8 text-amber-500 mr-3" />
+                  <div>
+                    <div className="text-2xl font-bold">{dashboardData.budgetUsed}</div>
+                    <p className="text-xs text-gray-500">von {dashboardData.budgetTotal} ausgegeben</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Main Dashboard Tiles */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Campaign Management Tile */}
+            <Card className="lg:col-span-2">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <div>
+                  <CardTitle className="text-xl font-bold">Kampagnen-Management</CardTitle>
+                  <CardDescription>Verwalten Sie Ihre Werbekampagnen</CardDescription>
+                </div>
+                <Button 
+                  onClick={handleOpenCampaignDashboard}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
+                  Alle anzeigen
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                  <div className="bg-purple-50 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-purple-700">{campaignTileData.total}</div>
+                    <div className="text-xs text-gray-500">Gesamt</div>
+                  </div>
+                  <div className="bg-green-50 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-green-700">{campaignTileData.active}</div>
+                    <div className="text-xs text-gray-500">Aktiv</div>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-blue-700">{campaignTileData.draft}</div>
+                    <div className="text-xs text-gray-500">Entwurf</div>
+                  </div>
+                  <div className="bg-amber-50 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-amber-700">{campaignTileData.paused}</div>
+                    <div className="text-xs text-gray-500">Pausiert</div>
+                  </div>
+                </div>
+                
+                {dashboardData.campaigns.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="text-xs text-gray-500 border-b">
+                          <th className="pb-2 font-medium text-left">Name</th>
+                          <th className="pb-2 font-medium text-left">Plattform</th>
+                          <th className="pb-2 font-medium text-left">Status</th>
+                          <th className="pb-2 font-medium text-left">Performance</th>
+                          <th className="pb-2 font-medium text-right"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {dashboardData.campaigns.map((campaign, index) => (
+                          <tr key={index} className="border-b last:border-0">
+                            <td className="py-3 text-sm">{campaign.name}</td>
+                            <td className="py-3 text-sm">{campaign.platform}</td>
+                            <td className="py-3 text-sm">
+                              <Badge variant={campaign.status === 'Aktiv' ? 'success' : 'warning'}>
+                                {campaign.status}
+                              </Badge>
+                            </td>
+                            <td className="py-3 text-sm">
+                              <Badge variant={
+                                campaign.performance === 'Exzellent' ? 'success' : 
+                                campaign.performance === 'Gut' ? 'info' : 'default'
+                              }>
+                                {campaign.performance}
+                              </Badge>
+                            </td>
+                            <td className="py-3 text-sm text-right">
+                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <div className="text-gray-400 mb-4">
-                      <BarChart3 className="w-12 h-12 mx-auto" />
+                    <Megaphone className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-1">Keine Kampagnen</h3>
+                    <p className="text-gray-500 mb-4">Sie haben noch keine Kampagnen erstellt.</p>
+                    <Button 
+                      onClick={handleCreateCampaign}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      Erste Kampagne erstellen
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            {/* Quick Actions Tile */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl font-bold">Schnellzugriff</CardTitle>
+                <CardDescription>Häufig verwendete Aktionen</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Button 
+                  onClick={handleCreateCampaign}
+                  className="w-full justify-start bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Neue Kampagne erstellen
+                </Button>
+                
+                <Button 
+                  onClick={handleOpenCampaignDashboard}
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  <BarChart3 className="mr-2 h-4 w-4" />
+                  Kampagnen-Dashboard öffnen
+                </Button>
+                
+                <Button 
+                  onClick={() => setCurrentView('account')}
+                  variant="outline"
+                  className="w-full justify-start"
+                >
+                  <User className="mr-2 h-4 w-4" />
+                  Account-Einstellungen
+                </Button>
+                
+                {currentUser?.plan?.id ? (
+                  <div className="bg-gray-50 rounded-lg p-4 mt-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-medium">Ihr aktueller Plan</h3>
+                      <Badge variant="outline" className="font-normal">
+                        {currentUser.plan.name}
+                      </Badge>
                     </div>
-                    <p className="text-gray-500 mb-4">
-                      Performance-Daten werden angezeigt, sobald Sie Kampagnen erstellt haben.
-                    </p>
-                    <div className="space-y-4">
-                      <div className="flex justify-between text-sm">
-                        <span>Impressions</span>
-                        <span>0%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Klicks</span>
-                        <span>0%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
-                      </div>
-                      <div className="flex justify-between text-sm">
-                        <span>Conversions</span>
-                        <span>0%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-gray-300 h-2 rounded-full" style={{ width: '0%' }}></div>
-                      </div>
+                    <div className="text-sm text-gray-500 mb-3">
+                      {currentUser.plan.price}€/Monat bei jährlicher Zahlung
                     </div>
+                    <Button 
+                      onClick={() => setShowPlanSelection(true)}
+                      variant="outline" 
+                      size="sm"
+                      className="w-full text-xs"
+                    >
+                      Plan ändern
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mt-6">
+                    <div className="flex items-center mb-2">
+                      <h3 className="font-medium text-amber-800">Kein Plan ausgewählt</h3>
+                    </div>
+                    <div className="text-sm text-amber-700 mb-3">
+                      Wählen Sie einen Plan, um alle Funktionen zu nutzen.
+                    </div>
+                    <Button 
+                      onClick={() => setShowPlanSelection(true)}
+                      className="w-full text-xs bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      Plan auswählen
+                    </Button>
                   </div>
                 )}
               </CardContent>
             </Card>
           </div>
-        </div>
-      </section>
+        </main>
+        
+        <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+      </div>
     )
   }
 
-  // Main render logic
+  // Homepage (default view)
   return (
     <div>
       <Navigation />
       
-      {/* Message Display */}
-      {message.text && (
-        <div className={`fixed top-20 left-1/2 transform -translate-x-1/2 z-50 p-4 rounded-lg shadow-lg max-w-md w-full mx-4 ${
-          message.type === 'success' 
-            ? 'bg-green-500 text-white'
-            : message.type === 'error'
-            ? 'bg-red-500 text-white'
-            : 'bg-blue-500 text-white'
-        }`}>
-          <p className="text-center font-medium">{message.text}</p>
+      {/* Hero Section */}
+      <section className="bg-gradient-to-br from-purple-700 to-indigo-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-16 items-center">
+            <div>
+              <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+                Social Media Kampagnen leicht gemacht
+              </h1>
+              <p className="mt-6 text-xl max-w-3xl">
+                Erstellen, verwalten und optimieren Sie Ihre Social Media Kampagnen mit unserer intuitiven Plattform. Sparen Sie Zeit und maximieren Sie Ihre Ergebnisse.
+              </p>
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <Button 
+                  onClick={() => setAuthView('register-simple')}
+                  className="bg-white text-purple-700 hover:bg-gray-100 text-lg px-8 py-3 h-auto"
+                >
+                  Jetzt starten
+                </Button>
+                <Button 
+                  onClick={() => setCurrentView('features')}
+                  variant="outline"
+                  className="border-white text-white hover:bg-white/10 text-lg px-8 py-3 h-auto"
+                >
+                  Features entdecken
+                </Button>
+              </div>
+            </div>
+            <div className="hidden lg:block">
+              <img 
+                src={heroDashboard} 
+                alt="Dashboard Preview" 
+                className="rounded-lg shadow-2xl transform rotate-2 hover:rotate-0 transition-transform duration-500"
+              />
+            </div>
+          </div>
         </div>
-      )}
+      </section>
       
-      {/* Multi-step Registration Modals - Always available */}
-      <CompanyProfileModal 
-        userData={registrationUserData}
-        onComplete={handleCompanyProfileComplete}
-        onSkip={handleCompanyProfileSkip}
-        isOpen={showCompanyProfileModal}
-      />
+      {/* Features Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">Alles was Sie für erfolgreiche Kampagnen brauchen</h2>
+            <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+              Unsere Plattform bietet alle Tools, die Sie für die Erstellung und Verwaltung erfolgreicher Social Media Kampagnen benötigen.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-purple-100 flex items-center justify-center mb-4">
+                  <Target className="h-6 w-6 text-purple-600" />
+                </div>
+                <CardTitle>Zielgenaue Kampagnen</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Erstellen Sie Kampagnen, die genau auf Ihre Zielgruppe zugeschnitten sind. Maximieren Sie Ihre Reichweite und Conversion-Rate.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
+                  <BarChart3 className="h-6 w-6 text-blue-600" />
+                </div>
+                <CardTitle>Detaillierte Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Verfolgen Sie den Erfolg Ihrer Kampagnen in Echtzeit. Erhalten Sie wertvolle Einblicke und optimieren Sie Ihre Strategie.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mb-4">
+                  <Clock className="h-6 w-6 text-green-600" />
+                </div>
+                <CardTitle>Zeitersparnis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Automatisieren Sie wiederkehrende Aufgaben und sparen Sie wertvolle Zeit. Konzentrieren Sie sich auf das, was wirklich wichtig ist.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-amber-100 flex items-center justify-center mb-4">
+                  <TrendingUp className="h-6 w-6 text-amber-600" />
+                </div>
+                <CardTitle>Performance-Optimierung</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Verbessern Sie kontinuierlich die Performance Ihrer Kampagnen mit datengestützten Empfehlungen und A/B-Tests.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center mb-4">
+                  <Calendar className="h-6 w-6 text-red-600" />
+                </div>
+                <CardTitle>Content-Planung</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Planen Sie Ihre Inhalte im Voraus und behalten Sie den Überblick über Ihre Content-Strategie mit unserem intuitiven Kalender.
+                </p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center mb-4">
+                  <Users className="h-6 w-6 text-indigo-600" />
+                </div>
+                <CardTitle>Team-Kollaboration</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Arbeiten Sie nahtlos mit Ihrem Team zusammen. Teilen Sie Kampagnen, geben Sie Feedback und verwalten Sie Berechtigungen.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <Button 
+              onClick={() => setCurrentView('features')}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              Alle Features entdecken
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
       
-      <PackageSelectionModal 
-        userData={registrationUserData}
-        onComplete={handlePackageSelectionComplete}
-        onSkip={handlePackageSelectionSkip}
-        isOpen={showPackageSelectionModal}
-      />
+      {/* How It Works Section */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900">So funktioniert's</h2>
+            <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
+              In nur wenigen Schritten zu Ihrer erfolgreichen Social Media Kampagne.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-purple-600">1</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Kampagne erstellen</h3>
+              <p className="text-gray-600">
+                Wählen Sie Ihre Ziele, Zielgruppe und Plattformen. Unser Wizard führt Sie Schritt für Schritt durch den Prozess.
+              </p>
+              <img 
+                src={heroWizard} 
+                alt="Campaign Wizard" 
+                className="mt-6 rounded-lg shadow-lg mx-auto"
+              />
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-purple-600">2</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Inhalte gestalten</h3>
+              <p className="text-gray-600">
+                Erstellen Sie ansprechende Inhalte mit unserem Editor. Nutzen Sie Vorlagen oder gestalten Sie Ihre eigenen Designs.
+              </p>
+              <img 
+                src={heroCampaign} 
+                alt="Content Creation" 
+                className="mt-6 rounded-lg shadow-lg mx-auto"
+              />
+            </div>
+            
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl font-bold text-purple-600">3</span>
+              </div>
+              <h3 className="text-xl font-bold mb-2">Erfolg messen</h3>
+              <p className="text-gray-600">
+                Verfolgen Sie die Performance Ihrer Kampagnen in Echtzeit und optimieren Sie basierend auf datengestützten Erkenntnissen.
+              </p>
+              <img 
+                src={heroDashboard} 
+                alt="Analytics Dashboard" 
+                className="mt-6 rounded-lg shadow-lg mx-auto"
+              />
+            </div>
+          </div>
+          
+          <div className="mt-12 text-center">
+            <Button 
+              onClick={() => setAuthView('register-simple')}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              Jetzt kostenlos testen
+            </Button>
+          </div>
+        </div>
+      </section>
       
-      {/* Campaign Wizard */}
-      {showCampaignWizard && (
-        <CampaignWizard 
-          currentUser={currentUser}
-          onClose={() => {
-            setShowCampaignWizard(false)
-            // Return to the view where wizard was opened from
-            if (wizardOpenedFrom === 'campaignDashboard') {
-              setShowCampaignDashboard(true)
-            }
-            // Reset the tracking state
-            setWizardOpenedFrom(null)
-          }} 
-        />
-      )}
+      {/* CTA Section */}
+      <section className="bg-gradient-to-br from-purple-700 to-indigo-800 text-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold mb-4">Bereit, Ihre Social Media Strategie zu revolutionieren?</h2>
+          <p className="text-xl mb-8 max-w-3xl mx-auto">
+            Starten Sie noch heute und erleben Sie, wie einfach erfolgreiche Social Media Kampagnen sein können.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <Button 
+              onClick={() => setAuthView('register-simple')}
+              className="bg-white text-purple-700 hover:bg-gray-100 text-lg px-8 py-3 h-auto"
+            >
+              Kostenlos starten
+            </Button>
+            <Button 
+              onClick={() => setAuthView('login')}
+              variant="outline"
+              className="border-white text-white hover:bg-white/10 text-lg px-8 py-3 h-auto"
+            >
+              Anmelden
+            </Button>
+          </div>
+        </div>
+      </section>
       
-      {/* Main Content Views */}
-      {currentView === 'home' && !authView && (
-        <>
-          <HeroSection />
-          <FeaturesSection />
-          <PricingSection />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'features' && !authView && (
-        <>
-          <FeaturesPage />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'pricing' && !authView && (
-        <>
-          <PricingSection />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'about' && !authView && (
-        <>
-          <AboutPage />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'contact' && !authView && (
-        <>
-          <ContactPage />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'faq' && !authView && (
-        <>
-          <FAQPage />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {/* Legal Pages */}
-      {currentView === 'impressum' && (
-        <>
-          <ImpressumPage />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'terms' && (
-        <>
-          <TermsPage />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'privacy' && (
-        <>
-          <PrivacyPage />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {/* Authenticated Views */}
-      {currentView === 'dashboard' && isAuthenticated && (
-        <>
-          <DashboardSection />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'account' && isAuthenticated && (
-        <>
-          <AccountManagement 
-            currentUser={currentUser} 
-            onUpdateUser={setCurrentUser}
-          />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'admin' && isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
-        <>
-          <AdminDashboard />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
-      
-      {currentView === 'campaign-admin' && isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
-        <>
-          <CampaignAdminDashboard />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
+      <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
     </div>
   )
 }
