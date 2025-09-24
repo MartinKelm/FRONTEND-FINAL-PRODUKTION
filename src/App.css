@@ -140,8 +140,15 @@
   @apply bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow duration-200;
 }
 
+/* FIXED: Hero section background */
 .hero-section {
-  background: linear-gradient(135deg, #8167f8 0%, #bb9bff 100%);
+  background: linear-gradient(135deg, #6b21a8 0%, #9333ea 33%, #c026d3 66%, #db2777 100%);
+}
+
+/* FIXED: Pricing section background */
+.pricing-section {
+  background: linear-gradient(135deg, #6b21a8 0%, #9333ea 33%, #c026d3 66%, #db2777 100%);
+  color: white;
 }
 
 .dashboard-tile {
