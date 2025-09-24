@@ -3,7 +3,6 @@ import { Button } from '../ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Check, CreditCard, Shield, Clock, Users, BarChart, Zap, MessageCircle, Phone } from 'lucide-react'
-import { updateUser } from '../../utils/userStorage'
 
 const PlanSelection = ({ user, onPlanSelected, onClose }) => {
   const [selectedPlan, setSelectedPlan] = useState(null)
@@ -57,13 +56,14 @@ const PlanSelection = ({ user, onPlanSelected, onClose }) => {
     }
   ]
 
-  const handleSelectPlan = async (plan) => {
-    setSelectedPlan(plan.id)
-    setIsLoading(true)
-
+  const handleSelectPlan = (plan) => {
     try {
+      setSelectedPlan(plan.id)
+      setIsLoading(true)
+
       // Update user with selected plan
-      const result = await updateUser(user.id, {
+      const updatedUser = {
+        ...user,
         plan: plan.id,
         planName: plan.name,
         planPrice: plan.price,
@@ -71,26 +71,27 @@ const PlanSelection = ({ user, onPlanSelected, onClose }) => {
         planExpiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 12 months from now
         needsPlanSelection: false,
         registrationStep: 'completed'
-      })
-
-      if (result.success) {
-        // Wait a bit to show the loading state
-        setTimeout(() => {
-          setIsLoading(false)
-          if (onPlanSelected) {
-            onPlanSelected({
-              ...user,
-              plan: plan.id,
-              planName: plan.name,
-              planPrice: plan.price
-            })
-          }
-        }, 1000)
-      } else {
-        console.error('Failed to update user plan:', result.error)
-        setIsLoading(false)
-        alert('Es gab ein Problem bei der Auswahl des Plans. Bitte versuchen Sie es erneut.')
       }
+
+      // Save to localStorage
+      const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+      const userIndex = existingUsers.findIndex(u => u.id === user.id)
+      
+      if (userIndex !== -1) {
+        existingUsers[userIndex] = {
+          ...existingUsers[userIndex],
+          ...updatedUser
+        }
+        localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
+      }
+
+      // Wait a bit to show the loading state
+      setTimeout(() => {
+        setIsLoading(false)
+        if (onPlanSelected) {
+          onPlanSelected(updatedUser)
+        }
+      }, 1000)
     } catch (error) {
       console.error('Error selecting plan:', error)
       setIsLoading(false)
