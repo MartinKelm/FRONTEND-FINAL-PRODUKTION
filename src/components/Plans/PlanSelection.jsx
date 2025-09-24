@@ -3,7 +3,7 @@ import { Button } from '../ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card'
 import { Badge } from '../ui/badge'
 import { Check, CreditCard, Shield, Clock, Users, BarChart, Zap, MessageCircle, Phone } from 'lucide-react'
-import { updateUser } from '../../utils/userStorage-Fixed'
+import { updateUser } from '../../utils/userStorage'
 
 const PlanSelection = ({ user, onPlanSelected, onClose }) => {
   const [selectedPlan, setSelectedPlan] = useState(null)
