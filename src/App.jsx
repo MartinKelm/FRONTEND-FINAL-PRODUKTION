@@ -68,7 +68,7 @@ import PlanSelection from './components/Plans/PlanSelection'
 
 // Import campaign utilities
 import { getCampaigns, getCampaignStats } from './utils/campaignStorage'
-import { initializeDefaultUsers } from './utils/userStorage-Fixed'
+import { initializeDefaultUsers } from './utils/userStorage'
 
 function App() {
   const [currentView, setCurrentView] = useState('home')
