@@ -29,8 +29,12 @@ export const getUserById = (userId) => {
 // Get a specific user by email
 export const getUserByEmail = (email) => {
   try {
+    if (!email) return null
+    
     const users = getUsers()
-    return users.find(user => user.email.toLowerCase() === email.toLowerCase()) || null
+    return users.find(user => 
+      user.email && user.email.toLowerCase() === email.toLowerCase()
+    ) || null
   } catch (error) {
     console.error('Error getting user by email:', error)
     return null
@@ -45,9 +49,10 @@ export const saveUser = (userData) => {
       throw new Error('Email and password are required')
     }
     
-    // Check if user already exists
+    // Check if user already exists - improved check
     const existingUsers = getUsers()
     const userExists = existingUsers.some(user => 
+      user.email && userData.email && 
       user.email.toLowerCase() === userData.email.toLowerCase()
     )
     
@@ -67,6 +72,10 @@ export const saveUser = (userData) => {
     // Save to storage
     const updatedUsers = [...existingUsers, newUser]
     localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
+    
+    // Log for debugging
+    console.log('User saved successfully:', newUser.email)
+    console.log('Total users now:', updatedUsers.length)
     
     return { success: true, user: newUser }
   } catch (error) {
@@ -129,8 +138,11 @@ export const deleteUser = (userId) => {
 // Validate user credentials
 export const validateCredentials = (email, password) => {
   try {
+    if (!email || !password) return null
+    
     const users = getUsers()
     const user = users.find(u => 
+      u.email && email &&
       u.email.toLowerCase() === email.toLowerCase() && 
       u.password === password
     )
@@ -153,8 +165,12 @@ export const initializeDefaultUsers = () => {
     const existingUsers = getUsers()
     
     // Check if admin user exists
-    const adminExists = existingUsers.find(u => u.email === 'admin@socialmediakampagnen.com')
-    const demoExists = existingUsers.find(u => u.email === 'demo@socialmediakampagnen.com')
+    const adminExists = existingUsers.find(u => 
+      u.email && u.email === 'admin@socialmediakampagnen.com'
+    )
+    const demoExists = existingUsers.find(u => 
+      u.email && u.email === 'demo@socialmediakampagnen.com'
+    )
     
     let usersToAdd = []
     
@@ -194,6 +210,7 @@ export const initializeDefaultUsers = () => {
     if (usersToAdd.length > 0) {
       const updatedUsers = [...existingUsers, ...usersToAdd]
       localStorage.setItem('registeredUsers', JSON.stringify(updatedUsers))
+      console.log(`Initialized ${usersToAdd.length} default users`)
       return { success: true, addedUsers: usersToAdd.length }
     }
     
