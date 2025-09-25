@@ -7,7 +7,7 @@ import { Checkbox } from '../ui/checkbox'
 import { Eye, EyeOff, User, Mail, Lock, AlertCircle, CheckCircle } from 'lucide-react'
 import FullLogo from '../../assets/Logo-socialmediakampagnen-voll.png'
 
-const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
+const RegisterFormSimple = ({ onShowCompanyProfile, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -104,18 +104,18 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
         password: formData.password,
         role: 'user',
         id: Math.random().toString(36).substr(2, 9),
-        registrationStep: 'company_profile', // Next step: company profile
+        registrationStep: 'company_profile', // Track registration progress
         createdAt: new Date().toISOString()
       }
 
-      // Save user to localStorage (partial registration)
+      // Save user to localStorage
       saveUserToStorage(userData)
 
       // Simulate API call
       setTimeout(() => {
         setIsLoading(false)
-        // Go to company profile step
-        onRegister(userData)
+        // Instead of completing registration, show company profile modal
+        onShowCompanyProfile(userData)
       }, 1500)
       
     } catch (error) {
@@ -201,7 +201,7 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
           </CardHeader>
           
           <CardContent>
-            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {errors.general && (
                 <div className="flex items-center space-x-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   <AlertCircle className="w-4 h-4 flex-shrink-0" />
@@ -344,14 +344,15 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
                 )}
               </div>
 
-              <div className="flex items-start space-x-3">
-                <input
-                  type="checkbox"
+              <div className="flex items-start space-x-2">
+                <Checkbox
                   id="acceptTerms"
                   name="acceptTerms"
                   checked={formData.acceptTerms}
-                  onChange={handleChange}
-                  className={`mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded ${
+                  onCheckedChange={(checked) => 
+                    setFormData({ ...formData, acceptTerms: checked })
+                  }
+                  className={`mt-1 ${
                     errors.acceptTerms ? 'border-red-500' : 'border-gray-300'
                   }`}
                 />
@@ -382,7 +383,7 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
                     <span>Wird erstellt...</span>
                   </div>
                 ) : (
-                  'Weiter zu Unternehmensangaben'
+                  'Weiter zur Firmenangaben'
                 )}
               </Button>
             </form>
@@ -401,7 +402,7 @@ const RegisterFormSimple = ({ onRegister, onSwitchToLogin }) => {
 
             <div className="mt-4 text-center">
               <p className="text-xs text-gray-500">
-                Im nächsten Schritt vervollständigen Sie Ihr Firmenprofil.
+                Nach der Registrierung können Sie Ihr Firmenprofil vervollständigen und einen Plan auswählen.
               </p>
             </div>
           </CardContent>
