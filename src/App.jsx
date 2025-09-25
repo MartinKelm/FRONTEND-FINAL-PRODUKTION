@@ -50,7 +50,7 @@ import heroWizard from './assets/hero-wizard.png'
 import CampaignWizard from './components/Campaign/CampaignWizard'
 import LoginForm from './components/Auth/LoginForm'
 import RegisterForm from './components/Auth/RegisterForm'
-import TwoStepRegistration from './components/Auth/TwoStepRegistration'
+import TwoStepRegistrationAPI from './components/Auth/TwoStepRegistrationAPI'
 import AdminDashboard from './components/Admin/AdminDashboard'
 import AboutPage from './components/Pages/AboutPage'
 import ContactPage from './components/Pages/ContactPage'
@@ -676,7 +676,7 @@ function App() {
         )}
         {authView === 'register-simple' && (
           <>
-            <TwoStepRegistration 
+            <TwoStepRegistrationAPI 
               onRegister={handleRegister}
               onSwitchToLogin={() => setAuthView('login')}
             />
