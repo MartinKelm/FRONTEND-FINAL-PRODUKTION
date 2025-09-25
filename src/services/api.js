@@ -1,5 +1,5 @@
 // API Configuration and Service
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://your-backend-url.railway.app/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://backend.socialmediakampagnen.com/api';
 
 class ApiService {
   constructor() {
