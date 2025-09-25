@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Logo from '../../../assets/Logo-socialmediakampagnen-voll.png';
 
 const TwoStepRegistrationAPI = ({ onClose, onSuccess }) => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -204,12 +205,11 @@ const TwoStepRegistrationAPI = ({ onClose, onSuccess }) => {
       <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
         {/* Logo Section */}
         <div className="text-center py-6 border-b border-gray-200">
-          <div className="flex items-center justify-center mb-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg flex items-center justify-center mr-2">
-              <span className="text-white font-bold text-sm">SM</span>
-            </div>
-            <span className="text-xl font-bold text-gray-800">socialmediakampagnen.com</span>
-          </div>
+          <img 
+            src={Logo} 
+            alt="Social Media Kampagnen Logo" 
+            className="h-12 mx-auto mb-2"
+          />
         </div>
 
         {/* Registration Form */}
