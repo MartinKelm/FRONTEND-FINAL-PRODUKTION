@@ -92,7 +92,9 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
           },
           description: formData.description
         },
-        registrationStep: 'package_selection'
+        registrationStep: 'completed', // FIXED: Complete registration after company data
+        isActive: true,
+        plan: 'starter' // Default plan - can be changed later in account settings
       }
 
       // Save updated user data to localStorage
@@ -167,7 +169,7 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
             </div>
             
             <CardTitle className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-              Schritt 2 von 3: Firmeninformationen
+              Schritt 2 von 2: Firmeninformationen
             </CardTitle>
             <CardDescription className="text-gray-600">
               Für bessere Kampagnen und Rechnungsstellung
@@ -177,7 +179,6 @@ const CompanyProfileModal = ({ userData, onComplete, onSkip, isOpen }) => {
             <div className="flex justify-center space-x-2 mt-4">
               <div className="w-8 h-2 bg-green-500 rounded-full"></div>
               <div className="w-8 h-2 bg-green-500 rounded-full"></div>
-              <div className="w-8 h-2 bg-gray-200 rounded-full"></div>
             </div>
             
             <div className="flex justify-center mt-3">
