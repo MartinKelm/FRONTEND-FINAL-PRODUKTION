@@ -52,7 +52,6 @@ import LoginForm from './components/Auth/LoginForm'
 import RegisterForm from './components/Auth/RegisterForm'
 import TwoStepRegistration from './components/Auth/TwoStepRegistration'
 import AdminDashboard from './components/Admin/AdminDashboard'
-import CampaignAdminDashboard from './components/Admin/CampaignAdminDashboard'
 import AboutPage from './components/Pages/AboutPage'
 import ContactPage from './components/Pages/ContactPage'
 import FAQPage from './components/Pages/FAQPage'
@@ -351,7 +350,7 @@ function App() {
           <div className="hidden lg:flex items-center space-x-6 xl:space-x-8">
             {isAuthenticated ? (
               <>
-                {currentUser?.role !== 'admin' && (
+                {!(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
                   <>
                     <button 
                       onClick={() => setCurrentView('dashboard')}
@@ -389,12 +388,7 @@ function App() {
                     >
                       Admin Dashboard
                     </button>
-                    <button 
-                      onClick={() => setCurrentView('campaign-admin')}
-                      className={`text-gray-700 hover:text-red-600 transition-colors text-sm font-medium ${currentView === 'campaign-admin' ? 'text-red-600' : ''}`}
-                    >
-                      Kampagnen-Verwaltung
-                    </button>
+
                   </>
                 )}
               </>
@@ -494,7 +488,7 @@ function App() {
             <div className="flex flex-col space-y-3">
               {isAuthenticated ? (
                 <>
-                  {currentUser?.role !== 'admin' && (
+                  {!(currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
                     <>
                       <button 
                         onClick={() => {
@@ -547,15 +541,7 @@ function App() {
                       >
                         Admin Dashboard
                       </button>
-                      <button 
-                        onClick={() => {
-                          setCurrentView('campaign-admin')
-                          setIsMobileMenuOpen(false)
-                        }}
-                        className="text-white hover:text-red-300 hover:bg-gray-800 text-left py-3 px-2 text-sm font-medium touch-manipulation rounded-md transition-colors w-full"
-                      >
-                        Kampagnen-Verwaltung
-                      </button>
+
                     </>
                   )}
                   <div className="pt-2 border-t border-gray-600">
@@ -1491,12 +1477,7 @@ function App() {
         </>
       )}
       
-      {currentView === 'campaign-admin' && isAuthenticated && (currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN') && (
-        <>
-          <CampaignAdminDashboard />
-          <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
-        </>
-      )}
+
 
       {/* Company Profile Modal */}
       <CompanyProfileModal
