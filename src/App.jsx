@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import CompanyProfileModal from './components/Auth/CompanyProfileModal'
 import { Button } from './components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card'
 import { Badge } from './components/ui/badge'
@@ -50,10 +51,6 @@ import CampaignWizard from './components/Campaign/CampaignWizard'
 import LoginForm from './components/Auth/LoginForm'
 import RegisterForm from './components/Auth/RegisterForm'
 import RegisterFormSimple from './components/Auth/RegisterFormSimple'
-import NewRegistration from './components/Auth/NewRegistration'
-import CleanRegistration from './components/Auth/CleanRegistration'
-import CompanyProfileModal from './components/Auth/CompanyProfileModal'
-import PackageSelectionModal from './components/Auth/PackageSelectionModal'
 import AdminDashboard from './components/Admin/AdminDashboard'
 import CampaignAdminDashboard from './components/Admin/CampaignAdminDashboard'
 import AboutPage from './components/Pages/AboutPage'
@@ -83,6 +80,10 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [currentUser, setCurrentUser] = useState(null)
   const [authView, setAuthView] = useState(null) // null = Homepage, 'login', 'register', 'register-simple'
+  
+  // Registration states
+  const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false)
+  const [registrationUserData, setRegistrationUserData] = useState(null)
 
   // Load session from localStorage on app start
   useEffect(() => {
@@ -107,10 +108,7 @@ function App() {
     }
   }, [])
   
-  // Multi-step registration states
-  const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false)
-  const [showPackageSelectionModal, setShowPackageSelectionModal] = useState(false)
-  const [registrationUserData, setRegistrationUserData] = useState(null)
+
   
   // Message state
   const [message, setMessage] = useState({ type: '', text: '' })
@@ -139,51 +137,67 @@ function App() {
   }
 
   const handleRegister = (userData) => {
-    setCurrentUser(userData)
-    setIsAuthenticated(true)
-    setAuthView(null) // Close register form
-    setCurrentView('dashboard')
+    console.log('handleRegister called with:', userData)
+    // Check if user needs to complete company profile
+    if (userData.registrationStep === 'company_profile') {
+      console.log('Showing company profile modal')
+      // Show company profile modal
+      setRegistrationUserData(userData)
+      setShowCompanyProfileModal(true)
+    } else {
+      console.log('Registration complete, going to login')
+      // Registration complete - show success message and go to login
+      showMessage('success', 'Registrierung erfolgreich! Bitte melden Sie sich jetzt an.')
+      setAuthView('login')
+    }
   }
 
-  // Multi-step registration handlers
-  const handleShowCompanyProfile = (userData) => {
-    setRegistrationUserData(userData)
-    setAuthView(null) // Close simple registration form
-    setShowCompanyProfileModal(true)
-  }
-
-  const handleCompanyProfileComplete = (completeUserData) => {
-    setRegistrationUserData(completeUserData)
+  const handleCompanyProfileComplete = (companyData) => {
+    // Update user data with company information
+    const updatedUserData = {
+      ...registrationUserData,
+      ...companyData,
+      registrationStep: 'completed'
+    }
+    
+    // Update localStorage
+    const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+    const userIndex = existingUsers.findIndex(u => u.email === updatedUserData.email)
+    if (userIndex !== -1) {
+      existingUsers[userIndex] = updatedUserData
+      localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
+    }
+    
+    // Close modal and show success
     setShowCompanyProfileModal(false)
-    setShowPackageSelectionModal(true)
+    setRegistrationUserData(null)
+    showMessage('success', 'Registrierung erfolgreich abgeschlossen! Sie können sich jetzt anmelden.')
+    setAuthView('login')
   }
 
   const handleCompanyProfileSkip = () => {
-    setShowCompanyProfileModal(false)
-    setShowPackageSelectionModal(true)
-  }
-
-  const handlePackageSelectionComplete = (finalUserData) => {
-    setCurrentUser(finalUserData)
-    setIsAuthenticated(true)
-    setShowPackageSelectionModal(false)
-    setRegistrationUserData(null)
-    setCurrentView('dashboard')
-  }
-
-  const handlePackageSelectionSkip = () => {
-    // Complete registration without package selection
-    const userData = {
+    // Mark registration as completed but without company data
+    const updatedUserData = {
       ...registrationUserData,
-      plan: null,
       registrationStep: 'completed'
     }
-    setCurrentUser(userData)
-    setIsAuthenticated(true)
-    setShowPackageSelectionModal(false)
+    
+    // Update localStorage
+    const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]')
+    const userIndex = existingUsers.findIndex(u => u.email === updatedUserData.email)
+    if (userIndex !== -1) {
+      existingUsers[userIndex] = updatedUserData
+      localStorage.setItem('registeredUsers', JSON.stringify(existingUsers))
+    }
+    
+    // Close modal and show success
+    setShowCompanyProfileModal(false)
     setRegistrationUserData(null)
-    setCurrentView('dashboard')
+    showMessage('success', 'Registrierung erfolgreich! Sie können sich jetzt anmelden.')
+    setAuthView('login')
   }
+
+
 
   const handleLogout = () => {
     setCurrentUser(null)
@@ -196,10 +210,7 @@ function App() {
     localStorage.removeItem('isAuthenticated')
     localStorage.removeItem('currentView')
     
-    // Reset registration states
-    setShowCompanyProfileModal(false)
-    setShowPackageSelectionModal(false)
-    setRegistrationUserData(null)
+
     
     // Reset campaign states
     setShowCampaignDashboard(false)
@@ -219,28 +230,11 @@ function App() {
   }
 
   const handleCreateCampaign = () => {
-    // Demo users can access campaign wizard directly
-    if (currentUser?.isDemoAccount) {
-      // Track where wizard was opened from
-      setWizardOpenedFrom(showCampaignDashboard ? 'campaignDashboard' : 'mainDashboard')
-      // Close campaign dashboard when opening wizard
-      setShowCampaignDashboard(false)
-      setShowCampaignWizard(true)
-    } else {
-      // Check if user has a valid plan
-      if (!currentUser?.plan?.id || currentUser?.plan?.id === 'none') {
-        // No plan selected - redirect to package selection
-        setShowPackageSelectionModal(true)
-        showMessage('info', 'Bitte wählen Sie zuerst einen Plan aus, um Kampagnen zu erstellen.')
-      } else {
-        // Plan exists - allow campaign creation
-        // Track where wizard was opened from
-        setWizardOpenedFrom(showCampaignDashboard ? 'campaignDashboard' : 'mainDashboard')
-        // Close campaign dashboard when opening wizard
-        setShowCampaignDashboard(false)
-        setShowCampaignWizard(true)
-      }
-    }
+    // Track where wizard was opened from
+    setWizardOpenedFrom(showCampaignDashboard ? 'campaignDashboard' : 'mainDashboard')
+    // Close campaign dashboard when opening wizard
+    setShowCampaignDashboard(false)
+    setShowCampaignWizard(true)
   }
 
   const handleViewCampaign = (campaignId) => {
@@ -711,23 +705,16 @@ function App() {
           </>
         )}
         {authView === 'register-simple' && (
-          <CleanRegistration />
+          <>
+            <RegisterFormSimple 
+              onRegister={handleRegister}
+              onSwitchToLogin={() => setAuthView('login')}
+            />
+            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
+          </>
         )}
         
-        {/* Multi-step Registration Modals */}
-        <CompanyProfileModal 
-          userData={registrationUserData}
-          onComplete={handleCompanyProfileComplete}
-          onSkip={handleCompanyProfileSkip}
-          isOpen={showCompanyProfileModal}
-        />
-        
-        <PackageSelectionModal 
-          userData={registrationUserData}
-          onComplete={handlePackageSelectionComplete}
-          onSkip={handlePackageSelectionSkip}
-          isOpen={showPackageSelectionModal}
-        />
+
       </div>
     )
   }
@@ -1146,22 +1133,8 @@ function App() {
               <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-yellow-800 text-sm">
                   <strong>Hinweis:</strong> Vervollständigen Sie Ihr Profil für bessere Kampagnenvorschläge.
-                  {!currentUser?.company && (
-                    <button 
-                      onClick={() => setShowCompanyProfileModal(true)}
-                      className="ml-2 text-yellow-600 hover:text-yellow-700 underline"
-                    >
-                      Firmenprofil vervollständigen
-                    </button>
-                  )}
-                  {!currentUser?.plan && (
-                    <button 
-                      onClick={() => setShowPackageSelectionModal(true)}
-                      className="ml-2 text-yellow-600 hover:text-yellow-700 underline"
-                    >
-                      Plan auswählen
-                    </button>
-                  )}
+
+
                 </p>
               </div>
             )}
@@ -1425,20 +1398,7 @@ function App() {
         </div>
       )}
       
-      {/* Multi-step Registration Modals - Always available */}
-      <CompanyProfileModal 
-        userData={registrationUserData}
-        onComplete={handleCompanyProfileComplete}
-        onSkip={handleCompanyProfileSkip}
-        isOpen={showCompanyProfileModal}
-      />
-      
-      <PackageSelectionModal 
-        userData={registrationUserData}
-        onComplete={handlePackageSelectionComplete}
-        onSkip={handlePackageSelectionSkip}
-        isOpen={showPackageSelectionModal}
-      />
+
       
       {/* Campaign Wizard */}
       {showCampaignWizard && (
@@ -1554,6 +1514,14 @@ function App() {
           <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
         </>
       )}
+
+      {/* Company Profile Modal */}
+      <CompanyProfileModal
+        userData={registrationUserData}
+        isOpen={showCompanyProfileModal}
+        onComplete={handleCompanyProfileComplete}
+        onSkip={handleCompanyProfileSkip}
+      />
     </div>
   )
 }
