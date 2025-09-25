@@ -50,7 +50,7 @@ import heroWizard from './assets/hero-wizard.png'
 import CampaignWizard from './components/Campaign/CampaignWizard'
 import LoginForm from './components/Auth/LoginForm'
 import RegisterForm from './components/Auth/RegisterForm'
-import RegisterFormSimple from './components/Auth/RegisterFormSimple'
+import TwoStepRegistration from './components/Auth/TwoStepRegistration'
 import AdminDashboard from './components/Admin/AdminDashboard'
 import CampaignAdminDashboard from './components/Admin/CampaignAdminDashboard'
 import AboutPage from './components/Pages/AboutPage'
@@ -85,27 +85,20 @@ function App() {
   const [showCompanyProfileModal, setShowCompanyProfileModal] = useState(false)
   const [registrationUserData, setRegistrationUserData] = useState(null)
 
-  // Load session from localStorage on app start
+  // Load session from localStorage on app start - FIXED: No auto-login
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser')
-    const savedView = localStorage.getItem('currentView')
-    const savedAuth = localStorage.getItem('isAuthenticated')
+    // Clear any existing sessions to ensure clean start
+    localStorage.removeItem('currentUser')
+    localStorage.removeItem('currentView')
+    localStorage.removeItem('isAuthenticated')
     
-    if (savedUser && savedAuth === 'true') {
-      try {
-        const userData = JSON.parse(savedUser)
-        setCurrentUser(userData)
-        setIsAuthenticated(true)
-        setCurrentView(savedView || 'dashboard')
-        console.log('Session restored:', userData)
-      } catch (error) {
-        console.error('Error parsing saved user data:', error)
-        // Clear corrupted data
-        localStorage.removeItem('currentUser')
-        localStorage.removeItem('currentView')
-        localStorage.removeItem('isAuthenticated')
-      }
-    }
+    // Start with clean, non-authenticated state
+    setCurrentUser(null)
+    setIsAuthenticated(false)
+    setCurrentView('home')
+    setAuthView(null)
+    
+    console.log('App started with clean state - no auto-login')
   }, [])
   
 
@@ -138,18 +131,9 @@ function App() {
 
   const handleRegister = (userData) => {
     console.log('handleRegister called with:', userData)
-    // Check if user needs to complete company profile
-    if (userData.registrationStep === 'company_profile') {
-      console.log('Showing company profile modal')
-      // Show company profile modal
-      setRegistrationUserData(userData)
-      setShowCompanyProfileModal(true)
-    } else {
-      console.log('Registration complete, going to login')
-      // Registration complete - show success message and go to login
-      showMessage('success', 'Registrierung erfolgreich! Bitte melden Sie sich jetzt an.')
-      setAuthView('login')
-    }
+    // Registration complete - show success message and go to login
+    showMessage('success', 'Registrierung erfolgreich abgeschlossen! Sie können sich jetzt anmelden.')
+    setAuthView('login')
   }
 
   const handleCompanyProfileComplete = (companyData) => {
@@ -706,11 +690,10 @@ function App() {
         )}
         {authView === 'register-simple' && (
           <>
-            <RegisterFormSimple 
+            <TwoStepRegistration 
               onRegister={handleRegister}
               onSwitchToLogin={() => setAuthView('login')}
             />
-            <Footer onNavigate={setCurrentView} setAuthView={setAuthView} />
           </>
         )}
         
