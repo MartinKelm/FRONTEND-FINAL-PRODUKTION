@@ -677,8 +677,8 @@ function App() {
         {authView === 'register-simple' && (
           <>
             <TwoStepRegistrationAPI 
-              onRegister={handleRegister}
-              onSwitchToLogin={() => setAuthView('login')}
+              onSuccess={handleRegister}
+              onCancel={() => setAuthView(null)}
             />
           </>
         )}
