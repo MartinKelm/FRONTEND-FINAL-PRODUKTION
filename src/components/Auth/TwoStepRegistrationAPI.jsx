@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
-import Logo from '../../../assets/Logo-socialmediakampagnen-voll.png';
+import React, { useState } from 'react'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card'
+import { Eye, EyeOff, ArrowLeft, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react'
+import apiService from '../../services/api'
+import FullLogo from '../../assets/Logo-socialmediakampagnen-voll.png'
 
-const TwoStepRegistrationAPI = ({ onClose, onSuccess }) => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-  
-  // Form data state
+const TwoStepRegistrationAPI = ({ onSuccess, onCancel }) => {
+  const [currentStep, setCurrentStep] = useState(1)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+
+  // Form data for both steps
   const [formData, setFormData] = useState({
-    // Step 1 - Basic Information
+    // Step 1: Basic information
     firstName: '',
     lastName: '',
     email: '',
@@ -16,7 +24,7 @@ const TwoStepRegistrationAPI = ({ onClose, onSuccess }) => {
     confirmPassword: '',
     acceptTerms: false,
     
-    // Step 2 - Company Information
+    // Step 2: Company information
     companyName: '',
     industry: '',
     website: '',
@@ -24,529 +32,449 @@ const TwoStepRegistrationAPI = ({ onClose, onSuccess }) => {
     address: '',
     postalCode: '',
     city: ''
-  });
-
-  // Handle input changes
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-    
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  // Validation functions
-  const validateStep1 = () => {
-    const newErrors = {};
-    
-    if (!formData.firstName.trim()) {
-      newErrors.firstName = 'Vorname ist erforderlich';
-    }
-    
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Nachname ist erforderlich';
-    }
-    
-    if (!formData.email.trim()) {
-      newErrors.email = 'E-Mail ist erforderlich';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Ungültige E-Mail-Adresse';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'Passwort ist erforderlich';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Passwort muss mindestens 6 Zeichen lang sein';
-    }
-    
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwort-Bestätigung ist erforderlich';
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwörter stimmen nicht überein';
-    }
-    
-    if (!formData.acceptTerms) {
-      newErrors.acceptTerms = 'Sie müssen die AGB akzeptieren';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validateStep2 = () => {
-    const newErrors = {};
-    
-    if (!formData.companyName.trim()) {
-      newErrors.companyName = 'Firmenname ist erforderlich';
-    }
-    
-    if (!formData.industry) {
-      newErrors.industry = 'Branche ist erforderlich';
-    }
-    
-    if (!formData.phone.trim()) {
-      newErrors.phone = 'Telefon ist erforderlich';
-    }
-    
-    if (!formData.address.trim()) {
-      newErrors.address = 'Adresse ist erforderlich';
-    }
-    
-    if (!formData.postalCode.trim()) {
-      newErrors.postalCode = 'PLZ ist erforderlich';
-    }
-    
-    if (!formData.city.trim()) {
-      newErrors.city = 'Stadt ist erforderlich';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  // Handle step navigation
-  const handleNextStep = () => {
-    if (validateStep1()) {
-      setCurrentStep(2);
-    }
-  };
-
-  const handlePrevStep = () => {
-    setCurrentStep(1);
-    setErrors({});
-  };
-
-  // Handle registration submission
-  const handleSubmit = async () => {
-    if (!validateStep2()) {
-      return;
-    }
-
-    setLoading(true);
-    setErrors({});
-
-    try {
-      const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://backend.socialmediakampagnen.com/api';
-      
-      const registrationData = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-        companyName: formData.companyName,
-        industry: formData.industry,
-        website: formData.website || '',
-        phone: formData.phone,
-        address: formData.address,
-        postalCode: formData.postalCode,
-        city: formData.city
-      };
-
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(registrationData),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Registration successful
-        if (onSuccess) {
-          onSuccess(data);
-        }
-        // Show success message and redirect to login
-        alert('Registrierung erfolgreich! Sie werden zur Anmeldung weitergeleitet.');
-        if (onClose) {
-          onClose();
-        }
-      } else {
-        // Handle API errors
-        if (data.errors) {
-          setErrors(data.errors);
-        } else {
-          setErrors({ general: data.message || 'Registrierung fehlgeschlagen' });
-        }
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      setErrors({ general: 'Netzwerkfehler. Bitte versuchen Sie es erneut.' });
-    } finally {
-      setLoading(false);
-    }
-  };
+  })
 
   // Industry options
-  const industryOptions = [
-    { value: '', label: 'Bitte wählen...' },
-    { value: 'technology', label: 'Technologie & Software' },
-    { value: 'marketing', label: 'Marketing & Services' },
-    { value: 'finance', label: 'Finanzdienstleistungen' },
-    { value: 'healthcare', label: 'Gesundheitswesen' },
-    { value: 'education', label: 'Bildung & Training' },
-    { value: 'retail', label: 'Einzelhandel & E-Commerce' },
-    { value: 'manufacturing', label: 'Produktion & Fertigung' },
-    { value: 'consulting', label: 'Beratung & Services' },
-    { value: 'other', label: 'Sonstiges' }
-  ];
+  const industries = [
+    'Technologie & Software',
+    'E-Commerce & Handel',
+    'Marketing & Werbung',
+    'Gesundheitswesen',
+    'Bildung & Training',
+    'Finanzdienstleistungen',
+    'Immobilien',
+    'Gastronomie & Tourismus',
+    'Automotive',
+    'Beratung & Services',
+    'Produktion & Fertigung',
+    'Sonstiges'
+  ]
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+    setError('')
+  }
+
+  const validateStep1 = () => {
+    const errors = []
+    
+    if (!formData.firstName.trim()) errors.push('Vorname ist erforderlich')
+    if (!formData.lastName.trim()) errors.push('Nachname ist erforderlich')
+    if (!formData.email.trim()) errors.push('E-Mail ist erforderlich')
+    if (!formData.password) errors.push('Passwort ist erforderlich')
+    if (!formData.confirmPassword) errors.push('Passwort-Bestätigung ist erforderlich')
+    if (formData.password !== formData.confirmPassword) errors.push('Passwörter stimmen nicht überein')
+    if (!formData.acceptTerms) errors.push('AGB müssen akzeptiert werden')
+    
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (formData.email && !emailRegex.test(formData.email)) {
+      errors.push('Ungültige E-Mail-Adresse')
+    }
+    
+    // Password validation
+    if (formData.password && formData.password.length < 8) {
+      errors.push('Passwort muss mindestens 8 Zeichen lang sein')
+    }
+    
+    return errors
+  }
+
+  const validateStep2 = () => {
+    const errors = []
+    
+    if (!formData.companyName.trim()) errors.push('Firmenname ist erforderlich')
+    if (!formData.industry) errors.push('Branche ist erforderlich')
+    if (!formData.phone.trim()) errors.push('Telefon ist erforderlich')
+    if (!formData.address.trim()) errors.push('Adresse ist erforderlich')
+    if (!formData.postalCode.trim()) errors.push('PLZ ist erforderlich')
+    if (!formData.city.trim()) errors.push('Stadt ist erforderlich')
+    
+    // Phone validation
+    const phoneRegex = /^[\+]?[0-9\s\-\(\)]{7,20}$/
+    if (formData.phone && !phoneRegex.test(formData.phone)) {
+      errors.push('Ungültiges Telefonnummer-Format')
+    }
+    
+    // Postal code validation (German format)
+    const postalCodeRegex = /^[0-9]{5}$/
+    if (formData.postalCode && !postalCodeRegex.test(formData.postalCode)) {
+      errors.push('PLZ muss 5 Ziffern enthalten')
+    }
+    
+    return errors
+  }
+
+  const handleNextStep = () => {
+    const errors = validateStep1()
+    if (errors.length > 0) {
+      setError(errors.join(', '))
+      return
+    }
+    
+    setCurrentStep(2)
+    setError('')
+  }
+
+  const handlePreviousStep = () => {
+    setCurrentStep(1)
+    setError('')
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    const errors = validateStep2()
+    if (errors.length > 0) {
+      setError(errors.join(', '))
+      return
+    }
+
+    setIsLoading(true)
+    setError('')
+
+    try {
+      // Prepare data for API
+      const registrationData = {
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+        companyName: formData.companyName.trim(),
+        industry: formData.industry,
+        website: formData.website.trim() || undefined,
+        phone: formData.phone.trim(),
+        address: formData.address.trim(),
+        postalCode: formData.postalCode.trim(),
+        city: formData.city.trim()
+      }
+
+      // Call API
+      const response = await apiService.register(registrationData)
+
+      if (response.success) {
+        // Registration successful
+        if (onSuccess) {
+          onSuccess({
+            message: 'Registrierung erfolgreich abgeschlossen! Sie können sich jetzt anmelden.',
+            user: response.data.user
+          })
+        }
+      } else {
+        setError(response.message || 'Registrierung fehlgeschlagen')
+      }
+
+    } catch (error) {
+      console.error('Registration error:', error)
+      setError(error.message || 'Ein Fehler ist bei der Registrierung aufgetreten')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
         {/* Logo Section */}
-        <div className="text-center py-6 border-b border-gray-200">
+        <div className="text-center mb-8">
           <img 
-            src={Logo} 
-            alt="Social Media Kampagnen Logo" 
-            className="h-12 mx-auto mb-2"
+            src={FullLogo} 
+            alt="socialmediakampagnen.com Logo" 
+            className="h-16 w-auto mx-auto mb-4 drop-shadow-lg"
           />
         </div>
 
-        {/* Registration Form */}
-        <div className="p-6">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Registrierung</h2>
-            <p className="text-gray-600">
-              Schritt {currentStep} von 2: {currentStep === 1 ? 'Grundlegende Informationen' : 'Firmeninformationen'}
-            </p>
-          </div>
-
+        {/* Registration Card */}
+        <Card className="w-full bg-white/95 backdrop-blur-sm shadow-2xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold text-gray-900">
+            Registrierung
+          </CardTitle>
+          <CardDescription className="text-gray-600">
+            Schritt {currentStep} von 2: {currentStep === 1 ? 'Grundlegende Informationen' : 'Firmeninformationen'}
+          </CardDescription>
+          
           {/* Progress Bar */}
-          <div className="mb-6">
-            <div className="flex items-center">
-              <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-purple-600 to-pink-600 transition-all duration-300"
-                  style={{ width: `${(currentStep / 2) * 100}%` }}
-                ></div>
-              </div>
-            </div>
+          <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+            <div 
+              className="bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${(currentStep / 2) * 100}%` }}
+            ></div>
           </div>
+        </CardHeader>
 
-          {/* General Error */}
-          {errors.general && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {errors.general}
-            </div>
-          )}
-
-          {/* Step 1: Basic Information */}
-          {currentStep === 1 && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Vorname *
-                  </label>
-                  <input
-                    type="text"
-                    name="firstName"
-                    value={formData.firstName}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      errors.firstName ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="Ihr Vorname"
-                  />
-                  {errors.firstName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Nachname *
-                  </label>
-                  <input
-                    type="text"
-                    name="lastName"
-                    value={formData.lastName}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      errors.lastName ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="Ihr Nachname"
-                  />
-                  {errors.lastName && (
-                    <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  E-Mail-Adresse *
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.email ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="ihre@email.de"
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Passwort *
-                </label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.password ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Mindestens 6 Zeichen"
-                />
-                {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Passwort bestätigen *
-                </label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Passwort wiederholen"
-                />
-                {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-                )}
-              </div>
-
-              <div className="flex items-start">
-                <input
-                  type="checkbox"
-                  name="acceptTerms"
-                  checked={formData.acceptTerms}
-                  onChange={handleInputChange}
-                  className="mt-1 mr-2"
-                />
-                <label className="text-sm text-gray-600">
-                  Ich akzeptiere die{' '}
-                  <a href="/agb" className="text-purple-600 hover:underline">
-                    Allgemeinen Geschäftsbedingungen
-                  </a>{' '}
-                  und die{' '}
-                  <a href="/datenschutz" className="text-purple-600 hover:underline">
-                    Datenschutzerklärung
-                  </a>
-                  *
-                </label>
-              </div>
-              {errors.acceptTerms && (
-                <p className="text-red-500 text-sm">{errors.acceptTerms}</p>
-              )}
-            </div>
-          )}
-
-          {/* Step 2: Company Information */}
-          {currentStep === 2 && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Firmenname *
-                </label>
-                <input
-                  type="text"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.companyName ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Ihr Firmenname"
-                />
-                {errors.companyName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Branche *
-                </label>
-                <select
-                  name="industry"
-                  value={formData.industry}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.industry ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                >
-                  {industryOptions.map(option => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.industry && (
-                  <p className="text-red-500 text-sm mt-1">{errors.industry}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Website
-                </label>
-                <input
-                  type="url"
-                  name="website"
-                  value={formData.website}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="https://ihre-website.de"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Telefon *
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.phone ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="+49 30 12345678"
-                />
-                {errors.phone && (
-                  <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Adresse *
-                </label>
-                <input
-                  type="text"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                    errors.address ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Straße und Hausnummer"
-                />
-                {errors.address && (
-                  <p className="text-red-500 text-sm mt-1">{errors.address}</p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    PLZ *
-                  </label>
-                  <input
-                    type="text"
-                    name="postalCode"
-                    value={formData.postalCode}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      errors.postalCode ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="12345"
-                  />
-                  {errors.postalCode && (
-                    <p className="text-red-500 text-sm mt-1">{errors.postalCode}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Stadt *
-                  </label>
-                  <input
-                    type="text"
-                    name="city"
-                    value={formData.city}
-                    onChange={handleInputChange}
-                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                      errors.city ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    placeholder="Ihre Stadt"
-                  />
-                  {errors.city && (
-                    <p className="text-red-500 text-sm mt-1">{errors.city}</p>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Action Buttons */}
-          <div className="flex justify-between mt-6 pt-4 border-t border-gray-200">
-            {currentStep === 1 ? (
+        <CardContent>
+          <form onSubmit={currentStep === 1 ? (e) => { e.preventDefault(); handleNextStep(); } : handleSubmit} className="space-y-4">
+            
+            {/* Step 1: Basic Information */}
+            {currentStep === 1 && (
               <>
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  Abbrechen
-                </button>
-                <button
-                  type="button"
-                  onClick={handleNextStep}
-                  className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-md hover:from-purple-700 hover:to-pink-700 transition-colors"
-                >
-                  Weiter zu Firmeninformationen
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={handlePrevStep}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-                >
-                  Zurück
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Wird registriert...' : 'Registrierung abschließen'}
-                </button>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="firstName">Vorname *</Label>
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder="Max"
+                      value={formData.firstName}
+                      onChange={(e) => handleInputChange('firstName', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="lastName">Nachname *</Label>
+                    <Input
+                      id="lastName"
+                      type="text"
+                      placeholder="Mustermann"
+                      value={formData.lastName}
+                      onChange={(e) => handleInputChange('lastName', e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="email">E-Mail-Adresse *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="max@unternehmen.de"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="password">Passwort *</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Mindestens 8 Zeichen"
+                      value={formData.password}
+                      onChange={(e) => handleInputChange('password', e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="confirmPassword">Passwort bestätigen *</Label>
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? "text" : "password"}
+                      placeholder="Passwort wiederholen"
+                      value={formData.confirmPassword}
+                      onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                      required
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="acceptTerms"
+                    checked={formData.acceptTerms}
+                    onChange={(e) => handleInputChange('acceptTerms', e.target.checked)}
+                    className="rounded border-gray-300"
+                    required
+                  />
+                  <Label htmlFor="acceptTerms" className="text-sm">
+                    Ich akzeptiere die <a href="/agb" className="text-purple-600 hover:underline">AGB</a> und <a href="/datenschutz" className="text-purple-600 hover:underline">Datenschutzerklärung</a> *
+                  </Label>
+                </div>
               </>
             )}
-          </div>
-        </div>
+
+            {/* Step 2: Company Information */}
+            {currentStep === 2 && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Firmenname *</Label>
+                  <Input
+                    id="companyName"
+                    type="text"
+                    placeholder="Mustermann GmbH"
+                    value={formData.companyName}
+                    onChange={(e) => handleInputChange('companyName', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="industry">Branche *</Label>
+                  <select
+                    id="industry"
+                    value={formData.industry}
+                    onChange={(e) => handleInputChange('industry', e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    required
+                  >
+                    <option value="">Branche auswählen</option>
+                    {industries.map((industry) => (
+                      <option key={industry} value={industry}>
+                        {industry}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website</Label>
+                  <Input
+                    id="website"
+                    type="url"
+                    placeholder="https://www.unternehmen.de"
+                    value={formData.website}
+                    onChange={(e) => handleInputChange('website', e.target.value)}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Telefon *</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+49 30 12345678"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="address">Adresse *</Label>
+                  <Input
+                    id="address"
+                    type="text"
+                    placeholder="Musterstraße 123"
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="postalCode">PLZ *</Label>
+                    <Input
+                      id="postalCode"
+                      type="text"
+                      placeholder="12345"
+                      value={formData.postalCode}
+                      onChange={(e) => handleInputChange('postalCode', e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="city">Stadt *</Label>
+                    <Input
+                      id="city"
+                      type="text"
+                      placeholder="Berlin"
+                      value={formData.city}
+                      onChange={(e) => handleInputChange('city', e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-3 rounded-md">
+                <AlertCircle className="h-4 w-4" />
+                <span className="text-sm">{error}</span>
+              </div>
+            )}
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between pt-4">
+              {currentStep === 1 ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  className="flex items-center space-x-2"
+                >
+                  <span>Abbrechen</span>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePreviousStep}
+                  className="flex items-center space-x-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span>Zurück</span>
+                </Button>
+              )}
+
+              {currentStep === 1 ? (
+                <Button
+                  type="submit"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 flex items-center space-x-2"
+                >
+                  <span>Weiter zu Firmeninformationen</span>
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 flex items-center space-x-2"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Registrierung läuft...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Registrierung abschließen</span>
+                    </>
+                  )}
+                </Button>
+              )}
+            </div>
+          </form>
+        </CardContent>
+        </Card>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default TwoStepRegistrationAPI;
+export default TwoStepRegistrationAPI
